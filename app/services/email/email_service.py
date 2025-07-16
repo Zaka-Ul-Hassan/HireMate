@@ -5,7 +5,11 @@ import re
 from typing import List
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from imap_tools import MailBox
+
 from app.utils.smtp_config import SMTP_CONFIG
+from app.utils.imap_config import IMAP_CONFIG
+
 
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
@@ -44,3 +48,28 @@ def send_email(to_email: List[str], subject: str, body: str):
     except Exception as e:
         # Let ValueErrors bubble up, only catch actual runtime errors here
         raise Exception(f"Failed to send email: {str(e)}")
+
+
+def fetch_all_emails():
+    messages = []
+
+    try:
+        with MailBox(IMAP_CONFIG["IMAP_SERVER"]).login(
+            IMAP_CONFIG["EMAIL"],
+            IMAP_CONFIG["PASSWORD"],
+            initial_folder="INBOX"
+        ) as mailbox:
+
+            for msg in mailbox.fetch():  # All emails in INBOX
+                messages.append({
+                    "from": msg.from_,
+                    "subject": msg.subject,
+                    "date": msg.date.isoformat() if msg.date else None,
+                    "text": msg.text or "",
+                    "html": msg.html or "",
+                })
+
+    except Exception as e:
+        return {"error": str(e)}
+
+    return messages

@@ -1,0 +1,49 @@
+<!-- frontend\templates\email\compose_email.html -->
+
+{% extends "shared/base.html" %}
+
+{% block title %}Compose Email {% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/email/compose_email.css">
+{% endblock %}
+
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center pt-5">
+    <div class="compose-email-box p-4 shadow rounded bg-white">
+        <h3 class="mb-4 text-center">Compose Email</h3>
+        <form id="composeForm" method="post" action="/email/send" style="min-width: 400px;">
+
+            <div class="mb-3">
+                <label for="to" class="form-label">To</label>
+                <input type="text" id="to" class="form-control" name="to"
+                    placeholder="e.g. user@example.com, user1@gmail.com">
+                <span id="email_error" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject">
+                <span id="subject_error" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="body" class="form-label">Message</label>
+                <textarea class="form-control" id="body" name="body" rows="6"></textarea>
+                <span id="body_error" class="text-danger small"></span>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success px-4">Send</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock%}
+
+
+{% block extra_js %}
+<script src="/static/js/email/compose_email.js"></script>
+{% endblock %}

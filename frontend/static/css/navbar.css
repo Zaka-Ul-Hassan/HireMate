@@ -1,24 +1,35 @@
-.navbar {
-    margin-left: 251px;
-    margin-right: 14px;
+/* frontend\static\css\navbar.css */
 
+.navbar {
+  margin-left: 251px;
+  margin-right: 14px;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: white !important;
+}
+
+.bg-primary-custom {
+  background-color: var(--primary) !important;
 }
 
 .stylish-brand {
-  font-family: 'Georgia', serif; /* or try 'Cursive', 'Playfair Display' */
+  font-family: 'Georgia', serif;
   font-size: 1.75rem;
   font-weight: 500;
   letter-spacing: 0.5px;
-  color: #343a40; /* Bootstrap dark */
+  color: white;
   text-transform: capitalize;
   transition: all 0.3s ease-in-out;
 }
 
 .stylish-brand:hover {
-  color: #0d6efd; /* Bootstrap primary on hover */
+  color: #a8c4ff;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 .navbarContent {
   margin-right: 200px;
 }
+
