@@ -1,0 +1,71 @@
+:root {
+  --primary: #2B5DA9;
+  --accent: #7F5AF0;
+  --success: #3FC1C9;
+  --danger: #EF4444;
+  --bg: #F9FAFB;
+  --card-bg: #FFFFFF;
+  --text-dark: #1F2937;
+  --text-light: #6B7280;
+}
+
+/* Global Body Style */
+body {
+  background-color: var(--bg);
+  color: var(--text-dark);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+
+.btn-primary:hover {
+  background-color: #234b8c; /* darker shade */
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  color: white;
+}
+
+.btn-accent:hover {
+  background-color: #6841c5;
+}
+
+/* Text Helpers */
+.text-dark-custom {
+  color: var(--text-dark) !important;
+}
+.text-light-custom {
+  color: var(--text-light) !important;
+}
+
+/* Background Helpers */
+.bg-primary-custom {
+  background-color: var(--primary) !important;
+}
+.bg-accent {
+  background-color: var(--accent) !important;
+}
+.bg-success-custom {
+  background-color: var(--success) !important;
+}
+.bg-light-custom {
+  background-color: var(--bg) !important;
+}
+.bg-card {
+  background-color: var(--card-bg) !important;
+}
+
+/* Card Shadow */
+.card-custom {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+

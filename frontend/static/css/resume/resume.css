@@ -1,0 +1,90 @@
+/* frontend/static/css/resume/resume.css */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrollbars from layout shifts */
+        }
+
+        /* Custom styles for the sidebar's curved bottom */
+        .sidebar-curve {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Blue to Purple gradient */
+            border-bottom-right-radius: 50% 20%; /* Adjust for desired curve */
+            border-top-right-radius: 0;
+            overflow: hidden;
+            padding-bottom: 20px; /* Space for the curve effect */
+        }
+
+        /* Go back to profile button */
+        .btn-profile {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        .btn-profile:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Choose File Type button */
+        .btn-choose-file {
+            background-color: #667eea; /* A shade of blue */
+            color: white;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .btn-choose-file:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Drop Your Files button */
+        .btn-drop-file {
+            background-color: #48bb78; /* A shade of green */
+            color: white;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .btn-drop-file:hover {
+            background-color: #38a169;
+        }
+
+        /* Upload button */
+        .btn-upload {
+            background-color: #f687b3; /* A shade of pink */
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1rem 2.5rem; /* py-4 px-10 */
+            box-shadow: 0 4px 10px rgba(246, 135, 179, 0.4); /* Pink shadow */
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-upload:hover {
+            background-color: #ed64a6; /* Darker pink */
+            box-shadow: 0 6px 15px rgba(246, 135, 179, 0.6);
+        }
+
+        /* File type box background */
+        .file-box-bg {
+            background-color: #e0f2fe; /* Light blue-100 */
+        }
+
+        /* Close button */
+        .btn-close-x {
+            background-color: #ef4444; /* Red-500 */
+            color: white;
+            border-radius: 9999px; /* Full rounded */
+            width: 32px; /* w-8 */
+            height: 32px; /* h-8 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+        .btn-close-x:hover {
+            background-color: #dc2626; /* Red-600 */
+        }

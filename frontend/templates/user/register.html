@@ -1,0 +1,113 @@
+<!-- frontend\templates\user\register.html -->
+
+{% extends 'shared/base.html' %}
+
+{% block title %}Register | HireMate{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h2 class="mb-4 text-center">Create an Account</h2>
+
+                    <form id="registerForm" method="post" enctype="multipart/form-data" class="row g-4 needs-validation"
+                        novalidate>
+
+                        <div class="col-md-4">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            <span class="text-danger" id="first_name_error"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="middle_name" class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="middle_name" name="middle_name">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age" name="age" required>
+                            <span class="text-danger" id="age_error"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select name="gender" id="gender" class="form-select" required>
+                                <option selected disabled value="">Choose...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="text-danger" id="gender_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="dob" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="dob" name="dob" required>
+                            <span class="text-danger" id="dob_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                            <span class="text-danger" id="address_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" required>
+                            <span class="text-danger" id="country_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" required>
+                            <span class="text-danger" id="phone_number_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" id="email" required>
+                            <span class="text-danger" id="email_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <span class="text-danger" id="password_error"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="image" class="form-label" >Profile Image</label>
+                            <input type="file" class="form-control" name="image" id="image"  accept="image/png, image/jpeg, image/jpg, image/webp">
+                        </div>
+
+                        <div class="col-12 text-center mt-4">
+                            <button class="btn btn-primary px-5" type="submit">Register</button>
+                        </div>
+
+                    </form>
+                    <p class="text-muted">
+                        Already have an account?
+                        <a href="/" class="ms-1 fw-bold text-decoration-none">
+                            <i class="bi bi-box-arrow-in-right"></i> Log In
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/user/register.js"></script>
+{% endblock %}

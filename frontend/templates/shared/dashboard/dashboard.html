@@ -1,0 +1,53 @@
+<!-- frontend\templates\shared\dashboard\dashboard.html -->
+ 
+{% extends "shared/base.html" %}
+
+{% block title %}Dashboard | School App{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/dashboard/dashboard.css') }}">
+{% endblock %}
+
+
+{% block content %}
+
+      <!-- Include Sidebar -->
+      {% include 'shared/sidebar.html' %}
+
+<!-- Dashboard Summary Cards -->
+<main id="main" class="container-fluid main w-70">
+  <section class="container mt-5">
+    <div class="row gy-4">
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm p-3">
+          <h5>Total Jobs</h5>
+          <p class="display-6 fw-bold text-primary">24</p>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm p-3">
+          <h5>Applicants</h5>
+          <p class="display-6 fw-bold text-success">135</p>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm p-3">
+          <h5>Interviews</h5>
+          <p class="display-6 fw-bold text-warning">18</p>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm p-3">
+          <h5>Hired</h5>
+          <p class="display-6 fw-bold text-info">7</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+{% endblock %}

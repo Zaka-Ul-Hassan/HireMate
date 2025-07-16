@@ -1,0 +1,212 @@
+/* frontend\static\css\dashboard\dashboard.css */
+
+/* Sidebar container */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1000;
+}
+
+/* Burger toggle button */
+.toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.burger {
+  display: inline-block;
+  width: 30px;
+  height: 20px;
+  position: relative;
+}
+.burger span,
+.burger span::before,
+.burger span::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background: #333;
+  border-radius: 3px;
+  position: absolute;
+  width: 100%;
+  transition: 0.3s;
+}
+.burger span::before {
+  top: -8px;
+}
+.burger span::after {
+  top: 8px;
+}
+
+/* Sidebar inner content */
+.side-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Profile section */
+.profile {
+  text-align: center;
+}
+.profile img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+.profile .name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+.profile .country {
+  font-size: 14px;
+  color: #888;
+  margin-right: 10px;
+}
+
+/* Counter section */
+.counter {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+}
+.counter .col {
+  flex: 1;
+}
+.counter .number {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+}
+.counter .number-label {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Navigation menu */
+.nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.nav-menu li {
+  margin-bottom: 10px;
+}
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.3s;
+}
+.nav-menu li.active a,
+.nav-menu a:hover {
+  background: #f0f0f0;
+  color: #000;
+}
+
+/* Main content */
+main {
+  margin-left: 270px;
+  padding: 40px 20px;
+  background: #f9f9f9;
+  min-height: 100vh;
+}
+
+/* Responsive for small screens */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  main {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    font-family: "Public Sans", sans-serif;
+    text-transform: uppercase;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Ensures circular shape */
+    color: rgb(33, 43, 54);
+    background-color: rgb(255, 193, 7); /* Bootstrap primary color */
+    margin-left: 74px;
+}
+.sidebar-menu {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.menu-item {
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  background-color: #f1fdf6;
+  border-radius: 6px;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #198754;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-link:hover {
+  color: #146c43;
+}
+
+.menu-arrow {
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+.submenu {
+  list-style: none;
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.submenu-link {
+  display: block;
+  padding: 6px 0;
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.submenu-link:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.active-dot::before {
+  content: "•";
+  color: #28a745;
+  margin-right: 5px;
+}
+

@@ -1,0 +1,12 @@
+from app.models.model_base import Base
+from app.db import engine
+from app.models.user import User
+from app.models.role  import Role
+from app.models.user_role import UserRole
+
+def create_table():
+    Base.metadata.create_all(bind=engine)
+    print("Table created successfully.")
+
+if __name__ == "__main__":
+    create_table()  

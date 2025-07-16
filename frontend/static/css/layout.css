@@ -1,0 +1,37 @@
+/* layout.css */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Completely hide vertical scrollbar */
+    overflow-y: auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar styling */
+.sidebar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 250px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  z-index: 1020;
+}
+
+/* Main content adjusted to the right of the sidebar */
+.w-70 {
+  width: 70% !important;
+  margin: 0 auto;
+}
+
+.main-content {
+  padding: 1.5rem;
+  min-height: calc(100vh - 56px); /* Adjust if you have a fixed header/footer */
+}
+
+
+main p {
+    margin-right: 40px
+}
