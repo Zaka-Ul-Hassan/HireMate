@@ -1,0 +1,10 @@
+/* frontend\static\css\email\compose_email.css */
+
+  body {
+    padding-top: 80px;
+  }
+
+  .compose-email-box {
+    max-width: 600px;
+    width: 100%;
+  }
