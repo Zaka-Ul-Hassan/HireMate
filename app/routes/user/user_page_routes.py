@@ -59,7 +59,7 @@ async def upload_resume(request: Request):
         "hide_resume": False
         })
 
-@router.get("/compose-email", response_class=HTMLResponse)
+@router.get("/email/compose-email", response_class=HTMLResponse)
 async def compose_email(
     request:Request,
     current_user: User = Depends(get_current_user)
