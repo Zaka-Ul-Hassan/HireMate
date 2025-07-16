@@ -13,5 +13,5 @@ alembic>=1.11.0,<2.0.0              # Database migration tool for SQLAlchemy
 Jinja2>=3.0,<4.0                    # Template engine for rendering HTML pages
 python-multipart>0.0.4,<0.1.0       # Support for form-data and file uploads
 itsdangerous>=2.1,<3.0              # Secure token generation (e.g., password reset)
-
+imap-tools >=1.0,<2.0               # For email IMAP access
 
