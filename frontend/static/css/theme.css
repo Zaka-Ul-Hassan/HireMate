@@ -1,67 +1,115 @@
+/* frontend\static\css\theme.css */
+
 :root {
   --primary: #2B5DA9;
+  --primary-dark: #234b8c;
   --accent: #7F5AF0;
+  --accent-dark: #6841c5;
   --success: #3FC1C9;
+  --success-dark: #2fa3ad;
   --danger: #EF4444;
+  --danger-dark: #c23333;
+  --warning: #F59E0B;
+  --info: #0EA5E9;
+
   --bg: #F9FAFB;
+  --bg-dark: #F3F4F6;
+
   --card-bg: #FFFFFF;
+
   --text-dark: #1F2937;
   --text-light: #6B7280;
+  --text-muted: #9CA3AF;
+
+  --main-green: #5AC8A4;
+  --accent-green: #6FD2B6;
+  --ui-green: #6BD0B0;
+  --background-green: #79D6BB;
+
+  --primary-color: #1ea075;
+  --primary-color-dark: #157e5d;
 }
 
-/* Global Body Style */
+/* Global Body */
 body {
   background-color: var(--bg);
   color: var(--text-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Buttons */
+/* Button Variants */
 .btn-primary {
   background-color: var(--primary);
   border-color: var(--primary);
   color: white;
 }
-
-
 .btn-primary:hover {
-  background-color: #234b8c; /* darker shade */
+  background-color: var(--primary-dark);
 }
 
 .btn-accent {
   background-color: var(--accent);
   color: white;
 }
-
 .btn-accent:hover {
-  background-color: #6841c5;
+  background-color: var(--accent-dark);
 }
 
-/* Text Helpers */
-.text-dark-custom {
-  color: var(--text-dark) !important;
+.btn-success-custom {
+  background-color: var(--success);
+  color: white;
 }
-.text-light-custom {
-  color: var(--text-light) !important;
-}
-
-/* Background Helpers */
-.bg-primary-custom {
-  background-color: var(--primary) !important;
-}
-.bg-accent {
-  background-color: var(--accent) !important;
-}
-.bg-success-custom {
-  background-color: var(--success) !important;
-}
-.bg-light-custom {
-  background-color: var(--bg) !important;
-}
-.bg-card {
-  background-color: var(--card-bg) !important;
+.btn-success-custom:hover {
+  background-color: var(--success-dark);
 }
 
-/* Card Shadow */
+.btn-danger-custom {
+  background-color: var(--danger);
+  color: white;
+}
+.btn-danger-custom:hover {
+  background-color: var(--danger-dark);
+}
+
+.btn-outline-primary-custom {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+.btn-outline-primary-custom:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Text Colors */
+.text-dark-custom { color: var(--text-dark) !important; }
+.text-light-custom { color: var(--text-light) !important; }
+.text-muted-custom { color: var(--text-muted) !important; }
+.text-primary-custom { color: var(--primary) !important; }
+.text-accent { color: var(--accent) !important; }
+.text-success-custom { color: var(--success) !important; }
+.text-danger-custom { color: var(--danger) !important; }
+.text-warning-custom { color: var(--warning) !important; }
+.text-info-custom { color: var(--info) !important; }
+
+/* Background Colors */
+.bg-primary-custom { background-color: var(--primary) !important; }
+.bg-primary-dark { background-color: var(--primary-dark) !important; }
+.bg-accent { background-color: var(--accent) !important; }
+.bg-success-custom { background-color: var(--success) !important; }
+.bg-danger-custom { background-color: var(--danger) !important; }
+.bg-warning-custom { background-color: var(--warning) !important; }
+.bg-info-custom { background-color: var(--info) !important; }
+
+.bg-ui-green { background-color: var(--ui-green) !important; }
+.bg-accent-green { background-color: var(--accent-green) !important; }
+.bg-main-green { background-color: var(--main-green) !important; }
+
+.bg-light-custom { background-color: var(--bg) !important; }
+.bg-dark-custom { background-color: var(--bg-dark) !important; }
+.bg-card { background-color: var(--card-bg) !important; }
+
+/* Card */
 .card-custom {
   background: var(--card-bg);
   border-radius: 12px;
@@ -69,3 +117,21 @@ body {
   padding: 1.5rem;
 }
 
+/* Border Helpers */
+.border-primary-custom { border: 1px solid var(--primary) !important; }
+.border-accent { border: 1px solid var(--accent) !important; }
+.border-success-custom { border: 1px solid var(--success) !important; }
+.border-danger-custom { border: 1px solid var(--danger) !important; }
+
+/* Padding & Margin Helpers */
+.p-2rem { padding: 2rem !important; }
+.mt-2rem { margin-top: 2rem !important; }
+.mb-2rem { margin-bottom: 2rem !important; }
+
+/* Shadow Helpers */
+.shadow-soft {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.shadow-strong {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
