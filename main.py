@@ -1,10 +1,5 @@
 # main.py
 
-import webbrowser
-import threading
-import time
-
-
 from fastapi import FastAPI,Request,HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.user import user_routes
 from app.routes.email import email_route
 from app.routes.user import user_page_routes
+from app.services.scheduler.scheduler import start_email_scheduler
 
 app = FastAPI()
 
@@ -38,6 +34,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Starts the email fetch scheduler
+@app.on_event("startup")
+def on_startup():
+    start_email_scheduler()
+
+# @app.get("/")
+# def read_root():
+#     return {"message": "Email scheduler runing in background."}
 
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
