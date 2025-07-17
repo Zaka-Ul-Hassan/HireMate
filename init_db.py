@@ -1,6 +1,6 @@
 from app.models.base.model_base import Base
 from app.db import engine
-from app.models.user.user import User
+
 from app.models.user.role  import Role
 from app.models.user.user_role import UserRole
 

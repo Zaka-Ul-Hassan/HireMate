@@ -1,4 +1,5 @@
 # main.py
+
 from fastapi import FastAPI,Request,HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -38,6 +39,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     start_email_scheduler()
+
 
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
