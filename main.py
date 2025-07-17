@@ -40,9 +40,6 @@ app.add_middleware(
 def on_startup():
     start_email_scheduler()
 
-# @app.get("/")
-# def read_root():
-#     return {"message": "Email scheduler runing in background."}
 
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])

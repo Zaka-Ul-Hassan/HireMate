@@ -1,4 +1,4 @@
-#app\models\user\user.py
+# app\models\user\user.py
 
 from sqlalchemy import Column,Integer,String,Date
 from sqlalchemy.orm import relationship

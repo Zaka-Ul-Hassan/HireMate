@@ -1,4 +1,5 @@
 # app\models\user\role.py
+
 from sqlalchemy import Column,Integer,String
 from app.models.base.model_base import Base
 
