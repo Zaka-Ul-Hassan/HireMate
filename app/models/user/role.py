@@ -1,6 +1,6 @@
-# app.models.role.py
+# app\models\user\role.py
 from sqlalchemy import Column,Integer,String
-from app.models.model_base import Base
+from app.models.base.model_base import Base
 
 class Role(Base):
     __tablename__ = "Roles"

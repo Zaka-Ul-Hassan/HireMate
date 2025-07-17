@@ -4,7 +4,7 @@ from datetime import datetime
 import os,uuid
 
 
-from app.models.user import User
+from app.models.user.user import User
 from app.schemas.user.user_schema import RegisterUser
 from app.services.authentication.security import hash_password
 from app.utils.file_util import sav_upload_file

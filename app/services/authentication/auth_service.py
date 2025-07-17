@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException,status,Request
-from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 # from fastapi.security import OAuth2PasswordBearer
 
 
 from config_loader import get_jwt_settings
 from app.services.authentication.security import verify_password
-from app.models.user import User
+from app.models.user.user import User
 from app.services.user import user_service
 from app.db import get_db
 
