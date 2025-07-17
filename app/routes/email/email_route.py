@@ -20,8 +20,8 @@ def send_email_route(email: EmailSchema):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.post("/fetch-emails")
-def get_emails(limit=10):
+@router.get("/fetch-emails")
+def get_emails():
     try:
         result = fetch_all_emails()
 

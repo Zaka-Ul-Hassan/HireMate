@@ -1,0 +1,40 @@
+<!-- frontend\templates\email\email_inbox.html -->
+
+{% extends "shared/base.html" %}
+
+{% block title %}Email Inbox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/email/email_inbox.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="view-email-box mx-auto shadow rounded bg-white p-4">
+        <h3 class="mb-4 text-center">Inbox</h3>
+
+        {% for email in emails %}
+        <div class="border rounded p-3 mb-4">
+            <div class="mb-2">
+                <label class="form-label fw-bold">From</label>
+                <div class="form-control-plaintext">{{ email.from }}</div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-bold">Subject</label>
+                <div class="form-control-plaintext">{{ email.subject }}</div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-bold">Message</label>
+                <div class="email-body p-2 bg-light rounded" style="overflow: auto; max-height: 400px;">
+                    <iframe srcdoc="{{ email.html | replace('"', ' &quot;') | safe }}" width="100%" height="300"
+                        style="border:none;"></iframe>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
