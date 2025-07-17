@@ -1,0 +1,15 @@
+/* frontend/static/css/email/email_inbox.css */
+
+body {
+  padding-top: 80px;
+}
+
+.view-email-box {
+  max-width: 800px;
+  width: 100%;
+}
+
+.email-body {
+  max-height: 300px;
+  overflow-y: auto;
+}

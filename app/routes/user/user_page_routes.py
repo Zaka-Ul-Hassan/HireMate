@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse,RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.services.authentication.auth_service import get_current_user
+from app.services.email.email_service import fetch_all_emails
 from app.models.user import User
 
 templates = Jinja2Templates(directory="frontend/templates")
@@ -21,6 +22,7 @@ def show_login(request:Request):
         "hide_resume": True
     })
 
+
 @router.get("/register")
 def show_register_form(request:Request):
     return templates.TemplateResponse("user/register.html", {
@@ -33,6 +35,7 @@ def show_register_form(request:Request):
 
     })
 
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def show_dashboard(
     request: Request,
@@ -43,7 +46,6 @@ def show_dashboard(
         "user": current_user,
         "hide_resume": True
     })
-
 
 @router.get("/logout")
 def logout_user():
@@ -59,6 +61,7 @@ async def upload_resume(request: Request):
         "hide_resume": False
         })
 
+
 @router.get("/email/compose-email", response_class=HTMLResponse)
 async def compose_email(
     request:Request,
@@ -69,3 +72,16 @@ async def compose_email(
         "user" : current_user,
         "hide_resume": True
         })
+
+@router.get("/email/inbox", response_class=HTMLResponse)
+def email_inbox(request: Request,
+                current_user : User = Depends(get_current_user)
+                ):
+      
+      result = fetch_all_emails()
+      return templates.TemplateResponse("email/email_inbox.html", {
+        "request": request,
+        "hide_resume": True,
+        "user" : current_user,
+        "emails": result if isinstance(result, list) else []
+    })
