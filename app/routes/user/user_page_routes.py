@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.services.authentication.auth_service import get_current_user
 from app.services.email.email_service import fetch_all_emails
-from app.models.user import User
+from app.models.user.user import User
 
 templates = Jinja2Templates(directory="frontend/templates")
 

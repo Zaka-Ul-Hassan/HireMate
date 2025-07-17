@@ -9,7 +9,7 @@ from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 
 from config_loader import get_jwt_settings
 from app.services.authentication.security import verify_password
-from app.models.user import User
+from app.models.user.user import User
 from app.services.user import user_service
 from app.db import get_db
 

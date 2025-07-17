@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
 from app.schemas.user.user_schema import RegisterUser,LoginRequest,TokenResponse
-from app.models.user import User
+from app.models.user.user import User
 from app.services.user import user_service 
 from app.services.authentication import auth_service
 from app.db import get_db

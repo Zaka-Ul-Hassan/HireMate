@@ -1,4 +1,5 @@
-# app\models\audit_mixin.py
+# app\models\base_user_dto\audit_mixin.py
+
 from sqlalchemy import Column,DateTime,String,Boolean
 from datetime import datetime
 

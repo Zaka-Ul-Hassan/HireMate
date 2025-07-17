@@ -1,8 +1,9 @@
-# app.models.user.py
+# app\models\user\user.py
+
 from sqlalchemy import Column,Integer,String,Date
 from sqlalchemy.orm import relationship
-from app.models.model_base import Base
-from app.models.audit_mixin import AuditMixin
+from app.models.base.model_base import Base
+from app.models.base_user_dto.audit_mixin import AuditMixin
 
 class User(Base, AuditMixin):
     __tablename__ = "Users"

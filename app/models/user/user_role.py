@@ -1,6 +1,8 @@
+# app\models\user\user_role.py
+
 from sqlalchemy import Column,Integer,ForeignKey
 from sqlalchemy.orm import relationship
-from app.models.model_base import Base
+from app.models.base.model_base import Base
 
 class UserRole(Base):
     __tablename__ = "UerRoles"
