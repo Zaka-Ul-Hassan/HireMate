@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.email.email_schema import EmailSchema
-from app.services.email.email_service import send_email,fetch_all_emails
+from app.schemas.email.email_schema import EmailSchema,InboxEmail
+from app.services.email.email_service import send_email,fetch_all_emails,store_emails_in_db
 
 
 router = APIRouter()
@@ -32,3 +32,17 @@ def get_emails():
     
     except Exception as e:
         return {"success" : False, "message": f"An unexpected error occurred: {str(e)}"}
+    
+
+@router.post("/store-fetch-emails")
+def store_emails():
+    try:
+        result = store_emails_in_db()
+
+        if not result.get("success", False):
+            return {"success": False, "message": result.get("error", "Unknown error")}
+
+        return {"success": True, "emails": result.get("emails", [])}
+
+    except Exception as e:
+        return {"success": False, "message": f"An unexpected error occurred: {str(e)}"}

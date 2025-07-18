@@ -2,10 +2,14 @@
 from fastapi import APIRouter,Request,Depends,status
 from fastapi.responses import HTMLResponse,RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 
 from app.services.authentication.auth_service import get_current_user
 from app.services.email.email_service import fetch_all_emails
 from app.models.user.user import User
+from app.models.email.email_model import Email
+from app.schemas.email.email_schema import EmailSchema,InboxEmail
+from app.db import get_db
 
 templates = Jinja2Templates(directory="frontend/templates")
 
@@ -75,13 +79,14 @@ async def compose_email(
 
 @router.get("/email/inbox", response_class=HTMLResponse)
 def email_inbox(request: Request,
-                current_user : User = Depends(get_current_user)
+                current_user : User = Depends(get_current_user),
+                db:Session = Depends(get_db)
                 ):
       
-      result = fetch_all_emails()
+      emails = db.query(Email).order_by(Email.Date).all()
       return templates.TemplateResponse("email/email_inbox.html", {
         "request": request,
         "hide_resume": True,
         "user" : current_user,
-        "emails": result if isinstance(result, list) else []
+        "emails": emails
     })

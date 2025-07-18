@@ -1,5 +1,3 @@
-<!-- frontend\templates\email\email_inbox.html -->
-
 {% extends "shared/base.html" %}
 
 {% block title %}Email Inbox{% endblock %}
@@ -15,24 +13,37 @@
 
         {% for email in emails %}
         <div class="border rounded p-3 mb-4">
+            <!-- Sender -->
             <div class="mb-2">
                 <label class="form-label fw-bold">From</label>
-                <div class="form-control-plaintext">{{ email.from }}</div>
+                <div class="form-control-plaintext">{{ email.Sender }}</div>
             </div>
 
+            <!-- Subject -->
             <div class="mb-2">
                 <label class="form-label fw-bold">Subject</label>
-                <div class="form-control-plaintext">{{ email.subject }}</div>
+                <div class="form-control-plaintext">{{ email.Subject }}</div>
             </div>
 
+            <!-- Message -->
             <div class="mb-2">
                 <label class="form-label fw-bold">Message</label>
-                <div class="email-body p-2 bg-light rounded" style="overflow: auto; max-height: 400px;">
-                    <iframe srcdoc="{{ email.html | replace('"', ' &quot;') | safe }}" width="100%" height="300"
-                        style="border:none;"></iframe>
-                </div>
 
+                {% if email.Html %}
+                <div class="email-body p-2 bg-light rounded" style="overflow: auto; max-height: 400px;">
+                    <iframe srcdoc="{{ email.Html | replace('"', ' &quot;') | safe }}"
+                        style="border:none; width:100%; height:350px;" sandbox></iframe>
+                </div>
+                {% elif email.Text %}
+                <div class="email-body p-2 bg-light rounded"
+                    style="white-space: pre-wrap; overflow: auto; max-height: 350px;">
+                    {{ email.Text }}
+                </div>
+                {% else %}
+                <p class="text-muted">No message content available.</p>
+                {% endif %}
             </div>
+
         </div>
         {% endfor %}
     </div>

@@ -2,10 +2,17 @@
 
 import smtplib
 import re
+from pydantic import ValidationError
 from typing import List
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from imap_tools import MailBox
+
+from sqlalchemy.orm import Session
+from app.db import SessionLocal
+
+from app.models.email.email_model import Email
+from app.schemas.email.email_schema import InboxEmail
 
 from app.utils.smtp_config import SMTP_CONFIG
 from app.utils.imap_config import IMAP_CONFIG
@@ -60,10 +67,18 @@ def fetch_all_emails():
             initial_folder="INBOX"
         ) as mailbox:
 
-            for msg in mailbox.fetch():  # All emails in INBOX
+            for msg in mailbox.fetch():
+                # Extract and validate fields
+                message_id = msg.headers.get("message-id")
+                sender = msg.from_
+
+                if not message_id or not sender:
+                    continue 
+
                 messages.append({
-                    "from": msg.from_,
-                    "subject": msg.subject,
+                    "message_id": str(message_id).strip(),
+                    "sender": str(sender).strip(), 
+                    "subject": msg.subject or "",
                     "date": msg.date.isoformat() if msg.date else None,
                     "text": msg.text or "",
                     "html": msg.html or "",
@@ -73,3 +88,63 @@ def fetch_all_emails():
         return {"error": str(e)}
 
     return messages
+
+
+def store_emails_in_db():
+    emails_data = fetch_all_emails()
+
+    if isinstance(emails_data, dict) and "error" in emails_data:
+        return {"sucess": False, "message": emails_data["error"]}
+    
+
+    db:Session = SessionLocal()
+
+    inserted = 0
+    skipped = 0
+
+    for email in emails_data:
+        try:
+            validated_email = InboxEmail(**email)
+
+            # Avoid duplicates
+            if db.query(Email).filter_by(MessageId=validated_email.message_id).first():
+                skipped += 1
+                continue
+
+            email_model = Email(
+                MessageId=validated_email.message_id,
+                Sender=validated_email.sender,
+                Subject=validated_email.subject,
+                Date=validated_email.date,
+                Text=validated_email.text,
+                Html=validated_email.html
+            )
+
+            db.add(email_model)
+            inserted += 1
+
+        except ValidationError as ve:
+            print(f"Skipping invalid email due to validation: {ve}")
+            skipped += 1
+        except Exception as e:
+            print(f"Skipping invalid email due to error: {e}")
+            skipped += 1
+
+    db.commit()
+    db.close()
+
+    return {
+        "success":True,
+        "inserted":inserted,
+        "skipped": skipped,
+        "message": f"{inserted} emails stored, {skipped} skipped"
+    }
+
+
+
+
+
+
+
+
+
