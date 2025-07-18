@@ -12,7 +12,7 @@ def start_email_scheduler():
 
     scheduler.add_job(
         func=store_emails_in_db,
-        trigger=IntervalTrigger(minutes=60),
+        trigger=IntervalTrigger(minutes=2),
         id='email_store_job',
         name='Fetch Emails Every 2 Minutes',
         replace_existing=True

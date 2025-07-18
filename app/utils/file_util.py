@@ -30,13 +30,30 @@ def sav_upload_file(upload_file: Optional[UploadFile], upload_dir: str = "upload
 
     return file_path
 
-def senitize_email_html(html:str) -> str:
+
+def senitize_email_html(html: str) -> str:
     html = re.sub(r'<script.*?>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
     html = re.sub(r'<iframe.*?>.*?</iframe>', '', html, flags=re.DOTALL | re.IGNORECASE)
-    html = re.sub(r'<img[^>]+src=["\'](?:cid:|https?:)[^"\']+["\'][^>]*>', '', html, flags=re.IGNORECASE)
 
-    allowed_tags = ['p', 'b', 'i', 'u', 'br', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'span', 'div']
-    allowed_attrs = {'a':['href', 'title'], 'span':['style'], 'div':['style']}
-    css_sanitizer = CSSSanitizer()
+    allowed_tags = list(bleach.sanitizer.ALLOWED_TAGS) + [
+        'style', 'head', 'html', 'body', 'table', 'thead', 'tbody', 'tr', 'td', 'th'
+    ]
 
-    return bleach.clean(html, tags=allowed_tags, attributes=allowed_attrs, css_sanitizer=css_sanitizer, strip=True)
+    allowed_attrs = {
+        '*': ['style', 'class', 'id'],
+        'a': ['href', 'title'],
+        'img': ['src', 'alt'],
+    }
+
+    css_sanitizer = CSSSanitizer(allowed_css_properties=[
+        'color', 'background-color', 'font-size', 'font-weight', 'text-decoration',
+        'padding', 'margin', 'border', 'width', 'height', 'display', 'text-align'
+    ])
+
+    return bleach.clean(
+        html,
+        tags=allowed_tags,
+        attributes=allowed_attrs,
+        css_sanitizer=css_sanitizer,
+        strip=True
+    )

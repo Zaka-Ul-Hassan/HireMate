@@ -3,6 +3,7 @@ from fastapi import APIRouter,Request,Depends,status
 from fastapi.responses import HTMLResponse,RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from app.services.authentication.auth_service import get_current_user
 from app.utils.file_util import senitize_email_html
@@ -87,7 +88,7 @@ def email_inbox(request: Request,
                 db:Session = Depends(get_db)
                 ):
       
-      emails = db.query(Email).order_by(Email.Date).all()
+      emails = db.query(Email).order_by(desc(Email.Date)).all()
 
       # Remove cid: images from HTML
       for email in emails:
