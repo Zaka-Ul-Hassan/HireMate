@@ -16,5 +16,7 @@ itsdangerous>=2.1,<3.0              # Secure token generation (e.g., password re
 imap-tools >=1.0,<2.0               # For email IMAP access
 apscheduler >=3.9,<4.0              # Advanced Python Scheduler for job scheduling
 pyodbc >=4.0.34,<5.0                # ODBC support for SQL Server and other DBs (used for DB connectivity)
+bleach>=6.1.0,<7.0.0                # HTML sanitizer to remove unsafe tags and prevent XSS
+tinycss2>=1.2.1,<2.0                # Required for CSS sanitization with bleach
 
 

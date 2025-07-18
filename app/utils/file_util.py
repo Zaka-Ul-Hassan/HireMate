@@ -1,8 +1,12 @@
 # app\utils\file_util.py
 
 import os, uuid
+import re
+import bleach
 from fastapi import UploadFile, HTTPException
 from typing import Optional
+from bleach.css_sanitizer import CSSSanitizer
+
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg", "image/webp"}
 
@@ -25,3 +29,14 @@ def sav_upload_file(upload_file: Optional[UploadFile], upload_dir: str = "upload
             buffer.write(chunk)
 
     return file_path
+
+def senitize_email_html(html:str) -> str:
+    html = re.sub(r'<script.*?>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r'<iframe.*?>.*?</iframe>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r'<img[^>]+src=["\'](?:cid:|https?:)[^"\']+["\'][^>]*>', '', html, flags=re.IGNORECASE)
+
+    allowed_tags = ['p', 'b', 'i', 'u', 'br', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'span', 'div']
+    allowed_attrs = {'a':['href', 'title'], 'span':['style'], 'div':['style']}
+    css_sanitizer = CSSSanitizer()
+
+    return bleach.clean(html, tags=allowed_tags, attributes=allowed_attrs, css_sanitizer=css_sanitizer, strip=True)

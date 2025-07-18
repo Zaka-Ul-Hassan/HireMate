@@ -5,15 +5,19 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.services.authentication.auth_service import get_current_user
-from app.services.email.email_service import fetch_all_emails
+from app.utils.file_util import senitize_email_html
 from app.models.user.user import User
 from app.models.email.email_model import Email
-from app.schemas.email.email_schema import EmailSchema,InboxEmail
 from app.db import get_db
 
 templates = Jinja2Templates(directory="frontend/templates")
 
 router = APIRouter()
+
+@router.get("/.well-known/appspecific/com.chrome.devtools.json")
+async def chrome_devtools_json():
+    return {"message": "Not used"}
+
 
 @router.get("/", response_class=HTMLResponse)
 def show_login(request:Request):
@@ -84,6 +88,12 @@ def email_inbox(request: Request,
                 ):
       
       emails = db.query(Email).order_by(Email.Date).all()
+
+      # Remove cid: images from HTML
+      for email in emails:
+          if email.Html:
+              email.Html = senitize_email_html(email.Html)
+
       return templates.TemplateResponse("email/email_inbox.html", {
         "request": request,
         "hide_resume": True,
