@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.user import user_routes
 from app.routes.email import email_route
+from app.routes.resume import resume_text_parser_route
 from app.routes.user import user_page_routes
 from app.services.scheduler.scheduler import start_email_scheduler
 
@@ -44,6 +45,7 @@ def on_startup():
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
 app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
+app.include_router(resume_text_parser_route.router, prefix="/api/resume-parser", tags=["Resume"])
 
 # API routes frontend
 app.include_router(user_page_routes.router)
