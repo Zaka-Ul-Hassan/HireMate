@@ -63,10 +63,14 @@ def logout_user():
     return response
 
 
-@router.get("/resume", response_class=HTMLResponse)
-async def upload_resume(request: Request):
-    return templates.TemplateResponse("resume/resume.html", {
+@router.get("/resume-upload", response_class=HTMLResponse)
+async def upload_resume(
+    request: Request,
+    current_user : User = Depends(get_current_user)
+    ):
+    return templates.TemplateResponse("resume/resume-upload.html", {
         "request": request,
+        "user": current_user,
         "hide_resume": False
         })
 

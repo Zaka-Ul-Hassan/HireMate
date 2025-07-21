@@ -1,0 +1,50 @@
+/* frontend\static\css\resume\resume-upload.css */
+
+body {
+  padding-top: 80px;
+  padding-left: 250px;
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Upload box styling */
+.upload-container {
+  border: 2px dashed #aaa;
+  padding: 40px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 20px auto;
+  max-width: 600px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.upload-container:hover {
+  background-color: #f1f1f1;
+}
+
+.upload-container p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+/* File info text below upload box */
+.file-info {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.file-name {
+    color: #198754;
+    font-weight: bold;
+}
+
