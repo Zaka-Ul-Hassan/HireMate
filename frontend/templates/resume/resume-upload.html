@@ -1,0 +1,26 @@
+<!-- frontend\templates\resume\upload-resume.html -->
+
+{% extends 'shared/base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/resume/resume-upload.css">
+{% endblock %}
+
+{% block content %}
+<div class="upload-container" onclick="document.getElementById('resumeUpload').click()"
+  ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
+  <p><strong>Drag and drop your resume here</strong>, or click to upload</p>
+  <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx"/>
+  <div class="file-info" id="fileInfo">
+    Accepted formats: <strong>PDF, DOC, DOCX</strong>
+  </div>
+</div>
+
+<div class="file-info" id="fileInfo">
+  <span id="fileName" class="file-name"></span>
+</div>
+{% endblock %}
+
+{% block extra_js%}
+<script src="/static/js/resume/resume-upload.js"></script>
+{% endblock %}
