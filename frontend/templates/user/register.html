@@ -4,6 +4,12 @@
 
 {% block title %}Register | HireMate{% endblock %}
 
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user/register.css">
+<link rel="stylesheet" href="/static/css/shared/password-toggle.css">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -78,15 +84,20 @@
                             <span class="text-danger" id="email_error"></span>
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="col-md-6 mb-3">
+                            <div class="password-wrapper position-relative">
+                                <label class="form-label">Password</label>
+                                <input type="password" id="password" class="form-control"
+                                    placeholder="Enter your password">
+                                <i id="toggleIcon" class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
+                            </div>
                             <span class="text-danger" id="password_error"></span>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="image" class="form-label" >Profile Image</label>
-                            <input type="file" class="form-control" name="image" id="image"  accept="image/png, image/jpeg, image/jpg, image/webp">
+                            <label for="image" class="form-label">Profile Image</label>
+                            <input type="file" class="form-control" name="image" id="image"
+                                accept="image/png, image/jpeg, image/jpg, image/webp">
                         </div>
 
                         <div class="col-12 text-center mt-4">
@@ -110,4 +121,5 @@
 
 {% block extra_js %}
 <script src="/static/js/user/register.js"></script>
+<script src="/static/js/shared/password-toggle.js"></script>
 {% endblock %}
