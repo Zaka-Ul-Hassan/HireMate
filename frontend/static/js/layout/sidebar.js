@@ -1,3 +1,5 @@
+// frontend\static\js\layout\sidebar.js
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Sidebar.js loaded after DOM ready");
 
