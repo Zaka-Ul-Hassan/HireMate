@@ -10,7 +10,8 @@ import json
 from app.models.resume.resume_model import Resume
 
 def extract_fields_and_store(file: UploadFile, db: Session):
-    # Determine file type
+    
+    #  Determine file type and endpoint
     filename = file.filename.lower()
     if filename.endswith(".pdf"):
         endpoint = "http://127.0.0.1:8000/api/resume-parser/pdf-to-text"
@@ -25,15 +26,13 @@ def extract_fields_and_store(file: UploadFile, db: Session):
     response = requests.post(endpoint, files=files)
 
     if response.status_code != 200:
-        raise RuntimeError("Failed to extract text from file")
+        raise RuntimeError(f"Failed to extract text from file: {response.status_code}")
 
-    extracted = response.json()
-    extracted_text = extracted.get("text")
-
+    extracted_text = response.json().get("text")
     if not extracted_text:
         raise ValueError("No text extracted from resume")
 
-    # Prepare AI prompt
+    # Create AI prompt
     prompt = f"""
     Extract the following fields from the resume text below. If a field is not present, return it as null.
 
@@ -51,28 +50,38 @@ def extract_fields_and_store(file: UploadFile, db: Session):
     }}
     """
 
-    ai_response = requests.get("http://127.0.0.1:8000/api/ai-chat/chat", params={"prompt": prompt})
+    # Call AI chat service using POST with JSON body
+    ai_response = requests.post(
+        "http://127.0.0.1:8000/api/ai-chat/chat",
+        json={"prompt": prompt}
+    )
+
     if ai_response.status_code != 200:
-        raise RuntimeError("AI chat service failed")
+        raise RuntimeError(f"AI chat service failed: {ai_response.status_code} - {ai_response.text}")
 
-    ai_data = ai_response.json()
-    response_text = ai_data.get("response")
-    parsed = json.loads(response_text)
+    response_text = ai_response.json().get("response")
+    if not response_text:
+        raise ValueError("AI did not return any data")
 
+    try:
+        parsed = json.loads(response_text)
+    except json.JSONDecodeError:
+        raise ValueError("AI response could not be parsed as JSON")
+
+    # Validate required fields
     email = parsed.get("Email")
     skills = parsed.get("Skills")
-
     if not email:
         raise ValueError("Missing required field: Email")
     if not skills:
         raise ValueError("Missing required field: Skills")
 
-    # Check for duplicate email
+    # Prevent duplicate email
     existing = db.execute(select(Resume).where(Resume.Email == email)).scalar_one_or_none()
     if existing:
         raise ValueError("Email already exists in the system.")
 
-    # Map and insert resume
+    # Save parsed data
     resume = Resume(
         FullName=parsed.get("FullName"),
         Email=email,
@@ -107,4 +116,7 @@ def extract_fields_and_store(file: UploadFile, db: Session):
 
     db.add(resume)
     db.commit()
-    return {"message": "Resume processed and saved successfully", "resume_id": resume.Id}
+    return {
+        "message": "Resume processed and saved successfully.",
+        "resume_id": resume.Id
+    }
