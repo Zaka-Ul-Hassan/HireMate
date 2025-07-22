@@ -1,6 +1,6 @@
 # app\models\email\email_model.py
 
-from sqlalchemy import Column, Integer, String, Text, DateTime,func
+from sqlalchemy import Column, Integer, String, Text, DateTime
 import datetime
 from app.models.base.model_base import Base
 
