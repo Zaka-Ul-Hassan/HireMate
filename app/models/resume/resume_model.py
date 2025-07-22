@@ -36,7 +36,7 @@ class Resume(Base):
     ExperienceCompany = Column(String(100), nullable=True)
     ExperienceDuration = Column(String(50), nullable=True)  # e.g. "2 years" or "Jan 2021 – Feb 2023"
     TotalExperience = Column(String(50), nullable=True)     # e.g. "3 years"
-    ExperienceDescription = Column(Text, nullable=False)
+    ExperienceDescription = Column(Text, nullable=True)
 
     # Projects
     Project1 = Column(Text, nullable=True)

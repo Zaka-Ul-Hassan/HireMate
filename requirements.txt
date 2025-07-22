@@ -38,7 +38,8 @@ itsdangerous>=2.1,<3.0             # For secure tokens (e.g., password reset)
 
 # Cohere AI SDK for chat and generation
 cohere>=5.0.0,<6.0.0               # Official Python SDK for Cohere (supports Command R+ models)
-
 python-dotenv>=1.0,<2.0             # To load API keys from .env files
+aiohttp>=3.8,<4.0                   # For making asynchronous HTTP requests (e.g., to Cohere API)
+
 
 
