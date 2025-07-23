@@ -36,4 +36,4 @@ def store_resume(file:UploadFile, db:AsyncSession = Depends(get_db)):
         result =  extract_fields_and_store(file,db)
         return {"result": result}
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Error: {str(e)}"})
+        return JSONResponse(status_code=500, content={"error": f"{str(e)}"})
