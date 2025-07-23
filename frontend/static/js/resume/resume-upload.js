@@ -52,7 +52,6 @@ function uploadResume() {
 
     const formData = new FormData();
     formData.append("file", file);
-
     Swal.fire({
         title: 'Uploading...',
         text: 'Please wait while we process your resume.',
@@ -67,7 +66,7 @@ function uploadResume() {
 
     xhr.onload = function () {
         Swal.close();
-        
+
         // Reset input and filename
         resumeInput.value = '';
         fileNameDisplay.textContent = '';
@@ -90,6 +89,5 @@ function uploadResume() {
         Swal.fire("Error", "Network error occurred while uploading.", "error");
     };
 
-    debugger
     xhr.send(formData);
 }
