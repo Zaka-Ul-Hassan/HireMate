@@ -32,11 +32,14 @@ def sav_upload_file(upload_file: Optional[UploadFile], upload_dir: str = "upload
 
 
 def senitize_email_html(html: str) -> str:
+    # Remove script and iframe blocks
     html = re.sub(r'<script.*?>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
     html = re.sub(r'<iframe.*?>.*?</iframe>', '', html, flags=re.DOTALL | re.IGNORECASE)
 
+    # Allow more tags for layout and spacing
     allowed_tags = list(bleach.sanitizer.ALLOWED_TAGS) + [
-        'style', 'head', 'html', 'body', 'table', 'thead', 'tbody', 'tr', 'td', 'th'
+        'style', 'head', 'html', 'body', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
+        'div', 'span', 'p', 'br'
     ]
 
     allowed_attrs = {
@@ -45,9 +48,11 @@ def senitize_email_html(html: str) -> str:
         'img': ['src', 'alt'],
     }
 
+    # Allow common CSS properties including spacing/layout
     css_sanitizer = CSSSanitizer(allowed_css_properties=[
         'color', 'background-color', 'font-size', 'font-weight', 'text-decoration',
-        'padding', 'margin', 'border', 'width', 'height', 'display', 'text-align'
+        'padding', 'margin', 'margin-top', 'margin-bottom', 'margin-left', 'margin-right',
+        'border', 'width', 'height', 'display', 'text-align', 'line-height'
     ])
 
     return bleach.clean(
