@@ -86,7 +86,7 @@ uploadBtn.addEventListener('click', function () {
     });
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://127.0.0.1:8000/api/resume-parser/store-process-resume', true);
+    xhr.open('POST', '/api/resume-parser/store-process-resume', true);
 
     xhr.onload = function () {
         Swal.close();
