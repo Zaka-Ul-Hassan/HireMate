@@ -1,7 +1,7 @@
 {
   "database": {
     "driver": "ODBC Driver 17 for SQL Server",
-    "server": "ZAKA-UL-HASSSAN\\SQLEXPRESS",
+    "server": "ZAKA-UL-HASSAN\\SQLEXPRESS",
     "database": "PyLearnDB",
     "trusted_connection": "yes"
   },
