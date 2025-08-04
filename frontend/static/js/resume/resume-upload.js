@@ -1,3 +1,5 @@
+// frontend\static\js\resume\resume-upload.js
+
 const resumeInput = document.getElementById('resumeUpload');
 const fileInfoBox = document.getElementById('fileInfoBox');
 const fileNameDisplay = document.getElementById('fileName');
