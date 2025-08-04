@@ -58,7 +58,6 @@ def get_current_user(
         
     except JWTError:
         raise HTTPException(status_code=status.HTTP_303_SEE_OTHER,headers={"Location": "/"})
-        return None
 
     user = user_service.get_user_by_email(db, email=email)
     if not user:
