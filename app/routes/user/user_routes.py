@@ -48,6 +48,7 @@ def login_user_api(request:LoginRequest, db:Session = Depends(get_db)):
 @router.get("/current-user")
 def get_logged_in_user(current_user:User = Depends(auth_service.get_current_user)):
     return{
+        "UserId" : current_user.Id,
         "Name": current_user.FirstName + current_user.MiddleName + current_user.LastName,
         "Email": current_user.Email,
         "Country" : current_user.Country,

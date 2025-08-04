@@ -8,8 +8,16 @@ from datetime import datetime
 import json
 
 from app.models.resume.resume_model import Resume
+from app.models.user.user import User
 
-def extract_fields_and_store(file: UploadFile, db: Session):
+def extract_fields_and_store(file: UploadFile, db: Session, user:User):
+
+    existing_user_resume = db.execute(
+        select(Resume).where(Resume.UserId == user.Id)
+    ).scalar_one_or_none()
+
+    if existing_user_resume:
+        raise ValueError("You have already uploaded a resume.")
     
     #  Determine file type and endpoint
     filename = file.filename.lower()
@@ -83,6 +91,7 @@ def extract_fields_and_store(file: UploadFile, db: Session):
 
     # Save parsed data
     resume = Resume(
+        UserId = user.Id,
         FullName=parsed.get("FullName"),
         Email=email,
         PhoneNumber=parsed.get("PhoneNumber"),
