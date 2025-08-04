@@ -1,10 +1,7 @@
-<!-- frontend\templates\resume\upload-resume.html -->
-
 {% extends 'shared/base.html' %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/resume/resume-upload.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -12,23 +9,39 @@
   ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
   <p><strong>Drag and drop your resume here</strong>, or click to upload</p>
   <input type="file" id="resumeUpload" accept=".pdf,.docx" style="display: none;" />
+  
+  <!-- Accepted formats text -->
+<div class="text-center mt-2">
+  <span class="text-muted small">Accepted formats: <strong>PDF AND DOCX</strong></span>
+</div>
 </div>
 
-<div class="file-info mt-2 text-center" id="fileInfo">
-  <span>Accepted formats: <strong>PDF AND DOCX</strong></span><br>
-  <div class="file-info">
-    <span id="fileName" class="file-name text-success"></span>
+
+<!-- File Info Box + Upload Button Inline -->
+<div class="d-flex justify-content-center align-items-center mt-3 gap-2 flex-wrap">
+  
+<!-- File Info Box -->
+<div id="fileInfoBox"
+  class="file-info-box d-none d-flex justify-content-between align-items-center bg-light border border-secondary rounded p-2 shadow-sm"
+  style="width: 260px;">
+  <div class="d-flex align-items-center gap-2">
+    <i id="fileIcon" class="fas text-success"></i>
+    <span id="fileName" class="file-name text-dark small mb-0"></span>
   </div>
-</div>
-
-<div class="d-flex justify-content-center mt-3">
-  <button class="btn btn-primary" id="uploadBtn">
-    <i class="fas fa-upload me-2"></i> Upload Resume
+  <button id="clearFileBtn" class="btn btn-sm btn-outline-danger border-0 px-2 py-0 ms-2" title="Remove file">
+    <i class="fas fa-times"></i>
   </button>
 </div>
+
+
+  <!-- Upload Button -->
+  <button class="btn btn-primary" id="uploadBtn">
+    <i></i> Upload Resume
+  </button>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/static/js/resume/resume-upload.js"></script>
 {% endblock %}
