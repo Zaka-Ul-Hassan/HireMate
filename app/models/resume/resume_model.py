@@ -1,12 +1,13 @@
 # app\models\resume\resume_model.py
 
-from sqlalchemy import Column, String, Integer, Text, DateTime, func
+from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func
 from app.models.base.model_base import Base
 
 class Resume(Base):
     __tablename__ = "Resumes"
 
     Id = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer, ForeignKey("Users.Id"), nullable=False)
 
     # Basic Info
     FullName = Column(String(100), nullable=False)
