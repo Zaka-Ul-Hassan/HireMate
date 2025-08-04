@@ -1,50 +1,75 @@
-// frontend/static/js/resume/resume-upload.js
-
 const resumeInput = document.getElementById('resumeUpload');
+const fileInfoBox = document.getElementById('fileInfoBox');
 const fileNameDisplay = document.getElementById('fileName');
+const clearFileBtn = document.getElementById('clearFileBtn');
 const uploadContainer = document.querySelector('.upload-container');
+const uploadBtn = document.getElementById('uploadBtn');
+const fileIcon = fileInfoBox.querySelector('i'); // Icon inside file info box
 
-// Handle file selection via click
+// Show file info box and set file name + icon
+function showFileBox(file) {
+    if (file) {
+        const fileName = file.name;
+        const fileExt = fileName.split('.').pop().toLowerCase();
+
+        fileNameDisplay.textContent = fileName;
+        fileInfoBox.classList.remove('d-none');
+
+        // Set icon based on file type
+        if (fileExt === 'pdf') {
+            fileIcon.className = 'fas fa-file-pdf text-danger';
+        } else if (fileExt === 'doc' || fileExt === 'docx') {
+            fileIcon.className = 'fas fa-file-word text-primary';
+        } else {
+            fileIcon.className = 'fas fa-file-alt text-secondary';
+        }
+    }
+}
+
+// Clear selected file
+function clearFileSelection() {
+    resumeInput.value = '';
+    fileNameDisplay.textContent = '';
+    fileInfoBox.classList.add('d-none');
+}
+
+// Handle file selection via input
 resumeInput.addEventListener('change', function () {
     if (this.files && this.files[0]) {
-        fileNameDisplay.textContent = 'Selected file: ' + this.files[0].name;
+        showFileBox(this.files[0]);
     }
 });
 
-// Handle file drop
+// Handle drag-over
 uploadContainer.addEventListener('dragover', function (e) {
     e.preventDefault();
 });
 
+// Handle file drop
 uploadContainer.addEventListener('drop', function (e) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-
     if (file) {
         resumeInput.files = e.dataTransfer.files;
-        fileNameDisplay.textContent = 'Selected file: ' + file.name;
+        showFileBox(file);
     }
 });
 
-// Prevent drop outside the container
-document.addEventListener('dragover', function (e) {
-    if (!uploadContainer.contains(e.target)) {
-        e.preventDefault();
-    }
-});
+// Prevent drop outside container
+['dragover', 'drop'].forEach(evt =>
+    document.addEventListener(evt, function (e) {
+        if (!uploadContainer.contains(e.target)) {
+            e.preventDefault();
+        }
+    })
+);
 
-document.addEventListener('drop', function (e) {
-    if (!uploadContainer.contains(e.target)) {
-        e.preventDefault();
-    }
-});
+// Clear button handler
+clearFileBtn.addEventListener('click', clearFileSelection);
 
-// Upload resume button click handler
-document.getElementById('uploadBtn').addEventListener('click', uploadResume);
-
-function uploadResume() {
+// Upload button handler
+uploadBtn.addEventListener('click', function () {
     const file = resumeInput.files[0];
-
     if (!file) {
         Swal.fire("Error", "Please select a resume to upload.", "error");
         return;
@@ -52,13 +77,12 @@ function uploadResume() {
 
     const formData = new FormData();
     formData.append("file", file);
+
     Swal.fire({
         title: 'Uploading...',
         text: 'Please wait while we process your resume.',
         allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
     });
 
     const xhr = new XMLHttpRequest();
@@ -66,10 +90,7 @@ function uploadResume() {
 
     xhr.onload = function () {
         Swal.close();
-
-        // Reset input and filename
-        resumeInput.value = '';
-        fileNameDisplay.textContent = '';
+        clearFileSelection();
 
         if (xhr.status === 200) {
             Swal.fire("Success", "Resume uploaded successfully!", "success");
@@ -78,7 +99,7 @@ function uploadResume() {
                 const response = JSON.parse(xhr.responseText);
                 const errorMessage = response.error || "Failed to upload resume.";
                 Swal.fire("Error", errorMessage, "error");
-            } catch (err) {
+            } catch {
                 Swal.fire("Error", "Failed to upload resume. Please try again.", "error");
             }
         }
@@ -90,4 +111,4 @@ function uploadResume() {
     };
 
     xhr.send(formData);
-}
+});
