@@ -29,6 +29,9 @@ class Resume(Base):
     Education2 = Column(String(255), nullable=True)
     Education3 = Column(String(255), nullable=True)
 
+    # Developer
+    DeveloperType = Column(String(255), nullable=False)
+
     # Skills (required)
     Skills = Column(Text, nullable=False)
 
