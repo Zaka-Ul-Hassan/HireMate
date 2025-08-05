@@ -58,6 +58,13 @@ def get_job_recommendation(db:Session, resume_id: int):
         "http://127.0.0.1:8000/api/ai-chat/chat",
         json={"prompt": prompt }
     )
+    # response = requests.post(
+    #     "http://127.0.0.1:8000/api/google-search/google-search",
+    #     json={
+    #         "query": prompt,
+    #         "num_results": 5  # optional, defaults to 5 if not provided
+    #     }
+    # )
 
     if response.status_code == 200:
         return response.json()
