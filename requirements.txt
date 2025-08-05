@@ -41,5 +41,7 @@ cohere>=5.0.0,<6.0.0               # Official Python SDK for Cohere (supports Co
 python-dotenv>=1.0,<2.0             # To load API keys from .env files
 aiohttp>=3.8,<4.0                   # For making asynchronous HTTP requests (e.g., to Cohere API)
 
+google-api-python-client>=2.120.0,<3.0     # Google Custom Search API client
+
 
 
