@@ -42,21 +42,33 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
 
     # Create AI prompt
     prompt = f"""
-    Extract the following fields from the resume text below. If a field is not present, return it as null.
+    Extract structured resume data from the unstructured resume text below.
 
     Resume Text:
     {extracted_text}
 
-    Required Fields (JSON):
+    Instructions:
+    1. Identify the type of developer (e.g., ".NET Developer", "Python Developer", "Front End Developer", "Full Stack Developer") **based on the skills mentioned** in the resume. 
+        - If the resume includes skills like ASP.NET, C#, Entity Framework, SQL Server, classify as ".NET Developer".
+        - If it includes Python, Django, Flask, FastAPI classify as "Python Developer".
+        - If it includes HTML, CSS, JavaScript, React, Angular, classify as "Front End Developer".
+        - If it has both backend and frontend technologies (e.g., C#, ASP.NET + JavaScript/React), classify as "Full Stack Developer".
+        - If no matching skills found, return as null.
+
+    2. Extract other fields from the resume. If a field is not present, return it as null.
+
+    Required Fields (in JSON format):
     {{
         "FullName": "", "Email": "", "PhoneNumber": "", "Address": "", "DateOfBirth": "", "Gender": "",
         "Nationality": "", "ProfileImage": "", "ResumeFile": "", "Summary": "", "Objective": "",
-        "Education1": "", "Education2": "", "Education3": "", "Skills": "", "ExperienceTitle": "",
-        "ExperienceCompany": "", "ExperienceDuration": "", "TotalExperience": "", "ExperienceDescription": "",
+        "Education1": "", "Education2": "", "Education3": "", "Skills": "",
+        "DeveloperType": "",  // e.g., ".NET Developer", "Python Developer", "Front End Developer"
+        "ExperienceTitle": "", "ExperienceCompany": "", "ExperienceDuration": "", "TotalExperience": "", "ExperienceDescription": "",
         "Project1": "", "Project2": "", "Languages": "", "LinkedIn": "", "GitHub": "", "Certifications": "",
         "IsActive": "true", "CreatedAt": "", "UpdatedAt": ""
     }}
     """
+
 
     # Call AI chat service using POST with JSON body
     ai_response = requests.post(
@@ -79,10 +91,13 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     # Validate required fields
     email = parsed.get("Email")
     skills = parsed.get("Skills")
+    developer_type = parsed.get("DeveloperType")
     if not email:
         raise ValueError("Missing required field: Email")
     if not skills:
         raise ValueError("Missing required field: Skills")
+    if not developer_type:
+        raise ValueError("Missing required field: DeveloperType")
 
     # Prevent duplicate email
     existing = db.execute(select(Resume).where(Resume.Email == email)).scalar_one_or_none()
@@ -106,6 +121,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
         Education1=parsed.get("Education1"),
         Education2=parsed.get("Education2"),
         Education3=parsed.get("Education3"),
+        DeveloperType=developer_type,
         Skills=skills,
         ExperienceTitle=parsed.get("ExperienceTitle"),
         ExperienceCompany=parsed.get("ExperienceCompany"),
