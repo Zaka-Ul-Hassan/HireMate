@@ -7,7 +7,9 @@ from sqlalchemy import desc
 
 from app.services.authentication.auth_service import get_current_user
 from app.utils.file_util import senitize_email_html
+from app.services.job.job_scanner_service import fetch_jobs_from_api
 from app.models.user.user import User
+from app.models.resume.resume_model import Resume
 from app.models.email.email_model import Email
 from app.db import get_db
 
@@ -105,3 +107,33 @@ def email_inbox(request: Request,
         "user" : current_user,
         "emails": emails
     })
+
+@router.get("/job/list", response_class=HTMLResponse)
+async def get_resume_id(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    page: int = 2
+):
+    resume = db.query(Resume).filter(Resume.UserId == current_user.Id).first()
+
+    if not resume:
+        return templates.TemplateResponse("job/list.html", {
+            "request": request,
+            "user": current_user,
+            "error": "Resume not found. Please upload your resume first.",
+            "jobs": [],
+            "hide_resume": True
+        })
+
+    jobs = fetch_jobs_from_api(db=db, resume_id=resume.Id, page=page)
+
+    return templates.TemplateResponse("job/list.html", {
+        "request": request,
+        "user": current_user,
+        "jobs": jobs,
+        "hide_resume": True
+    })
+
+
+
