@@ -18,7 +18,7 @@ def recommend_jobs(resume_id: int, db:Session = Depends(get_db)):
     
 
 @router.post("/recommend/{resume_id}")
-async def search_jobs(resume_id: int, page: int = 1, db: Session = Depends(get_db)):
+async def search_jobs(resume_id: int, page: int = 2, db: Session = Depends(get_db)):
     try:
         result = fetch_jobs_from_api(db, resume_id, page)
         if "error" in result:
