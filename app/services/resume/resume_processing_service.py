@@ -48,12 +48,20 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     {extracted_text}
 
     Instructions:
-    1. Identify the type of developer (e.g., ".NET Developer", "Python Developer", "Front End Developer", "Full Stack Developer") **based on the skills mentioned** in the resume. 
-        - If the resume includes skills like ASP.NET, C#, Entity Framework, SQL Server, classify as ".NET Developer".
-        - If it includes Python, Django, Flask, FastAPI classify as "Python Developer".
-        - If it includes HTML, CSS, JavaScript, React, Angular, classify as "Front End Developer".
-        - If it has both backend and frontend technologies (e.g., C#, ASP.NET + JavaScript/React), classify as "Full Stack Developer".
-        - If no matching skills found, return as null.
+    1. Identify the type of developer (e.g., ".NET Developer", "Python Developer", "Front End Developer", "Full Stack Developer", "Java Developer", "Mobile App Developer", "Data Engineer",
+    "DevOps Engineer", "Machine Learning Engineer", "PHP Developer") based on the skills mentioned in the resume.
+
+        If the resume includes skills like ASP.NET, C#, Entity Framework, SQL Server, classify as ".NET Developer".
+        If it includes Python, Django, Flask, FastAPI, classify as "Python Developer".
+        If it includes HTML, CSS, JavaScript, React, Angular, classify as "Front End Developer".
+        If it has both backend and frontend technologies (e.g., C#, ASP.NET + JavaScript/React), classify as "Full Stack Developer".
+        If it includes Java, Spring Boot, Hibernate, classify as "Java Developer".
+        If it includes Kotlin, Java (Android), Swift, Flutter, React Native, classify as "Mobile App Developer".
+        If it includes ETL, Big Data, Spark, Hadoop, Apache Airflow, classify as "Data Engineer".
+        If it includes CI/CD, Docker, Kubernetes, Jenkins, Azure DevOps, classify as "DevOps Engineer"
+        If it includes TensorFlow, PyTorch, Scikit-learn, NLP, Deep Learning, classify as "Machine Learning Engineer".
+        If it includes PHP, Laravel, CodeIgniter, MySQL, classify as "PHP Developer".
+        If no matching skills found, return as null.
 
     2. Extract other fields from the resume. If a field is not present, return it as null.
 
