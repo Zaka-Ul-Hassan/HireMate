@@ -1,0 +1,78 @@
+<!-- frontend\templates\job\list.html -->
+
+{% extends "shared/base.html" %}
+{% block title %}Job Listings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/job/list.css">
+{% endblock %}
+
+{% block content %}
+<div id="preloader">
+    <div class="colorful-loader"></div>
+</div>
+
+<!-- Trigger loader on page load -->
+<script>
+    window.addEventListener('load', function () {
+        const loader = document.getElementById('preloader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
+</script>
+
+<div class="container py-5 mt-5">
+    <h2 class="text-center mb-5">Recommended Jobs</h2>
+
+    {% if error %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ error | tojson  }}',
+        }).then(() => {
+            window.location.href = "/resume-upload";
+        });
+    </script>
+
+    {% elif jobs|length == 0 %}
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'No Jobs Found',
+            text: 'No relevant jobs found. Please update your resume.',
+        });
+    </script>
+    {% else %}
+    <div class="d-flex flex-column gap-3 ms-1">
+        {% for job in jobs %}
+        <div class="card flex-row align-items-center p-3 shadow-sm rounded border-0 hover-effect">
+            <div class="flex-grow-1">
+                <h5 class="mb-1">{{ job.job_title }}</h5>
+                <p class="mb-1 text-muted">{{ job.company_name }}</p>
+
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    {% for tag in job.tags %}
+                    <span class="badge border rounded-pill px-3 py-1 text-dark bg-white">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+                    <span><strong>Location:</strong> {{ job.job_location or "Remote" }}</span><br>
+                    <span><strong>Posted Date:</strong> {{ job.posted_date }}</span>
+                </div>
+            </div>
+
+            <div class="ms-auto text-end">
+                <a href="{{ job.linkedin_job_url_cleaned }}" target="_blank" class="btn btn-primary">View</a>
+                <br>
+                <a href="{{ job.linkedin_company_url_cleaned }}" target="_blank"
+                    class="small d-block mt-1 text-decoration-none text-muted">Company ↗</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
