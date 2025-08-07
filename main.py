@@ -50,7 +50,7 @@ app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
 app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
 app.include_router(resume_processing_route.router, prefix="/api/resume-parser", tags=["Resume"])
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
-app.include_router(job_route.router, prefix="/api/recommend-jobs", tags=["Job"])
+app.include_router(job_route.router, tags=["Job"])
 app.include_router(google_search_route.router, prefix="/api/google-search", tags=["Google"])
 
 # API routes frontend
