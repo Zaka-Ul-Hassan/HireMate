@@ -1,5 +1,19 @@
 // frontend\static\js\layout\sidebar.js
 
+document.addEventListener("DOMContentLoaded", function () {
+  
+    const findJobBtn = document.getElementById("findJobButton");
+    console.log(findJobBtn);
+    if (findJobBtn) {
+        findJobBtn.addEventListener("click", function (e) {
+          
+            e.preventDefault(); // Prevent normal link behavior
+            window.location.href = "/job/list"; // Navigate to job list
+        });
+    }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Sidebar.js loaded after DOM ready");
 
