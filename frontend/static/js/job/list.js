@@ -1,7 +1,7 @@
 // frontend\static\js\job\list.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    
+    debugger
     const jobContainer = document.getElementById("jobContainer");
     const jobTemplate = document.getElementById("jobTemplate");
     const jobAlert = document.getElementById("jobAlert");
@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         jobAlert.innerHTML = "";
 
         try {
+            debugger
             const res = await fetch("http://127.0.0.1:8000/api/recommend-jobs/recommend/jobs?page=2", {
                 method: "POST",
                 headers: {
@@ -20,10 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
+            debugger
             const data = await res.json();
 
             if (!res.ok) {
-                
                 if (data.detail === "Not Found") {
                     Swal.fire({
                         icon: 'warning',
@@ -58,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 clone.querySelector(".job-title").textContent = job.job_title;
                 clone.querySelector(".company-name").textContent = job.company_name;
                 clone.querySelector(".job-location").textContent = `Location: ${job.job_location || "Remote"}`;
-                clone.querySelector(".posted-date").textContent = `Posted Date: ${job.posted_date}`;
+                clone.querySelector(".posted-date").textContent = `Posted Date: ${job.posted_date || "N/A"}`;
 
                 const tagsContainer = clone.querySelector(".tag-list");
                 tagsContainer.innerHTML = "";
@@ -69,8 +70,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     tagsContainer.appendChild(span);
                 });
 
-                clone.querySelector(".job-view-btn").href = job.linkedin_job_url_cleaned || "#";
-                clone.querySelector(".job-company-link").href = job.linkedin_company_url_cleaned || "#";
+                // Set job URL only if it exists
+                const jobViewBtn = clone.querySelector(".job-view-btn");
+                if (job.linkedin_job_url_cleaned) {
+                    jobViewBtn.href = job.linkedin_job_url_cleaned;
+                } else {
+                    jobViewBtn.href = "javascript:void(0);";
+                    jobViewBtn.classList.add("disabled");
+                    jobViewBtn.style.pointerEvents = "none";
+                }
+
+                // Set company URL only if it exists
+                const companyLink = clone.querySelector(".job-company-link");
+                if (job.linkedin_company_url_cleaned) {
+                    companyLink.href = job.linkedin_company_url_cleaned;
+                } else {
+                    companyLink.href = "javascript:void(0);";
+                    companyLink.classList.add("disabled");
+                    companyLink.style.pointerEvents = "none";
+                }
 
                 jobContainer.appendChild(clone);
             });
