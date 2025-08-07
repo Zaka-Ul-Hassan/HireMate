@@ -109,31 +109,20 @@ def email_inbox(request: Request,
     })
 
 @router.get("/job/list", response_class=HTMLResponse)
-async def get_resume_id(
+async def job_list_page(
     request: Request,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    page: int = 2
+    db: Session = Depends(get_db),
 ):
     resume = db.query(Resume).filter(Resume.UserId == current_user.Id).first()
-
-    if not resume:
-        return templates.TemplateResponse("job/list.html", {
-            "request": request,
-            "user": current_user,
-            "error": "Resume not found. Please upload your resume first.",
-            "jobs": [],
-            "hide_resume": True
-        })
-
-    jobs = fetch_jobs_from_api(db=db, resume_id=resume.Id, page=page)
 
     return templates.TemplateResponse("job/list.html", {
         "request": request,
         "user": current_user,
-        "jobs": jobs,
-        "hide_resume": True
+        "resume_id": resume.Id if resume else None,
+        "hide_resume": not resume,
     })
+
 
 
 
