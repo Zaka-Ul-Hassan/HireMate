@@ -1,7 +1,7 @@
 // frontend\static\js\job\list.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    debugger
+
     const jobContainer = document.getElementById("jobContainer");
     const jobTemplate = document.getElementById("jobTemplate");
     const jobAlert = document.getElementById("jobAlert");
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         jobAlert.innerHTML = "";
 
         try {
-            debugger
+
             const res = await fetch("http://127.0.0.1:8000/api/recommend-jobs/recommend/jobs?page=2", {
                 method: "POST",
                 headers: {
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-            debugger
+
             const data = await res.json();
 
             if (!res.ok) {
