@@ -1,13 +1,12 @@
 # app\routes\user\user_page.py
-from fastapi import APIRouter,Request,Depends,status
-from fastapi.responses import HTMLResponse,RedirectResponse
+from fastapi import APIRouter,Request,Depends
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from app.services.authentication.auth_service import get_current_user
 from app.utils.file_util import senitize_email_html
-from app.services.job.job_scanner_service import fetch_jobs_from_api
 from app.models.user.user import User
 from app.models.resume.resume_model import Resume
 from app.models.email.email_model import Email
@@ -57,12 +56,6 @@ def show_dashboard(
         "user": current_user,
         "hide_resume": True
     })
-
-@router.get("/logout")
-def logout_user():
-    response = RedirectResponse(url="/",status_code=status.HTTP_303_SEE_OTHER)
-    response.delete_cookie("access_token")
-    return response
 
 
 @router.get("/resume-upload", response_class=HTMLResponse)
