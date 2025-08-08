@@ -1,5 +1,5 @@
 # app\routes\user\user_routes.py
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,Depends,Request,HTTPException,status
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
@@ -54,6 +54,13 @@ def get_logged_in_user(current_user:User = Depends(auth_service.get_current_user
         "Country" : current_user.Country,
         "Image" : current_user.Image
     }
+
+@router.post("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    response = JSONResponse({"message": "Logout successfully"})
+    response.delete_cookie("access_token")
+    return response
 
     
 
