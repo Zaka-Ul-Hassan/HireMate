@@ -1,9 +1,10 @@
 # app\models\resume\resume_model.py
 
 from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func
+from app.models.base_user_dto.audit_mixin import AuditMixin
 from app.models.base.model_base import Base
 
-class Resume(Base):
+class Resume(Base, AuditMixin):
     __tablename__ = "Resumes"
 
     Id = Column(Integer, primary_key=True, autoincrement=True)
@@ -16,6 +17,7 @@ class Resume(Base):
     Address = Column(String(255), nullable=False)
     DateOfBirth = Column(String(20), nullable=True)
     Gender = Column(String(10), nullable=True)
+    Country = Column(String(100), nullable=True)
     Nationality = Column(String(100), nullable=True)
     ProfileImage = Column(String(255), nullable=True)
     ResumeFile = Column(String(255), nullable=True)
@@ -53,8 +55,3 @@ class Resume(Base):
     LinkedIn = Column(String(255), nullable=True)
     GitHub = Column(String(255), nullable=True)
     Certifications = Column(Text, nullable=True)
-
-    # Meta Info
-    IsActive = Column(Integer, default=1)  # 1 = Active, 0 = Deleted
-    CreatedAt = Column(DateTime, default=func.now())
-    UpdatedAt = Column(DateTime, default=func.now(), onupdate=func.now())
