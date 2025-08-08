@@ -85,7 +85,7 @@ def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
         return {"error": "Resume not found"}
 
     search_terms = str(resume.DeveloperType or "").strip()
-    location = "Pakistan"
+    location = str(resume.Country or "Pakistan").strip()
 
 
     url = "https://jsearch.p.rapidapi.com/search"

@@ -68,12 +68,11 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     Required Fields (in JSON format):
     {{
         "FullName": "", "Email": "", "PhoneNumber": "", "Address": "", "DateOfBirth": "", "Gender": "",
-        "Nationality": "", "ProfileImage": "", "ResumeFile": "", "Summary": "", "Objective": "",
+        "Nationality": "", "Country": "" "ProfileImage": "", "ResumeFile": "", "Summary": "", "Objective": "",
         "Education1": "", "Education2": "", "Education3": "", "Skills": "",
         "DeveloperType": "",  // e.g., ".NET Developer", "Python Developer", "Front End Developer"
         "ExperienceTitle": "", "ExperienceCompany": "", "ExperienceDuration": "", "TotalExperience": "", "ExperienceDescription": "",
-        "Project1": "", "Project2": "", "Languages": "", "LinkedIn": "", "GitHub": "", "Certifications": "",
-        "IsActive": "true", "CreatedAt": "", "UpdatedAt": ""
+        "Project1": "", "Project2": "", "Languages": "", "LinkedIn": "", "GitHub": "", "Certifications": ""
     }}
     """
 
@@ -111,18 +110,21 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     existing = db.execute(select(Resume).where(Resume.Email == email)).scalar_one_or_none()
     if existing:
         raise ValueError("Email already exists in the system.")
+    
+    created_by = f"{user.FirstName} {user.MiddleName} {user.LastName}"
 
     # Save parsed data
     resume = Resume(
         UserId = user.Id,
         FullName=parsed.get("FullName"),
         Email=email,
-        PhoneNumber=parsed.get("PhoneNumber"),
-        Address=parsed.get("Address"),
-        DateOfBirth=parsed.get("DateOfBirth"),
-        Gender=parsed.get("Gender"),
+        PhoneNumber=parsed.get("PhoneNumber") or user.PhoneNumber,
+        Address=parsed.get("Address") or user.Address,
+        DateOfBirth=parsed.get("DateOfBirth") or user.Dob,
+        Gender=parsed.get("Gender") or user.Gender,
+        Country = parsed.get("Country") or user.Country,
+        ProfileImage=parsed.get("ProfileImage") or user.Image,
         Nationality=parsed.get("Nationality"),
-        ProfileImage=parsed.get("ProfileImage"),
         ResumeFile=file.filename,
         Summary=parsed.get("Summary"),
         Objective=parsed.get("Objective"),
@@ -144,7 +146,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
         Certifications=parsed.get("Certifications"),
         IsActive=True,
         CreatedAt=datetime.utcnow(),
-        UpdatedAt=datetime.utcnow(),
+        CreatedBy = created_by
     )
 
     db.add(resume)
