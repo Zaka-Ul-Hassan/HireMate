@@ -1,70 +1,60 @@
 /* frontend\static\css\dashboard\dashboard.css */
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fc;
-  }
-
-  .btn-getstarted {
-    background: #0d6efd;
-    color: #fff;
-    padding: 8px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-  }
-
-  .btn-getstarted:hover {
-    background: #0b5ed7;
-    color: #fff;
-  }
-
-  .header .logo h1 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-    color: #012970;
-  }
-
-  .navmenu ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 20px;
-  }
-
-  .navmenu a {
-    color: #012970;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .navmenu a:hover {
-    color: #0d6efd;
-  }
-
-  .card {
-    border: none;
-    border-left: 5px solid #0d6efd;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .card:hover {
-    transform: scale(1.02);
-    border-left-color: #0b5ed7;
-  }
-
-  .stylish-brand {
-  font-family: 'Georgia', serif; /* or try 'Cursive', 'Playfair Display' */
-  font-size: 1.75rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: #343a40; /* Bootstrap dark */
-  text-transform: capitalize;
-  transition: all 0.3s ease-in-out;
+body {
+  padding-top: 30px;    /* enough to avoid navbar */
+  padding-left: 100px;  /* sidebar width */
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.stylish-brand:hover {
-  color: #0d6efd; /* Bootstrap primary on hover */
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+/* Main container styling to match resume-upload */
+main#main {
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+/* Cards styling */
+.card {
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
+}
+
+.card:hover {
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Card headings */
+.card h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Text colors consistent with Bootstrap utility classes */
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+  body {
+    padding-left: 0;
+    padding-top: 100px;
+  }
+  main#main {
+    max-width: 100%;
+    margin: 0 10px;
+  }
 }

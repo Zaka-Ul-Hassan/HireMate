@@ -11,6 +11,8 @@
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   z-index: 1000;
+  overflow: hidden !important;
+  height: 100vh;
 }
 
 /* Burger toggle button */
@@ -19,12 +21,14 @@
   justify-content: flex-end;
   margin-bottom: 20px;
 }
+
 .burger {
   display: inline-block;
   width: 30px;
   height: 20px;
   position: relative;
 }
+
 .burger span,
 .burger span::before,
 .burger span::after {
@@ -37,9 +41,11 @@
   width: 100%;
   transition: 0.3s;
 }
+
 .burger span::before {
   top: -8px;
 }
+
 .burger span::after {
   top: 8px;
 }
@@ -55,6 +61,7 @@
 .profile {
   text-align: center;
 }
+
 .profile img {
   width: 80px;
   height: 80px;
@@ -62,11 +69,13 @@
   object-fit: cover;
   margin-bottom: 10px;
 }
+
 .profile .name {
   margin: 0;
   font-size: 18px;
   font-weight: bold;
 }
+
 .profile .country {
   font-size: 14px;
   color: #888;
@@ -79,14 +88,17 @@
   justify-content: space-between;
   text-align: center;
 }
+
 .counter .col {
   flex: 1;
 }
+
 .counter .number {
   display: block;
   font-size: 16px;
   font-weight: bold;
 }
+
 .counter .number-label {
   font-size: 12px;
   color: #666;
@@ -99,9 +111,11 @@
   margin: 0;
   font-weight: 500;
 }
+
 .nav-menu li {
   margin-bottom: 10px;
 }
+
 .nav-menu a {
   display: flex;
   align-items: center;
@@ -112,6 +126,7 @@
   color: #333;
   transition: background 0.3s;
 }
+
 .nav-menu li.active a,
 .nav-menu a:hover {
   background: #f0f0f0;
@@ -132,6 +147,7 @@ main {
     height: auto;
     position: relative;
   }
+
   main {
     margin-left: 0;
     padding: 20px;
@@ -139,20 +155,23 @@ main {
 }
 
 .avatar-placeholder {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-    font-family: "Public Sans", sans-serif;
-    text-transform: uppercase;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%; /* Ensures circular shape */
-    color: rgb(33, 43, 54);
-    background-color: rgb(255, 193, 7); /* Bootstrap primary color */
-    margin-left: 74px;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  font-family: "Public Sans", sans-serif;
+  text-transform: uppercase;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  /* Ensures circular shape */
+  color: rgb(33, 43, 54);
+  background-color: rgb(255, 193, 7);
+  /* Bootstrap primary color */
+  margin-left: 74px;
 }
+
 .sidebar-menu {
   list-style: none;
   padding-left: 0;
@@ -211,4 +230,3 @@ main {
   color: #28a745;
   margin-right: 5px;
 }
-
