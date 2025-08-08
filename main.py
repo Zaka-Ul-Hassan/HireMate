@@ -4,6 +4,8 @@ from fastapi import FastAPI,Request,HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+import secrets
 
 from app.routes.user import user_routes
 from app.routes.email import email_route
@@ -15,6 +17,8 @@ from app.routes.user import user_page_routes
 from app.services.scheduler.scheduler import start_email_scheduler
 
 app = FastAPI()
+
+app.add_middleware(SessionMiddleware, secret_key = secrets.token_hex(32))
 
 # exception handler
 @app.exception_handler(HTTPException)
