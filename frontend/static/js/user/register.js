@@ -1,9 +1,6 @@
 // frontend\static\js\user\register.js
 
-console.log("JS file loaded");
-
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("DOM fully loaded");
 
   const emailInput = document.getElementById('email');
   const emailError = document.getElementById('email_error');
