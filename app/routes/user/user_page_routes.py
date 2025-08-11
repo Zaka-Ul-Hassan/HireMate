@@ -117,5 +117,41 @@ async def job_list_page(
     })
 
 
+@router.get("/forgot-password", response_class=HTMLResponse)
+def forgot_password(
+    request: Request
+    ):
+    return templates.TemplateResponse("user/forgot_password.html", {
+        "request": request,
+        "hide_navbar": True,
+        "hide_footer": True,
+        "fullscreen": True,
+        "hide_sidebar": True
+    })
 
+@router.get("/reset-request-sent",response_class=HTMLResponse)
+def reset_request_sent(request: Request, email: str):
+    return templates.TemplateResponse("user/reset_request_sent.html", {
+        "request": request,
+        "email": email,
+        "hide_navbar": True,
+        "hide_footer": True,
+        "fullscreen": True,
+        "hide_sidebar": True
+    })
+
+
+@router.get("/reset-password", response_class=HTMLResponse)
+def reset_password_form(request: Request, token: str):
+    return templates.TemplateResponse(
+        "user/reset_password.html",
+        {
+            "request": request,
+            "token": token,
+            "hide_navbar": True,
+            "hide_footer": True,
+            "fullscreen": True,
+            "hide_sidebar": True
+        }
+    )
 
