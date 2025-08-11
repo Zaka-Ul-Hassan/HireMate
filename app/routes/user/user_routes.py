@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
 from app.schemas.user.user_schema import RegisterUser,LoginRequest,TokenResponse
+from app.schemas.auth.forgot_password import ForgotPasswordRequest,ForgotPasswordResponse,ResetPasswordRequest,ResetPasswordResponse
 from app.models.user.user import User
 from app.services.user import user_service 
 from app.services.authentication import auth_service
@@ -62,5 +63,28 @@ async def logout(request: Request):
     response.delete_cookie("access_token")
     return response
 
-    
+@router.post("/forgot-password", response_model=ResetPasswordResponse)
+def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        return auth_service.forgot_password(db, request)
+    except HTTPException as e:
+        # Pass through any HTTPExceptions from the service
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+def reset_password(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        return auth_service.reset_password(db, request)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
