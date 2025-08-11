@@ -1,0 +1,29 @@
+<!-- frontend\templates\user\reset_request_sent.html -->
+
+{% extends "shared/base.html" %}
+{% block title %}Reset Password{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 bg-light d-flex justify-content-center align-items-center">
+    <div class="card shadow-sm" style="width: 520px; border-radius: 8px;">
+        <div class="card-body text-center">
+
+            <img src="/static/images/lock_images/paper_airplane.jpg" alt="Paper plane" style="width: 150px;"
+                class="mb-4">
+
+
+            <h5 class="card-title fw-bold mb-3">Reset request sent</h5>
+            <p class="mb-2"><strong>{{email}}</strong></p>
+            <p class="mb-4">Your password reset request has been sent successfully. Please check your email for
+                instructions and don't forget to check your spam folder.</p>
+
+            <a id="resendEmailBtn" class="d-block mb-4 text-primary-custom text-decoration-none" role="button"
+                tabindex="0">Resend Email</a>
+
+
+            <a href="/" class="btn btn-primary" style="padding: 10px 20px;">Back</a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
