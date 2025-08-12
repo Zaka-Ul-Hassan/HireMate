@@ -1,16 +1,16 @@
-// frontend\static\js\shared\password-toggle.js
+// frontend/static/js/shared/password-toggle.js
 
-function togglePassword() {
-  const password = document.getElementById("password");
-  const icon = document.getElementById("toggleIcon");
+function togglePassword(inputId, iconId) {
+    const passwordField = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
 
-  if (password.type === "password") {
-    password.type = "text";
-    icon.classList.remove("fa-eye-slash");
-    icon.classList.add("fa-eye");
-  } else {
-    password.type = "password";
-    icon.classList.remove("fa-eye");
-    icon.classList.add("fa-eye-slash");
-  }
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    } else {
+        passwordField.type = "password";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    }
 }
