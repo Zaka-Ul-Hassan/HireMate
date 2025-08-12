@@ -1,0 +1,98 @@
+// frontend/static/js/user/reset_password.js
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#resetPasswordForm");
+
+    const newPasswordInput = document.querySelector("#new_password");
+    const confirmPasswordInput = document.querySelector("#confirm_password");
+    const newPasswordError = document.querySelector("#newPasswordError");
+    const confirmPasswordError = document.querySelector("#confirmPasswordError");
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/;
+
+    // Token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    // Real-time password validation
+    newPasswordInput.addEventListener("input", function () {
+        const value = newPasswordInput.value.trim();
+        if (!value) {
+            newPasswordInput.classList.add("is-invalid");
+            newPasswordError.textContent = "New password is required.";
+        } else if (!passwordRegex.test(value)) {
+            newPasswordInput.classList.add("is-invalid");
+            newPasswordError.textContent = "Password must include upper, lower, number, and special character.";
+        } else {
+            newPasswordInput.classList.remove("is-invalid");
+            newPasswordError.textContent = "";
+        }
+
+        // Also re-check confirm password live if it's filled
+        if (confirmPasswordInput.value.trim()) {
+            validateConfirmPassword();
+        }
+    });
+
+    // Real-time confirm password validation
+    confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+
+    function validateConfirmPassword() {
+        const confirmValue = confirmPasswordInput.value.trim();
+        const newValue = newPasswordInput.value.trim();
+
+        if (!confirmValue) {
+            confirmPasswordInput.classList.add("is-invalid");
+            confirmPasswordError.textContent = "Confirm password is required.";
+        } else if (confirmValue !== newValue) {
+            confirmPasswordInput.classList.add("is-invalid");
+            confirmPasswordError.textContent = "Passwords do not match.";
+        } else {
+            confirmPasswordInput.classList.remove("is-invalid");
+            confirmPasswordError.textContent = "";
+        }
+    }
+
+    // Form submit
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        let isValid = true;
+
+        // Final check before submit
+        if (!newPasswordInput.value.trim() || newPasswordInput.classList.contains("is-invalid")) {
+            isValid = false;
+        }
+        if (!confirmPasswordInput.value.trim() || confirmPasswordInput.classList.contains("is-invalid")) {
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/users/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    token: token,
+                    new_password: newPasswordInput.value.trim(),
+                    confirm_password: confirmPasswordInput.value.trim()
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toastr.success(data.message || "Password reset successful!", "", { positionClass: "toast-top-full-width" });
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1500);
+            } else {
+                toastr.error(data.detail || data.message || "Failed to reset password.", "", { positionClass: "toast-top-full-width" });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toastr.error("Something went wrong. Please try again.", "", { positionClass: "toast-top-right" });
+        }
+    });
+});
