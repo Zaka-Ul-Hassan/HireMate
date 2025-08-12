@@ -35,3 +35,9 @@ html, body {
 main p {
     margin-right: 40px
 }
+
+.is-invalid{
+    border-color: #dc3545 !important; /* Bootstrap's danger color */
+    box-shadow: none !important; /* remove focus shadow */
+    background-image: none !important; /* remove the default icon */
+}
