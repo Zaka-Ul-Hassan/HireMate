@@ -89,11 +89,12 @@
                                 <label class="form-label" for="password">Password</label>
                                 <input type="password" id="password" name="password" class="form-control"
                                     placeholder="Enter your password">
-                                <i id="toggleIcon" class="fa fa-eye-slash password-toggle" onclick="togglePassword()"></i>
+                                <i id="toggleIcon" class="fa fa-eye-slash password-toggle"
+                                    onclick="togglePassword('password', 'toggleIcon')">
+                                </i>
                             </div>
                             <span class="text-danger" id="password_error"></span>
                         </div>
-
 
                         <div class="col-md-6">
                             <label for="image" class="form-label">Profile Image</label>
