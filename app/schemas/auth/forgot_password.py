@@ -12,6 +12,7 @@ class ForgotPasswordResponse(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+    confirm_password: str
 
 
 class ResetPasswordResponse(BaseModel):
