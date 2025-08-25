@@ -92,10 +92,66 @@ uploadBtn.addEventListener('click', function () {
 
     xhr.onload = function () {
         Swal.close();
-        clearFileSelection();
 
         if (xhr.status === 200) {
-            Swal.fire("Success", "Resume uploaded successfully!", "success");
+            try {
+                const response = JSON.parse(xhr.responseText);
+
+                if (response.resume_exists) {
+                    Swal.fire({
+                        title: 'Resume already exists',
+                        text: 'You already have a resume. Do you want to upload a new one and replace it?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, replace it',
+                        cancelButtonText: 'No'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                    // Show loader again before sending update request
+                    Swal.fire({
+                        title: 'Updating...',
+                        text: 'Please wait while we update your resume.',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const updateFormData = new FormData();
+                    updateFormData.append("file", file);
+                    updateFormData.append("update_existing", "true");
+
+                    const updateXhr = new XMLHttpRequest();
+                    updateXhr.open('POST', '/api/resume-parser/store-process-resume', true);
+
+                    updateXhr.onload = function () {
+                        Swal.close();
+                        clearFileSelection();
+                        if (updateXhr.status === 200) {
+                            Swal.fire("Success", "Resume updated successfully!", "success");
+                        } else {
+                            Swal.fire("Error", "Failed to update resume.", "error");
+                        }
+                    };
+
+                    updateXhr.onerror = function () {
+                        Swal.close();
+                        Swal.fire("Error", "Network error while updating resume.", "error");
+                    };
+
+                    updateXhr.send(updateFormData);
+                } else {
+                    // User clicked "No" → clear the selected file
+                    clearFileSelection();
+                }
+
+                    });
+                } else {
+                    clearFileSelection();
+                    Swal.fire("Success", "Resume uploaded successfully!", "success");
+                }
+            } catch {
+                clearFileSelection();
+                Swal.fire("Error", "Unexpected response from server.", "error");
+            }
         } else {
             try {
                 const response = JSON.parse(xhr.responseText);
