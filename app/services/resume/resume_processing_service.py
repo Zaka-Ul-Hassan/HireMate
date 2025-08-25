@@ -1,5 +1,3 @@
-# app/services/resume/resume_processing_service.py
-
 import requests
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
@@ -10,16 +8,24 @@ import json
 from app.models.resume.resume_model import Resume
 from app.models.user.user import User
 
-def extract_fields_and_store(file: UploadFile, db: Session, user:User):
-
-    existing_user_resume = db.execute(
+def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_existing: bool = False):
+    """
+    Extract fields from resume, check for existing resume, and store in DB.
+    """
+    # Fetch existing resumes
+    existing_resumes = db.execute(
         select(Resume).where(Resume.UserId == user.Id)
-    ).scalar_one_or_none()
+    ).scalars().all() 
 
-    if existing_user_resume:
-        raise ValueError("You have already uploaded a resume.")
-    
-    #  Determine file type and endpoint
+    # If user has existing resume and is NOT updating
+    if existing_resumes and not update_existing:
+        return {
+            "message": "You already have a resume. Do you want to update it?",
+            "resume_exists": True,
+            "resume_id": existing_resumes[0].Id
+        }
+
+    # Determine file type and endpoint
     filename = file.filename.lower()
     if filename.endswith(".pdf"):
         endpoint = "http://127.0.0.1:8000/api/resume-parser/pdf-to-text"
@@ -28,11 +34,10 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     else:
         raise ValueError("Unsupported file format")
 
-    # Upload file content
+    # Read file content and call parser API
     file_content = file.file.read()
     files = {"file": (file.filename, file_content, file.content_type)}
     response = requests.post(endpoint, files=files)
-
     if response.status_code != 200:
         raise RuntimeError(f"Failed to extract text from file: {response.status_code}")
 
@@ -40,7 +45,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     if not extracted_text:
         raise ValueError("No text extracted from resume")
 
-    # Create AI prompt
+  # Create AI prompt
     prompt = f"""
     Extract structured resume data from the unstructured resume text below.
 
@@ -72,7 +77,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
 
     3. For "FullName":
         - If a proper full name exists in the resume text → use it.
-        - If not available → take the part before "@" in the Email and use that as "FullName".
+        - If not available → take the part before "@" in the Email remove numbers and special characters and use that as "FullName".
 
     Required Fields (in JSON format):
     {{
@@ -86,21 +91,20 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     """
 
 
-    # Call AI chat service using POST with JSON body
+    # Call AI service
     ai_response = requests.post(
         "http://127.0.0.1:8000/api/ai-chat/chat",
         json={"prompt": prompt}
     )
-
     if ai_response.status_code != 200:
-        raise RuntimeError(f"AI chat service failed: {ai_response.status_code} - {ai_response.text}")
+        raise RuntimeError(f"AI chat service failed: {ai_response.status_code}")
 
-    response_text = ai_response.json().get("response")
-    if not response_text:
+    parsed_text = ai_response.json().get("response")
+    if not parsed_text:
         raise ValueError("AI did not return any data")
 
     try:
-        parsed = json.loads(response_text)
+        parsed = json.loads(parsed_text)
     except json.JSONDecodeError:
         raise ValueError("AI response could not be parsed as JSON")
 
@@ -108,30 +112,27 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
     email = parsed.get("Email")
     skills = parsed.get("Skills")
     developer_type = parsed.get("DeveloperType")
-    if not email:
-        raise ValueError("Missing required field: Email")
-    if not skills:
-        raise ValueError("Missing required field: Skills")
-    if not developer_type:
-        raise ValueError("Missing required field: DeveloperType")
+    if not email or not skills or not developer_type:
+        raise ValueError("Missing required fields (Email, Skills, DeveloperType)")
 
-    # Prevent duplicate email
-    existing = db.execute(select(Resume).where(Resume.Email == email)).scalar_one_or_none()
-    if existing:
-        raise ValueError("Email already exists in the system.")
-    
-    created_by = f"{user.FirstName} {user.MiddleName} {user.LastName}"
+    created_by = f"{user.FirstName} {user.MiddleName or ''} {user.LastName}"
 
-    # Save parsed data
+    # Delete old resumes if updating
+    if existing_resumes and update_existing:
+        for resume_obj in existing_resumes:
+            db.delete(resume_obj)
+        db.commit()
+
+    # Save new resume
     resume = Resume(
-        UserId = user.Id,
+        UserId=user.Id,
         FullName=parsed.get("FullName"),
         Email=email,
         PhoneNumber=parsed.get("PhoneNumber") or user.PhoneNumber,
         Address=parsed.get("Address") or user.Address,
         DateOfBirth=parsed.get("DateOfBirth") or user.Dob,
         Gender=parsed.get("Gender") or user.Gender,
-        Country = parsed.get("Country") or user.Country,
+        Country=parsed.get("Country") or user.Country,
         ProfileImage=parsed.get("ProfileImage") or user.Image,
         Nationality=parsed.get("Nationality"),
         ResumeFile=file.filename,
@@ -155,12 +156,15 @@ def extract_fields_and_store(file: UploadFile, db: Session, user:User):
         Certifications=parsed.get("Certifications"),
         IsActive=True,
         CreatedAt=datetime.utcnow(),
-        CreatedBy = created_by
+        CreatedBy=created_by
     )
 
     db.add(resume)
     db.commit()
+    db.refresh(resume)
+
     return {
         "message": "Resume processed and saved successfully.",
-        "resume_id": resume.Id
+        "resume_id": resume.Id,
+        "resume_exists": False
     }

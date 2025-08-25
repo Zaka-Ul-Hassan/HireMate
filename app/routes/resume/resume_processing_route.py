@@ -1,8 +1,8 @@
 # app\routes\resume\resume_processing_route.py
 
-from fastapi import APIRouter,File,UploadFile,Depends
+from fastapi import APIRouter,File,UploadFile,Depends,Form
 from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from app.models.user.user import User
 from app.services.resume.resume_parser_service import extract_text_from_pdf,extract_text_from_docx
@@ -33,9 +33,14 @@ async def docx_to_text(file: UploadFile = File(...)):
     
     
 @router.post("/store-process-resume")
-def store_resume(file:UploadFile, db:AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+def store_resume(
+    file: UploadFile,
+    update_existing: bool = Form(False),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
     try:
-        result =  extract_fields_and_store(file,db,user)
-        return {"result": result}
+        result = extract_fields_and_store(file, db, user, update_existing=update_existing)
+        return JSONResponse(status_code=200, content=result)
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"{str(e)}"})
+        return JSONResponse(status_code=500, content={"error": str(e)})

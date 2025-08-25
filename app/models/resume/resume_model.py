@@ -12,7 +12,8 @@ class Resume(Base, AuditMixin):
 
     # Basic Info
     FullName = Column(String(100), nullable=False)
-    Email = Column(String(150), nullable=False, unique=True)
+    # Email = Column(String(150), nullable=False, unique=True)
+    Email = Column(String(150), nullable=False)
     PhoneNumber = Column(String(20), nullable=True)
     Address = Column(String(255), nullable=False)
     DateOfBirth = Column(String(20), nullable=True)
