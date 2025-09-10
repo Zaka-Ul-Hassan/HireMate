@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 
 from app.models.resume.resume_model import Resume
+from app.utils.file_util import save_upload_resume
 from app.models.user.user import User
 
 def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_existing: bool = False):
@@ -123,6 +124,9 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
             db.delete(resume_obj)
         db.commit()
 
+    
+    unique_filename = save_upload_resume(file, upload_dir="uploads/resumes")
+
     # Save new resume
     resume = Resume(
         UserId=user.Id,
@@ -135,7 +139,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
         Country=parsed.get("Country") or user.Country,
         ProfileImage=parsed.get("ProfileImage") or user.Image,
         Nationality=parsed.get("Nationality"),
-        ResumeFile=file.filename,
+        ResumeFile= unique_filename,
         Summary=parsed.get("Summary"),
         Objective=parsed.get("Objective"),
         Education1=parsed.get("Education1"),

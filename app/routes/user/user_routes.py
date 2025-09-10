@@ -22,7 +22,6 @@ def register_user_api(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
 @router.post("/login", response_model=TokenResponse)
 def login_user_api(request:LoginRequest, db:Session = Depends(get_db)):
     #  Find user in DB
@@ -76,7 +75,6 @@ def forgot_password(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/reset-password", response_model=ResetPasswordResponse)
 def reset_password(
     request: ResetPasswordRequest,
@@ -88,3 +86,4 @@ def reset_password(
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

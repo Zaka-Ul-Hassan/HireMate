@@ -6,6 +6,7 @@ import bleach
 from fastapi import UploadFile, HTTPException
 from typing import Optional
 from bleach.css_sanitizer import CSSSanitizer
+from fastapi.responses import FileResponse
 
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg", "image/webp"}
@@ -30,6 +31,28 @@ def sav_upload_file(upload_file: Optional[UploadFile], upload_dir: str = "upload
 
     return file_path
 
+ALLOWED_RESUME_TYPES = {"application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+
+def save_upload_resume(upload_file: Optional[UploadFile], upload_dir: str = "uploads/resumes") -> Optional[str]:
+    if upload_file is None or upload_file.filename == "" or upload_file.content_type is None:
+        return None
+
+    # Validate MIME type
+    if upload_file.content_type not in ALLOWED_RESUME_TYPES:
+        raise HTTPException(status_code=400, detail="Only PDF or DOCX files are allowed.")
+
+    os.makedirs(upload_dir, exist_ok=True)
+
+    filename = f"{uuid.uuid4().hex}_{upload_file.filename}"
+    file_path = os.path.join(upload_dir, filename)
+
+    with open(file_path, "wb") as buffer:
+        for chunk in iter(lambda: upload_file.file.read(1024 * 1024), b""):
+            buffer.write(chunk)
+
+    upload_file.file.seek(0)
+
+    return filename 
 
 def senitize_email_html(html: str) -> str:
     # Remove script and iframe blocks
@@ -62,3 +85,14 @@ def senitize_email_html(html: str) -> str:
         css_sanitizer=css_sanitizer,
         strip=True
     )
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads", "resumes")
+
+def download_resume(filename: str):
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    print("Looking for file:", file_path)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+    return FileResponse(file_path, filename=filename)

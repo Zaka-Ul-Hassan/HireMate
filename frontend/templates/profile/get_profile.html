@@ -1,0 +1,114 @@
+<!-- frontend\templates\profile\get_profile.html -->
+ 
+{% extends "shared/base.html" %}
+
+{% block title %}My Resume{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="profile-box mx-auto shadow rounded bg-white p-4" style="max-width: 850px;">
+        <h3 class="mb-4 text-center">Profile</h3>
+
+        <!-- Basic Info -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Name</label>
+                <div class="form-control-plaintext">{{ resume.FullName }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Email</label>
+                <div class="form-control-plaintext">{{ resume.Email }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Phone</label>
+                <div class="form-control-plaintext">{{ resume.PhoneNumber }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Address</label>
+                <div class="form-control-plaintext">{{ resume.Address }}</div>
+            </div>
+        </div>
+
+        <!-- Career Info -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Objective</label>
+            <div class="p-2 bg-light rounded" style="white-space: pre-wrap;">{{ resume.Objective }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Summary</label>
+            <div class="p-2 bg-light rounded" style="white-space: pre-wrap;">{{ resume.Summary }}</div>
+        </div>
+
+        <!-- Education -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Education</label>
+            <ul class="list-unstyled">
+                {% if resume.Education1 %}<li>• {{ resume.Education1 }}</li>{% endif %}
+                {% if resume.Education2 %}<li>• {{ resume.Education2 }}</li>{% endif %}
+                {% if resume.Education3 %}<li>• {{ resume.Education3 }}</li>{% endif %}
+            </ul>
+        </div>
+
+        <!-- Skills -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Skills</label>
+            <div class="p-2 bg-light rounded">{{ resume.Skills }}</div>
+        </div>
+
+        <!-- Experience -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Experience</label>
+            <div class="p-2 bg-light rounded">
+                {{ resume.ExperienceDescription }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Total Experience</label>
+            <div class="form-control-plaintext">{{ resume.TotalExperience }}</div>
+        </div>
+
+        <!-- Projects -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Projects</label>
+            <ul class="list-unstyled">
+                {% if resume.Project1 %}<li>• {{ resume.Project1 }}</li>{% endif %}
+                {% if resume.Project2 %}<li>• {{ resume.Project2 }}</li>{% endif %}
+            </ul>
+        </div>
+
+        <!-- Certifications -->
+        {% if resume.Certifications %}
+        <div class="mb-3">
+            <label class="form-label fw-bold">Certifications</label>
+            <div class="p-2 bg-light rounded">{{ resume.Certifications }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Languages -->
+        {% if resume.Languages %}
+        <div class="mb-3">
+            <label class="form-label fw-bold">Languages</label>
+            <div class="p-2 bg-light rounded">{{ resume.Languages }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Links -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            {% if resume.LinkedIn %}
+            <a href="{{ resume.LinkedIn }}" class="btn btn-primary" target="_blank">LinkedIn</a>
+            {% endif %}
+            {% if resume.GitHub %}
+            <a href="{{ resume.GitHub }}" class="btn btn-dark" target="_blank">GitHub</a>
+            {% endif %}
+            {% if resume.ResumeFile %}
+<a href="{{ url_for('download_resume_route', user_id=resume.UserId) }}" class="btn btn-success">
+    Download Resume
+</a>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
