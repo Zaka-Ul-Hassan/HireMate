@@ -1,0 +1,138 @@
+<!-- frontend\templates\profile\get_resume.html -->
+
+{% extends "shared/base.html" %}
+
+{% block title %}My Resume{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="profile-box mx-auto shadow-lg rounded bg-white p-5" style="max-width: 900px;">
+        <h2 class="mb-4 text-center text-primary fw-bold">My Resume</h2>
+
+        <!-- Personal Info -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Personal Information</h5>
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Name</label>
+                        <div class="form-control-plaintext">{{ resume.FullName }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <div class="form-control-plaintext">{{ resume.Email }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <div class="form-control-plaintext">{{ resume.PhoneNumber }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Address</label>
+                        <div class="form-control-plaintext">{{ resume.Address }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Info -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Career Information</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Objective</label>
+                    <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ resume.Objective }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Summary</label>
+                    <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ resume.Summary }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Education</h5>
+                <ul class="list-group list-group-flush mt-2">
+                    {% if resume.Education1 %}<li class="list-group-item">• {{ resume.Education1 }}</li>{% endif %}
+                    {% if resume.Education2 %}<li class="list-group-item">• {{ resume.Education2 }}</li>{% endif %}
+                    {% if resume.Education3 %}<li class="list-group-item">• {{ resume.Education3 }}</li>{% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Skills</h5>
+                <div class="p-3 bg-light rounded">{{ resume.Skills }}</div>
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Experience</h5>
+                <div class="p-3 bg-light rounded">{{ resume.ExperienceDescription }}</div>
+                <div class="mt-3">
+                    <strong>Total Experience:</strong> {{ resume.TotalExperience }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-secondary fw-bold">Projects</h5>
+                <ul class="list-group list-group-flush mt-2">
+                    {% if resume.Project1 %}<li class="list-group-item">• {{ resume.Project1 }}</li>{% endif %}
+                    {% if resume.Project2 %}<li class="list-group-item">• {{ resume.Project2 }}</li>{% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Certifications & Languages -->
+        <div class="row">
+            {% if resume.Certifications %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary fw-bold">Certifications</h5>
+                        <div class="p-3 bg-light rounded">{{ resume.Certifications }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if resume.Languages %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary fw-bold">Languages</h5>
+                        <div class="p-3 bg-light rounded">{{ resume.Languages }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Links -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            {% if resume.LinkedIn %}
+            <a href="{{ resume.LinkedIn }}" class="btn btn-primary btn-lg" target="_blank">
+                <i class="bi bi-linkedin"></i> LinkedIn
+            </a>
+            {% endif %}
+            {% if resume.GitHub %}
+            <a href="{{ resume.GitHub }}" class="btn btn-dark btn-lg" target="_blank">
+                <i class="bi bi-github"></i> GitHub
+            </a>
+            {% endif %}
+            {% if resume.ResumeFile %}
+            <a href="{{ url_for('download_resume_route', user_id=resume.UserId) }}" class="btn btn-success">
+                <i class="bi bi-download"></i> Download Resume
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
