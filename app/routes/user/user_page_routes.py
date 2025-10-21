@@ -254,37 +254,3 @@ def profile_page(
         "user": current_user,
         "resume": resume
     })
-
-@router.post("/user/{user_id}/edit-profile", name="update_profile_route")
-async def update_profile_page(
-    request: Request,
-    user_id: int,
-    full_name: str = Form(...),
-    email: str = Form(...),
-    phone: str = Form(...),
-    address: str = Form(...),
-    objective: str = Form(...),
-    summary: str = Form(...),
-    skills: str = Form(...),
-    linkedin: str = Form(None),
-    github: str = Form(None),
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    if current_user.Id != user_id:
-        return RedirectResponse(url="/dashboard")
-
-    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
-    if resume:
-        resume.FullName = full_name
-        resume.Email = email
-        resume.PhoneNumber = phone
-        resume.Address = address
-        resume.Objective = objective
-        resume.Summary = summary
-        resume.Skills = skills
-        resume.LinkedIn = linkedin
-        resume.GitHub = github
-        db.commit()
-
-    return RedirectResponse(url=f"/user/{user_id}/edit-profile", status_code=302)

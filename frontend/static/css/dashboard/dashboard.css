@@ -1,60 +1,56 @@
-/* frontend\static\css\dashboard\dashboard.css */
-
 body {
-  padding-top: 30px;    /* enough to avoid navbar */
-  padding-left: 100px;  /* sidebar width */
-  background-color: #f9f9f9;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #000;
+  overflow-x: hidden;
 }
 
-/* Main container styling to match resume-upload */
-main#main {
-  max-width: 900px;
-  margin: 20px auto;
+.container-fluid {
+  max-width: 100%;
 }
 
-/* Cards styling */
+.welcome-banner {
+  background: linear-gradient(90deg, #e3f2fd, #e1f5fe);
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
 .card {
-  border-radius: 8px;
-  transition: box-shadow 0.3s ease;
-  background-color: #fff;
+  border-radius: 16px;
+  background: #fff;
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Card headings */
-.card h5 {
-  font-weight: 600;
-  margin-bottom: 10px;
+.hover-card:hover {
+  background-color: #eaf1ff;
 }
 
-/* Text colors consistent with Bootstrap utility classes */
-.text-primary {
-  color: #0d6efd !important;
+.list-group-item {
+  background: transparent;
+  color: #000;
 }
 
-.text-success {
-  color: #198754 !important;
+.btn {
+  border-radius: 10px;
 }
 
-.text-warning {
-  color: #ffc107 !important;
+.text-dark {
+  color: #000 !important;
 }
 
-.text-info {
-  color: #0dcaf0 !important;
+.text-secondary {
+  color: #444 !important;
 }
 
-/* Responsive fixes */
-@media (max-width: 768px) {
-  body {
-    padding-left: 0;
-    padding-top: 100px;
-  }
-  main#main {
-    max-width: 100%;
-    margin: 0 10px;
-  }
+.dashboard-content {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.animate__animated {
+  animation-duration: 1s;
 }

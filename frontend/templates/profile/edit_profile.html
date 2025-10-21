@@ -4,95 +4,91 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="profile-box mx-auto shadow rounded bg-white p-4" style="max-width: 900px;">
+    <div class="profile-box mx-auto shadow rounded bg-white p-4" style="max-width: 800px;">
         <h3 class="mb-4 text-center">Edit Profile</h3>
 
-        <form method="POST" action="{{ url_for('update_profile_route', user_id=resume.UserId) }}">
+        <form method="POST" action="{{ url_for('update_profile_route', user_id=user.Id) }}" enctype="multipart/form-data">
             <div class="row g-3">
-                <!-- Basic Info -->
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Full Name</label>
-                    <input type="text" class="form-control" name="full_name" value="{{ resume.FullName }}">
+                <!-- First Name -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">First Name</label>
+                    <input type="text" class="form-control" name="first_name" value="{{ user.FirstName }}" required>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Email</label>
-                    <input type="email" class="form-control" name="email" value="{{ resume.Email }}">
+
+                <!-- Middle Name -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Middle Name</label>
+                    <input type="text" class="form-control" name="middle_name" value="{{ user.MiddleName }}">
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Phone</label>
-                    <input type="text" class="form-control" name="phone" value="{{ resume.PhoneNumber }}">
+
+                <!-- Last Name -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Last Name</label>
+                    <input type="text" class="form-control" name="last_name" value="{{ user.LastName }}" required>
                 </div>
+
+                <!-- Age -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Age</label>
+                    <input type="number" class="form-control" name="age" value="{{ user.Age }}">
+                </div>
+
+                <!-- Gender -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Gender</label>
+                    <select class="form-select" name="gender">
+                        <option value="">Select Gender</option>
+                        <option value="Male" {% if user.Gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if user.Gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if user.Gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- DOB -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Date of Birth</label>
+                    <input type="date" class="form-control" name="dob" value="{{ user.Dob|date('Y-m-d') }}">
+                </div>
+
+                <!-- Address -->
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Address</label>
-                    <input type="text" class="form-control" name="address" value="{{ resume.Address }}">
+                    <input type="text" class="form-control" name="address" value="{{ user.Address }}">
                 </div>
-            </div>
 
-            <!-- Career Info -->
-            <div class="mb-3 mt-3">
-                <label class="form-label fw-bold">Objective</label>
-                <textarea class="form-control" name="objective" rows="3">{{ resume.Objective }}</textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Summary</label>
-                <textarea class="form-control" name="summary" rows="3">{{ resume.Summary }}</textarea>
-            </div>
-
-            <!-- Skills -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Skills</label>
-                <input type="text" class="form-control" name="skills" value="{{ resume.Skills }}">
-            </div>
-
-            <!-- Education -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Education</label>
-                <input type="text" class="form-control mb-1" name="education1" value="{{ resume.Education1 }}">
-                <input type="text" class="form-control mb-1" name="education2" value="{{ resume.Education2 }}">
-                <input type="text" class="form-control" name="education3" value="{{ resume.Education3 }}">
-            </div>
-
-            <!-- Experience -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Experience</label>
-                <textarea class="form-control" name="experience_description" rows="3">{{ resume.ExperienceDescription }}</textarea>
-                <input type="text" class="form-control mt-1" name="total_experience" value="{{ resume.TotalExperience }}">
-            </div>
-
-            <!-- Projects -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Projects</label>
-                <input type="text" class="form-control mb-1" name="project1" value="{{ resume.Project1 }}">
-                <input type="text" class="form-control" name="project2" value="{{ resume.Project2 }}">
-            </div>
-
-            <!-- Certifications -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Certifications</label>
-                <input type="text" class="form-control" name="certifications" value="{{ resume.Certifications }}">
-            </div>
-
-            <!-- Languages -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Languages</label>
-                <input type="text" class="form-control" name="languages" value="{{ resume.Languages }}">
-            </div>
-
-            <!-- Links -->
-            <div class="row g-3 mb-3">
+                <!-- Country -->
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">LinkedIn</label>
-                    <input type="text" class="form-control" name="linkedin" value="{{ resume.LinkedIn }}">
+                    <label class="form-label fw-bold">Country</label>
+                    <input type="text" class="form-control" name="country" value="{{ user.Country }}">
                 </div>
+
+                <!-- Phone -->
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">GitHub</label>
-                    <input type="text" class="form-control" name="github" value="{{ resume.GitHub }}">
+                    <label class="form-label fw-bold">Phone Number</label>
+                    <input type="text" class="form-control" name="phone_number" value="{{ user.PhoneNumber }}">
+                </div>
+
+                <!-- Email (Read Only) -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Email</label>
+                    <input type="email" class="form-control" name="email" value="{{ user.Email }}" readonly>
+                </div>
+
+                <!-- Profile Image -->
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Profile Image</label>
+                    {% if user.Image %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('static', filename='uploads/' + user.Image) }}" alt="Profile Image"
+                                 class="rounded-circle" width="100" height="100">
+                        </div>
+                    {% endif %}
+                    <input type="file" class="form-control" name="image">
                 </div>
             </div>
 
             <div class="d-flex justify-content-center mt-4">
-                <button type="submit" class="btn btn-primary">Save Profile</button>
+                <button type="submit" class="btn btn-primary px-4">Save Changes</button>
             </div>
         </form>
     </div>

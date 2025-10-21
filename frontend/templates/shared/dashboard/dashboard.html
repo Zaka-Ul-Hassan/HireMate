@@ -1,57 +1,188 @@
-<!-- frontend/templates/shared/dashboard/dashboard.html -->
-
 {% extends 'shared/base.html' %}
-
-{% block title %}Dashboard | School App{% endblock %}
+{% block title %}Dashboard | Job Finder{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard/dashboard.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}
 
 {% block content %}
-
-<!-- Include Sidebar like resume-upload -->
 {% include 'shared/sidebar.html' %}
 
-<!-- Main content container -->
-<main id="main" class="container p-2">
+<main id="main" class="container-fluid px-5 py-4">
 
-  <section class="container mt-5">
+  <!-- Welcome Banner -->
+  <section class="welcome-banner text-center py-5 mb-5 animate__animated animate__fadeInDown">
+    <h1 class="display-4 fw-bold text-dark mb-3">👋 Welcome Back, Zaka!</h1>
+    <p class="lead text-secondary">
+      Explore your job dashboard, track your performance, and stay updated with the latest hiring trends.
+    </p>
+  </section>
 
+  <section class="container-fluid dashboard-content">
+
+    <!-- Top Summary Cards -->
     <div class="row gy-4">
-
       <div class="col-lg-3 col-md-6">
-        <div class="card shadow-sm p-3">
-          <h5>Total Jobs</h5>
+        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-semibold text-dark">Total Jobs</h5>
           <p class="display-6 fw-bold text-primary">24</p>
+          <p class="text-secondary small">Active job listings</p>
         </div>
       </div>
-
       <div class="col-lg-3 col-md-6">
-        <div class="card shadow-sm p-3">
-          <h5>Applicants</h5>
+        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-semibold text-dark">Applicants</h5>
           <p class="display-6 fw-bold text-success">135</p>
+          <p class="text-secondary small">Applications submitted</p>
         </div>
       </div>
-
       <div class="col-lg-3 col-md-6">
-        <div class="card shadow-sm p-3">
-          <h5>Interviews</h5>
+        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-semibold text-dark">Interviews</h5>
           <p class="display-6 fw-bold text-warning">18</p>
+          <p class="text-secondary small">This week</p>
         </div>
       </div>
-
       <div class="col-lg-3 col-md-6">
-        <div class="card shadow-sm p-3">
-          <h5>Hired</h5>
+        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-semibold text-dark">Hired</h5>
           <p class="display-6 fw-bold text-info">7</p>
+          <p class="text-secondary small">Successful hires</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mt-5">
+      <div class="col-lg-8 mb-4">
+        <div class="card shadow-lg p-4">
+          <h5 class="text-dark mb-3 fw-semibold">📊 Job Applications Over Time</h5>
+          <canvas id="jobsChart" height="100"></canvas>
         </div>
       </div>
 
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow-lg p-4 mb-4">
+          <h5 class="text-dark mb-3 fw-semibold">🏢 Top Companies Hiring</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Google — 12 openings</li>
+            <li class="list-group-item">Microsoft — 8 openings</li>
+            <li class="list-group-item">Amazon — 10 openings</li>
+            <li class="list-group-item">Netflix — 6 openings</li>
+            <li class="list-group-item">IBM — 5 openings</li>
+          </ul>
+        </div>
+
+        <div class="card shadow-lg p-4">
+          <h5 class="text-dark mb-3 fw-semibold">🔥 Skills in Demand</h5>
+          <canvas id="skillsChart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Jobs -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card shadow-lg p-4">
+          <h5 class="text-dark mb-4 fw-semibold">💼 Featured Job Openings</h5>
+          <div class="row g-4">
+            {% for i in range(1,6) %}
+            <div class="col-md-4">
+              <div class="p-4 border rounded bg-light hover-card">
+                <h6 class="fw-bold text-dark">Software Engineer {{ i }}</h6>
+                <p class="mb-1 text-secondary">Company: TechCorp {{ i }}</p>
+                <p class="mb-1 text-secondary">Location: Karachi, PK</p>
+                <p class="small text-dark">Salary: Rs. {{ 150000 + i*10000 }}/month</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Career Insights -->
+    <div class="row mt-4">
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-lg p-4">
+          <h5 class="text-dark fw-semibold mb-3">💡 Career Tips</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Learn trending technologies like AI and Cloud.</li>
+            <li class="list-group-item">Keep your resume updated quarterly.</li>
+            <li class="list-group-item">Build a strong LinkedIn profile.</li>
+            <li class="list-group-item">Join webinars and networking sessions.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-lg p-4">
+          <h5 class="text-dark fw-semibold mb-3">📈 Job Market Overview</h5>
+          <canvas id="marketChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card shadow-lg p-5 text-center bg-light">
+          <h4 class="text-dark fw-bold mb-3">📬 Contact Us</h4>
+          <p class="text-secondary mb-4">Have questions or suggestions? We’d love to hear from you!</p>
+          <p><strong>Email:</strong> support@jobfinder.com</p>
+          <p><strong>Phone:</strong> +92 300 1234567</p>
+          <p><strong>Address:</strong> Office #23, Tech Hub Plaza, Lahore, Pakistan</p>
+        </div>
+      </div>
     </div>
 
   </section>
-
 </main>
+
+<script>
+  // Job Applications Chart
+  new Chart(document.getElementById('jobsChart'), {
+    type: 'line',
+    data: {
+      labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+      datasets: [{
+        label: 'Applications',
+        data: [50, 70, 90, 120, 150, 180],
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13,110,253,0.15)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  // Skills Chart
+  new Chart(document.getElementById('skillsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Python', 'React', 'Cloud', 'AI/ML', 'Cybersecurity'],
+      datasets: [{
+        label: 'Demand Level',
+        data: [85, 75, 90, 95, 70],
+        backgroundColor: '#198754'
+      }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  // Market Chart
+  new Chart(document.getElementById('marketChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Remote', 'Hybrid', 'On-site'],
+      datasets: [{
+        data: [60, 25, 15],
+        backgroundColor: ['#0d6efd', '#ffc107', '#dc3545']
+      }]
+    }
+  });
+</script>
 
 {% endblock %}
