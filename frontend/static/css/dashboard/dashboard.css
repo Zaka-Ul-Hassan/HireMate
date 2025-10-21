@@ -1,56 +1,55 @@
+/* frontend\static\css\dashboard\dashboard.css */
+
 body {
-  background-color: #f8f9fa;
-  color: #000;
-  overflow-x: hidden;
+  padding-top: 30px; 
+  padding-left: 100px;
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container-fluid {
-  max-width: 100%;
-}
-
-.welcome-banner {
-  background: linear-gradient(90deg, #e3f2fd, #e1f5fe);
-  border-radius: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+main#main {
+  margin: 20px auto;
+  margin-left: 70px;
 }
 
 .card {
-  border-radius: 16px;
-  background: #fff;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
 
-.hover-card:hover {
-  background-color: #eaf1ff;
+.card h5 {
+  font-weight: 400;
+  margin-bottom: 10px;
 }
 
-.list-group-item {
-  background: transparent;
-  color: #000;
+.text-primary {
+  color: #0d6efd !important;
 }
 
-.btn {
-  border-radius: 10px;
+.text-success {
+  color: #198754 !important;
 }
 
-.text-dark {
-  color: #000 !important;
+.text-warning {
+  color: #ffc107 !important;
 }
 
-.text-secondary {
-  color: #444 !important;
+.text-info {
+  color: #0dcaf0 !important;
 }
 
-.dashboard-content {
-  width: 100%;
-  margin: 0 auto;
-}
-
-.animate__animated {
-  animation-duration: 1s;
+@media (max-width: 768px) {
+  body {
+    padding-left: 0;
+    padding-top: 100px;
+  }
+  main#main {
+    max-width: 100%;
+    margin: 0 10px;
+  }
 }

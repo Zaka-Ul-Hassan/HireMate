@@ -59,7 +59,7 @@
       <div class="col-lg-8 mb-4">
         <div class="card shadow-lg p-4">
           <h5 class="text-dark mb-3 fw-semibold">📊 Job Applications Over Time</h5>
-          <canvas id="jobsChart" height="300"></canvas>
+          <canvas id="jobsChart" height="310"></canvas>
         </div>
       </div>
 
@@ -67,11 +67,13 @@
         <div class="card shadow-lg p-4 mb-4">
           <h5 class="text-dark mb-3 fw-semibold">🏢 Top Companies Hiring</h5>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">Google — 12 openings</li>
-            <li class="list-group-item">Microsoft — 8 openings</li>
-            <li class="list-group-item">Amazon — 10 openings</li>
-            <li class="list-group-item">Netflix — 6 openings</li>
-            <li class="list-group-item">IBM — 5 openings</li>
+            <li class="list-group-item">Systems Limited (Lahore) — 12 openings</li>
+            <li class="list-group-item">NetSol Technologies (Lahore) — 8 openings</li>
+            <li class="list-group-item">Confiz Limited (Lahore) — 10 openings</li>
+            <li class="list-group-item">VentureDive (Karachi) — 6 openings</li>
+            <li class="list-group-item">Arpatech (Karachi) — 5 openings</li>
+             <li class="list-group-item">Tkxel (Lahore) — 5 openings</li>
+              <li class="list-group-item">10Pearls (Karachi) — 5 openings</li>
           </ul>
         </div>
 
@@ -79,25 +81,63 @@
     </div>
 
     <!-- Featured Jobs -->
-    <div class="row mt-4">
-      <div class="col-12">
-        <div class="card shadow-lg p-4">
-          <h5 class="text-dark mb-4 fw-semibold">💼 Featured Job Openings</h5>
-          <div class="row g-4">
-            {% for i in range(1,6) %}
-            <div class="col-md-4">
-              <div class="p-4 border rounded bg-light hover-card">
-                <h6 class="fw-bold text-dark">Software Engineer {{ i }}</h6>
-                <p class="mb-1 text-secondary">Company: TechCorp {{ i }}</p>
-                <p class="mb-1 text-secondary">Location: Karachi, PK</p>
-                <p class="small text-dark">Salary: Rs. {{ 150000 + i*10000 }}/month</p>
-              </div>
-            </div>
-            {% endfor %}
+<!-- Featured Jobs -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card shadow-lg p-4">
+      <h5 class="text-dark mb-4 fw-semibold">💼 Featured Job Openings</h5>
+      <div class="row g-4">
+        
+        <div class="col-md-4">
+          <div class="p-4 border rounded bg-light hover-card">
+            <h6 class="fw-bold text-dark">Software Engineer</h6>
+            <p class="mb-1 text-secondary">Company: Systems Limited</p>
+            <p class="mb-1 text-secondary">Location: Lahore, PK</p>
+            <p class="small text-dark">Salary: Rs. 180,000/month</p>
           </div>
         </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded bg-light hover-card">
+            <h6 class="fw-bold text-dark">Frontend Developer</h6>
+            <p class="mb-1 text-secondary">Company: 10Pearls</p>
+            <p class="mb-1 text-secondary">Location: Karachi, PK</p>
+            <p class="small text-dark">Salary: Rs. 160,000/month</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded bg-light hover-card">
+            <h6 class="fw-bold text-dark">Data Scientist</h6>
+            <p class="mb-1 text-secondary">Company: Arbisoft</p>
+            <p class="mb-1 text-secondary">Location: Lahore, PK</p>
+            <p class="small text-dark">Salary: Rs. 220,000/month</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded bg-light hover-card">
+            <h6 class="fw-bold text-dark">Mobile App Developer</h6>
+            <p class="mb-1 text-secondary">Company: Tkxel</p>
+            <p class="mb-1 text-secondary">Location: Islamabad, PK</p>
+            <p class="small text-dark">Salary: Rs. 190,000/month</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded bg-light hover-card">
+            <h6 class="fw-bold text-dark">UI/UX Designer</h6>
+            <p class="mb-1 text-secondary">Company: VentureDive</p>
+            <p class="mb-1 text-secondary">Location: Karachi, PK</p>
+            <p class="small text-dark">Salary: Rs. 170,000/month</p>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
+</div>
+
 
     <!-- Career Insights -->
     <div class="row mt-4">
@@ -105,7 +145,7 @@
         <div class="card shadow-lg p-4">
           <h5 class="text-dark fw-semibold mb-3">💡 Career Tips</h5>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">Learn trending technologies like AI.</li>
+            <li class="list-group-item">Learn trending technologies like AI And Cloud Computing</li>
             <li class="list-group-item">Keep your resume updated quarterly.</li>
             <li class="list-group-item">Build a strong LinkedIn profile.</li>
             <li class="list-group-item">Join webinars and networking sessions.</li>
@@ -113,6 +153,10 @@
             <li class="list-group-item">Prepare thoroughly for interviews.</li>
             <li class="list-group-item">Seek feedback to improve your skills.</li>
             <li class="list-group-item">Stay positive and persistent in your job.</li>
+            <li class="list-group-item">Customize applications for each job.</li>
+            <li class="list-group-item">Research companies before interviews.</li>
+            <li class="list-group-item">Enhance both technical and soft skills.</li>
+            <li class="list-group-item">Set clear career goals and track progress and focus on new opportunities</li>
           </ul>
         </div>
       </div>
