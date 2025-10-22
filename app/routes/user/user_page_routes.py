@@ -2,8 +2,8 @@
 
 from io import BytesIO
 import os
-from fastapi import APIRouter, HTTPException,Request,Depends
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import APIRouter, Form, HTTPException,Request,Depends
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 import pdfkit
 from sqlalchemy.orm import Session
@@ -152,20 +152,20 @@ def reset_password_form(request: Request, token: str):
         }
     )
 
-@router.get("/user/{user_id}", response_class=HTMLResponse)
+@router.get("/resume/{user_id}", response_class=HTMLResponse)
 def profile_page(
     request: Request,
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Ensure user is accessing their own profile (or admin check)
+    # Ensure user is accessing their own resume (or admin check)
     if current_user.Id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     resume = db.query(Resume).filter(Resume.UserId == user_id).first()
 
-    return templates.TemplateResponse("profile/get_profile.html", {
+    return templates.TemplateResponse("resume/get_resume.html", {
         "request": request,
         "user": current_user,
         "resume": resume
@@ -235,3 +235,22 @@ def download_resume_route(user_id: int, db: Session = Depends(get_db)):
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={safe_name}_Resume.pdf"}
     )
+
+@router.get("/user/{user_id}", response_class=HTMLResponse)
+def profile_page(
+    request: Request,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Ensure user is accessing their own resume (or admin check)
+    if current_user.Id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
+
+    return templates.TemplateResponse("profile/edit_profile.html", {
+        "request": request,
+        "user": current_user,
+        "resume": resume
+    })

@@ -1,19 +1,17 @@
 /* frontend\static\css\dashboard\dashboard.css */
 
 body {
-  padding-top: 30px;    /* enough to avoid navbar */
-  padding-left: 100px;  /* sidebar width */
+  padding-top: 30px; 
+  padding-left: 100px;
   background-color: #f9f9f9;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Main container styling to match resume-upload */
 main#main {
-  max-width: 900px;
   margin: 20px auto;
+  margin-left: 70px;
 }
 
-/* Cards styling */
 .card {
   border-radius: 8px;
   transition: box-shadow 0.3s ease;
@@ -24,13 +22,11 @@ main#main {
   box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
 
-/* Card headings */
 .card h5 {
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 10px;
 }
 
-/* Text colors consistent with Bootstrap utility classes */
 .text-primary {
   color: #0d6efd !important;
 }
@@ -47,7 +43,6 @@ main#main {
   color: #0dcaf0 !important;
 }
 
-/* Responsive fixes */
 @media (max-width: 768px) {
   body {
     padding-left: 0;
