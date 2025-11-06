@@ -3,17 +3,13 @@ import requests
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-import load_env
-
 router = APIRouter()
-
-loader = load_env()
 
 
 @router.get("/voice-agent-keys")
 def get_voice_agent_keys():
-    vapi_public_key = loader.vapi_public_key
-    vapi_private_key = loader.vapi_private_key
+    vapi_public_key = os.getenv("VAPI_PUBLIC_KEY")
+    vapi_private_key = os.getenv("VAPI_PRIVATE_KEY")
 
     if not vapi_public_key or not vapi_private_key:
         return JSONResponse(status_code=404, content={"error": "VAPI keys not configured"})
@@ -26,12 +22,12 @@ def get_voice_agent_keys():
 @router.post("/make_call")
 def make_call(customer_number: str, message: str):
     try:
-        VAPI_ASSISTANT_ID = loader.vapi_assistant_id
-        VAPI_ASSISTANT_NAME = loader.vapi_assistant_name
-        VAPI_PRIVATE_KEY = loader.vapi_private_key
-        twilio_account_sid = loader.twilio_account_sid
-        twilio_auth_token = loader.twilio_auth_token
-        twilio_phone_number = loader.twilio_phone_number
+        VAPI_ASSISTANT_ID = os.getenv("VAPI_ASSISTANT_ID")
+        VAPI_ASSISTANT_NAME = os.getenv("VAPI_ASSISTANT_NAME")
+        VAPI_PRIVATE_KEY = os.getenv("VAPI_PRIVATE_KEY")
+        twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+        twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+        twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")
 
         if not VAPI_PRIVATE_KEY:
             raise HTTPException(status_code=500, detail="Missing VAPI_PRIVATE_KEY")
@@ -41,12 +37,12 @@ def make_call(customer_number: str, message: str):
             "name": VAPI_ASSISTANT_NAME,
             "assistant": {
                 "transcriber": {
-                    "provider": loader.twillio_provider
+                    "provider": os.getenv("VAPI_TRANSCRIBER_PROVIDER")
                 },
                 "model": {
-                    "provider": loader.vapi_model_provider,
-                    "model": loader.vapi_model_name,
-                    "systemPrompt": loader.vapi_system_propmpt
+                    "provider": os.getenv("VAPI_MODEL_PROVIDER"),
+                    "model": os.getenv("VAPI_MODEL_NAME"),
+                    "systemPrompt": os.getenv("VAPI_SYSTEM_PROMPT")
                 },
                 "firstMessage": message,
                 "endCallFunctionEnabled": True,
