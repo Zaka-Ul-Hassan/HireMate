@@ -12,7 +12,7 @@ from app.routes.email import email_route
 from app.routes.resume import resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
-from app.routes.ai import cohere_chat_route
+from app.routes.ai import cohere_chat_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.services.scheduler.scheduler import start_email_scheduler
 
@@ -56,6 +56,7 @@ app.include_router(resume_processing_route.router, prefix="/api/resume-parser", 
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
 app.include_router(job_route.router, tags=["Job"])
 app.include_router(google_search_route.router, prefix="/api/google-search", tags=["Google"])
+app.include_router(voice_agent_route.router, prefix="/api/voice-agent-key", tags=["Voice Agent"])
 
 # API routes frontend
 app.include_router(user_page_routes.router)
