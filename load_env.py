@@ -12,6 +12,18 @@ google_search_cse_id = os.getenv("GOOGLE_SEARCH_CSE_ID")
 vapi_public_key = os.getenv("VAPI_PUBLIC_KEY")
 vapi_private_key = os.getenv("VAPI_PRIVATE_KEY")
 
+vapi_assistant_id = os.getenv("VAPI_ASSISTANT_ID")
+vapi_assistant_name = os.getenv("VAPI_ASSISTANT_NAME")
+vapi_private_key = os.getenv("VAPI_PRIVATE_KEY")
+twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")
+twillio_provider = os.getenv("VAPI_TRANSCRIBER_PROVIDER")
+vapi_model_provider = os.getenv("VAPI_MODEL_PROVIDER")
+vapi_model_name =  os.getenv("VAPI_MODEL_NAME")
+vapi_system_propmpt = os.getenv("VAPI_SYSTEM_PROMPT")
+
+
 print(cohere_api_key)
 print(google_search_api_key)
 print(google_search_cse_id)
