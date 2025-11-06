@@ -4,19 +4,34 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+# Cohere API Key
 cohere_api_key = os.getenv("COHERE_API_KEY")
 
+# Google Search API Key and CSE ID
 google_search_api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
 google_search_cse_id = os.getenv("GOOGLE_SEARCH_CSE_ID")
 
-vapi_public_key = os.getenv("VAPI_PUBLIC_KEY")
-vapi_private_key = os.getenv("VAPI_PRIVATE_KEY")
+# VAPI
+vapi_public_api_key = os.getenv("VAPI_PUBLIC_KEY")
+vapi_private_api_key = os.getenv("VAPI_PRIVATE_KEY")
+vapi_assistant_api_id = os.getenv("VAPI_ASSISTANT_ID")
+vapi_assistant_api_name = os.getenv("VAPI_ASSISTANT_NAME")
+
+# Twilio
+twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
+twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
+twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
+
+# Model / Transcriber
+transcriber_provider = os.getenv("VAPI_TRANSCRIBER_PROVIDER")
+model_provider = os.getenv("VAPI_MODEL_PROVIDER")
+model_name = os.getenv("VAPI_MODEL_NAME")
+system_prompt = os.getenv("VAPI_SYSTEM_PROMPT")
 
 print(cohere_api_key)
 print(google_search_api_key)
 print(google_search_cse_id)
-print(vapi_public_key)
-print(vapi_private_key)
 
 
 

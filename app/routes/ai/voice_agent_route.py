@@ -2,14 +2,26 @@ import os
 import requests
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+from load_env import (
+    vapi_public_api_key,
+    vapi_private_api_key,
+    vapi_assistant_api_id,
+    vapi_assistant_api_name,
+    twilio_sid,
+    twilio_token,
+    twilio_number,
+    transcriber_provider,
+    model_provider,
+    model_name,
+    system_prompt
+    )
 
 router = APIRouter()
 
-
 @router.get("/voice-agent-keys")
 def get_voice_agent_keys():
-    vapi_public_key = os.getenv("VAPI_PUBLIC_KEY")
-    vapi_private_key = os.getenv("VAPI_PRIVATE_KEY")
+    vapi_public_key = vapi_public_api_key
+    vapi_private_key = vapi_private_api_key
 
     if not vapi_public_key or not vapi_private_key:
         return JSONResponse(status_code=404, content={"error": "VAPI keys not configured"})
@@ -22,27 +34,27 @@ def get_voice_agent_keys():
 @router.post("/make_call")
 def make_call(customer_number: str, message: str):
     try:
-        VAPI_ASSISTANT_ID = os.getenv("VAPI_ASSISTANT_ID")
-        VAPI_ASSISTANT_NAME = os.getenv("VAPI_ASSISTANT_NAME")
-        VAPI_PRIVATE_KEY = os.getenv("VAPI_PRIVATE_KEY")
-        twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-        twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-        twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")
+        vapi_assistant_id = vapi_assistant_api_id
+        vapi_assistant_name = vapi_assistant_api_name
+        vapi_private_key = vapi_private_api_key
+        twilio_account_sid = twilio_sid
+        twilio_auth_token = twilio_token
+        twilio_phone_number = twilio_number
 
-        if not VAPI_PRIVATE_KEY:
+        if not vapi_private_key:
             raise HTTPException(status_code=500, detail="Missing VAPI_PRIVATE_KEY")
 
         payload = {
-            "assistantId": VAPI_ASSISTANT_ID,
-            "name": VAPI_ASSISTANT_NAME,
+            "assistantId": vapi_assistant_id,
+            "name": vapi_assistant_name,
             "assistant": {
                 "transcriber": {
-                    "provider": os.getenv("VAPI_TRANSCRIBER_PROVIDER")
+                    "provider": transcriber_provider
                 },
                 "model": {
-                    "provider": os.getenv("VAPI_MODEL_PROVIDER"),
-                    "model": os.getenv("VAPI_MODEL_NAME"),
-                    "systemPrompt": os.getenv("VAPI_SYSTEM_PROMPT")
+                    "provider": model_provider,
+                    "model": model_name,
+                    "systemPrompt": system_prompt
                 },
                 "firstMessage": message,
                 "endCallFunctionEnabled": True,
@@ -59,7 +71,7 @@ def make_call(customer_number: str, message: str):
         }
 
         headers = {
-            "Authorization": f"Bearer {VAPI_PRIVATE_KEY}",  # VAPI Bearer token
+            "Authorization": f"Bearer {vapi_private_key}",
             "Content-Type": "application/json"
         }
 
