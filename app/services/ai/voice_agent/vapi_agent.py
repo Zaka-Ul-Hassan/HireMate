@@ -1,5 +1,8 @@
+# app\services\ai\voice_agent\vapi_agent.py
+
 import requests
 from fastapi import HTTPException
+from app.models.resume.resume_model import Resume
 from load_env import (
     vapi_assistant_api_id,
     vapi_assistant_api_name,
@@ -13,7 +16,7 @@ from load_env import (
 )
 
 
-def start_voice_call(customer_number: str, message: str):
+def start_voice_call(customer_number: str, resume:Resume):
     if not vapi_private_api_key:
         raise HTTPException(status_code=500, detail="Missing VAPI_PRIVATE_KEY")
 
@@ -25,9 +28,32 @@ def start_voice_call(customer_number: str, message: str):
             "model": {
                 "provider": model_provider,
                 "model": model_name,
-                "systemPrompt": ""
+                "systemPrompt" : f"""
+            You are a recruitment assistant. You will call a candidate and ask them questions.
+            Here is the candidate's resume:
+
+            Full Name: {resume.FullName}
+            Email: {resume.Email}
+            Gender: {resume.Gender}
+            Nationality: {resume.Nationality or ''}
+            Skills: {resume.Skills or ''}
+            Total Experience: {resume.TotalExperience or ''} 
+            Experience Titles and Companies: {resume.ExperienceTitle or ''} at {resume.ExperienceCompany or ''} ({resume.ExperienceDuration or ''})
+            Projects: {resume.Project1 or ''}, {resume.Project2 or ''}
+            Education: {resume.Education1 or ''}, {resume.Education2 or ''}, {resume.Education3 or ''}
+            Languages: {resume.Languages or ''}
+            GitHub: {resume.GitHub or ''}
+            Certifications: {resume.Certifications or ''}
+
+            Your task:
+            1. Ask 10 basic interview questions related to the candidate's skills and experience.
+            2. Be polite, professional, and guide the conversation naturally.
+            3. At the end of the 10 questions, provide the total score out of 10 and give a short evaluation like:
+            "Total Score: X/10. Based on your answers, you are ready/not ready for the next stage."
+            5. Ensure the conversation flows naturally like a real call and ends politely.
+            """
             },
-            "firstMessage": message,
+            "firstMessage": f"Hello {resume.FullName}, this is a call regarding your job application. I have your resume here and would like to ask you a few questions.",
             "endCallFunctionEnabled": True,
             "endCallMessage": "Thank you, bye"
         },

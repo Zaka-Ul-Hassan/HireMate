@@ -14,14 +14,13 @@ router = APIRouter()
 def make_call(
     user: User = Depends(get_current_user),
     customer_number: str = "",
-    message: str = "",
     db: Session = Depends(get_db)
 ):
     resume = db.query(Resume).filter(Resume.UserId == user.Id, Resume.IsDeleted == False).first()
     if not resume:
         return {"status": False, "error": "Please upload your resume before starting a call"}
 
-    return start_voice_call(customer_number, message)
+    return start_voice_call(customer_number,resume)
 
 
 

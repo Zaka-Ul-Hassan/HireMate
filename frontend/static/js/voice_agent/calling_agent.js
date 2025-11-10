@@ -10,16 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     startCallBtn.textContent = "📞 Starting call...";
     startCallBtn.disabled = true;
-    
-    // const customerNumber = "+923227834344";
-    const customerNumber = "+923230256717";
-    const message = "Hi Zaka Ul Hassan how are you";
+
+    const customerNumber = "+923227834344";
+    // const customerNumber = "+923230256717";
 
     try {
       console.log("Initiating AI voice call...");
 
       const response = await fetch(
-        `/api/voice-agent/make_call?customer_number=${encodeURIComponent(customerNumber)}&message=${encodeURIComponent(message)}`,
+        `/api/voice-agent/make_call?customer_number=${encodeURIComponent(customerNumber)}`,
         {
           method: "POST",
           headers: {
