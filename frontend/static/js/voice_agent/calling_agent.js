@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   startCallBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     startCallBtn.textContent = "📞 Starting call...";
-
-    // You can later make these dynamic (from input fields)
+    startCallBtn.disabled = true;
+    
     // const customerNumber = "+923227834344";
     const customerNumber = "+923230256717";
     const message = "Hi Zaka Ul Hassan how are you";
@@ -33,13 +33,33 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(err);
       }
 
-      const data = await response.json();
-      console.log("📞 Call started successfully:", data);
-      toaster.success("AI Call Started Successfully!");
+    const data = await response.json();
+
+      if (data.status) {
+        Swal.fire({
+          icon: "success",
+          title: "AI Call Started!",
+          text: data.message,
+          confirmButtonColor: "#3085d6",
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Action Required",
+          text: data.error || "Please upload your resume first.",
+          confirmButtonColor: "#d33",
+        });
+      }
     } catch (error) {
       console.error("Error starting call:", error);
-      toaster.error("Error starting call: " + error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong while starting the call.",
+        confirmButtonColor: "#d33",
+      });
     } finally {
+      startCallBtn.disabled = false;
       startCallBtn.textContent = "📞 Call AI Agent";
     }
   });

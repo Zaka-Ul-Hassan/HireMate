@@ -1,94 +1,27 @@
-import os
-import requests
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from load_env import (
-    vapi_public_api_key,
-    vapi_private_api_key,
-    vapi_assistant_api_id,
-    vapi_assistant_api_name,
-    twilio_sid,
-    twilio_token,
-    twilio_number,
-    transcriber_provider,
-    model_provider,
-    model_name,
-    system_prompt
-    )
+# app\routes\ai\voice_agent_route.py
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.models.resume.resume_model import Resume
+from app.models.user.user import User
+from app.services.ai.voice_agent.vapi_agent import start_voice_call
+from app.services.authentication.auth_service import get_current_user
 
 router = APIRouter()
 
-@router.get("/voice-agent-keys")
-def get_voice_agent_keys():
-    vapi_public_key = vapi_public_api_key
-    vapi_private_key = vapi_private_api_key
-
-    if not vapi_public_key or not vapi_private_key:
-        return JSONResponse(status_code=404, content={"error": "VAPI keys not configured"})
-    return JSONResponse(content={
-        "vapi_public_key": vapi_public_key,
-        "vapi_private_key": vapi_private_key
-    })
-
-
 @router.post("/make_call")
-def make_call(customer_number: str, message: str):
-    try:
-        vapi_assistant_id = vapi_assistant_api_id
-        vapi_assistant_name = vapi_assistant_api_name
-        vapi_private_key = vapi_private_api_key
-        twilio_account_sid = twilio_sid
-        twilio_auth_token = twilio_token
-        twilio_phone_number = twilio_number
+def make_call(
+    user: User = Depends(get_current_user),
+    customer_number: str = "",
+    message: str = "",
+    db: Session = Depends(get_db)
+):
+    resume = db.query(Resume).filter(Resume.UserId == user.Id, Resume.IsDeleted == False).first()
+    if not resume:
+        return {"status": False, "error": "Please upload your resume before starting a call"}
 
-        if not vapi_private_key:
-            raise HTTPException(status_code=500, detail="Missing VAPI_PRIVATE_KEY")
+    return start_voice_call(customer_number, message)
 
-        payload = {
-            "assistantId": vapi_assistant_id,
-            "name": vapi_assistant_name,
-            "assistant": {
-                "transcriber": {
-                    "provider": transcriber_provider
-                },
-                "model": {
-                    "provider": model_provider,
-                    "model": model_name,
-                    "systemPrompt": system_prompt
-                },
-                "firstMessage": message,
-                "endCallFunctionEnabled": True,
-                "endCallMessage": "Thankyou, bye"
-            },
-            "phoneNumber": {
-                "twilioAccountSid": twilio_account_sid,
-                "twilioAuthToken": twilio_auth_token,
-                "twilioPhoneNumber": twilio_phone_number,
-            },
-            "customer": {
-                "number": customer_number
-            },
-        }
-
-        headers = {
-            "Authorization": f"Bearer {vapi_private_key}",
-            "Content-Type": "application/json"
-        }
-
-        response = requests.post("https://api.vapi.ai/call", json=payload, headers=headers)
-        response.raise_for_status()
-
-        data = response.json()
-        session_id = data.get("id")
-
-        if not session_id:
-            raise HTTPException(status_code=500, detail="Missing 'id' in Vapi response")
-
-        print(f"Call initiated successfully. Session ID: {session_id}")
-        return {"status": True, "session_id": session_id, "message": "Call initiated successfully"}
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error making call: {e}")
-        return {"status": False, "error": str(e)}
 
 
