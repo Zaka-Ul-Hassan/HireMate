@@ -29,6 +29,13 @@ model_provider = os.getenv("VAPI_MODEL_PROVIDER")
 model_name = os.getenv("VAPI_MODEL_NAME")
 system_prompt = os.getenv("VAPI_SYSTEM_PROMPT")
 
+# LinkedIn OAuth
+client_id = os.getenv("LINKEDIN_CLIENT_ID")
+client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
+redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI")
+scope = os.getenv("LINKEDIN_SCOPES", "openid profile")
+
+
 print(cohere_api_key)
 print(google_search_api_key)
 print(google_search_cse_id)
