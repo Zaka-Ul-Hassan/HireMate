@@ -7,12 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
 
+from app.routes.linkedIn import signIn_route
 from app.routes.user import user_routes
 from app.routes.email import email_route
 from app.routes.resume import resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
-from app.routes.ai import cohere_chat_route
+from app.routes.ai import cohere_chat_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.services.scheduler.scheduler import start_email_scheduler
 
@@ -35,9 +36,14 @@ app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS middleware (optional, useful for frontend JS calls)
+origins = [
+    "https://stenophyllous-jeane-perturbingly.ngrok-free.dev",
+    "http://localhost:3000",  # if you also test locally
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:8000"],
+    allow_origins=origins,   # must include frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,6 +62,8 @@ app.include_router(resume_processing_route.router, prefix="/api/resume-parser", 
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
 app.include_router(job_route.router, tags=["Job"])
 app.include_router(google_search_route.router, prefix="/api/google-search", tags=["Google"])
+app.include_router(voice_agent_route.router, prefix="/api/voice-agent", tags=["Voice Agent"])
+app.include_router(signIn_route.router, prefix="/api/auth", tags=["LinkedIn Auth"]  )
 
 # API routes frontend
 app.include_router(user_page_routes.router)
