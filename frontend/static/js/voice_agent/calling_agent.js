@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     startCallBtn.textContent = "📞 Starting call...";
     startCallBtn.disabled = true;
 
-    const customerNumber = "+923227834344";
-    // const customerNumber = "+923230256717";
+    // const customerNumber = "+923227834344";
+    const customerNumber = "+923230256717";
 
     try {
       console.log("Initiating AI voice call...");

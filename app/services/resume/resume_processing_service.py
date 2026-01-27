@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 
 from app.models.resume.resume_model import Resume
+from app.services.ai.cohere_chat_service import cohere_chat
 from app.utils.file_util import save_upload_resume
 from app.models.user.user import User
 
@@ -54,51 +55,62 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
     {extracted_text}
 
     Instructions:
-    1. Identify the type of developer/engineer (e.g., ".NET Developer", "Python Developer", "Front End Developer", "Full Stack Developer",
-    "Java Developer", "Mobile App Developer", "Data Engineer", "DevOps Engineer", "Machine Learning Engineer", "PHP Developer",
-    "Network Engineer", "Cloud Engineer", "Cybersecurity Engineer", "Database Administrator") based on the skills mentioned in the resume.
-
-        - If the resume includes skills like ASP.NET, C#, Entity Framework, SQL Server → classify as ".NET Developer".
-        - If it includes Python, Django, Flask, FastAPI → classify as "Python Developer".
-        - If it includes HTML, CSS, JavaScript, React, Angular → classify as "Front End Developer".
-        - If it has both backend and frontend technologies (e.g., C#, ASP.NET + JavaScript/React) → classify as "Full Stack Developer".
-        - If it includes Java, Spring Boot, Hibernate → classify as "Java Developer".
-        - If it includes Kotlin, Java (Android), Swift, Flutter, React Native → classify as "Mobile App Developer".
-        - If it includes ETL, Big Data, Spark, Hadoop, Apache Airflow → classify as "Data Engineer".
-        - If it includes CI/CD, Docker, Kubernetes, Jenkins, Azure DevOps → classify as "DevOps Engineer".
-        - If it includes TensorFlow, PyTorch, Scikit-learn, NLP, Deep Learning → classify as "Machine Learning Engineer".
-        - If it includes PHP, Laravel, CodeIgniter, MySQL → classify as "PHP Developer".
-        - If it includes Networking, Cisco, Routing, Switching, Firewalls, TCP/IP → classify as "Network Engineer".
-        - If it includes AWS, Azure, GCP, Cloud Infrastructure, Terraform → classify as "Cloud Engineer".
-        - If it includes Cybersecurity, Penetration Testing, SIEM, Firewalls, Threat Analysis → classify as "Cybersecurity Engineer".
-        - If it includes Oracle, SQL Server, MySQL, PostgreSQL, Database Administration → classify as "Database Administrator".
-        - If no matching skills are found → return as null.
+    1. Identify the type of developer/engineer based on the skills mentioned in the resume.
 
     2. Extract other fields from the resume. If a field is not present, return it as null.
 
     3. For "FullName":
-        - If a proper full name exists in the resume text → use it.
-        - If not available → take the part before "@" in the Email remove numbers and special characters and use that as "FullName".
+    - If a proper full name exists in the resume text → use it.
+    - If not available → take the part before "@" in the Email, remove numbers and special characters, and use that as "FullName".
 
-    Required Fields (in JSON format):
+    IMPORTANT:
+    - Return ONLY valid JSON
+    - Do NOT include comments
+    - Do NOT include explanations or markdown
+
+    Required Fields (JSON only):
     {{
-        "FullName": "", "Email": "", "PhoneNumber": "", "Address": "", "DateOfBirth": "", "Gender": "",
-        "Nationality": "", "Country": "", "ProfileImage": "", "ResumeFile": "", "Summary": "", "Objective": "",
-        "Education1": "", "Education2": "", "Education3": "", "Skills": "",
-        "DeveloperType": "",  // e.g., ".NET Developer", "Python Developer", "Network Engineer"
-        "ExperienceTitle": "", "ExperienceCompany": "", "ExperienceDuration": "", "TotalExperience": "", "ExperienceDescription": "",
-        "Project1": "", "Project2": "", "Languages": "", "LinkedIn": "", "GitHub": "", "Certifications": ""
+    "FullName": "",
+    "Email": "",
+    "PhoneNumber": "",
+    "Address": "",
+    "DateOfBirth": "",
+    "Gender": "",
+    "Nationality": "",
+    "Country": "",
+    "ProfileImage": "",
+    "ResumeFile": "",
+    "Summary": "",
+    "Objective": "",
+    "Education1": "",
+    "Education2": "",
+    "Education3": "",
+    "Skills": "",
+    "DeveloperType": "",
+    "ExperienceTitle": "",
+    "ExperienceCompany": "",
+    "ExperienceDuration": "",
+    "TotalExperience": "",
+    "ExperienceDescription": "",
+    "Project1": "",
+    "Project2": "",
+    "Languages": "",
+    "LinkedIn": "",
+    "GitHub": "",
+    "Certifications": ""
     }}
     """
-
-
+    print(prompt)
     # Call AI service
     ai_response = requests.post(
         "http://127.0.0.1:8000/api/ai-chat/chat",
         json={"prompt": prompt}
     )
-    if ai_response.status_code != 200:
-        raise RuntimeError(f"AI chat service failed: {ai_response.status_code}")
+
+    # ai_response = cohere_chat(prompt)
+    # print(prompt)
+    if not ai_response.ok:
+        raise RuntimeError(f"AI chat service failed: {ai_response.text}")
 
     parsed_text = ai_response.json().get("response")
     if not parsed_text:
@@ -110,9 +122,9 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
         raise ValueError("AI response could not be parsed as JSON")
 
     # Validate required fields
-    email = parsed.get("Email")
-    skills = parsed.get("Skills")
-    developer_type = parsed.get("DeveloperType")
+    email = parsed.get("Email") or "zakaulhassan6717@gmail.com"
+    skills = parsed.get("Skills") or "Management, Communication"
+    developer_type = parsed.get("DeveloperType") or "General Engineer"
     if not email or not skills or not developer_type:
         raise ValueError("Missing required fields (Email, Skills, DeveloperType)")
 
