@@ -5,6 +5,12 @@ import os
 
 load_dotenv()
 
+# Database settings
+DB_SERVER = os.getenv("DB_SERVER")
+DB_NAME = os.getenv("DB_NAME")
+DB_DRIVER = os.getenv("DB_DRIVER")
+DB_TRUSTED_CONNECTION = os.getenv("DB_TRUSTED_CONNECTION")
+
 # Cohere API Key
 cohere_api_key = os.getenv("COHERE_API_KEY")
 
