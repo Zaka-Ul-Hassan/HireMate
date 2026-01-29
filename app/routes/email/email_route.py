@@ -23,15 +23,12 @@ def send_email_route(email: EmailSchema):
 @router.get("/fetch-emails")
 def get_emails():
     try:
-        result = fetch_all_emails()
+        emails = fetch_all_emails()
+        return {"success": True, "emails": emails}
 
-        if isinstance(result, dict) and result.get("error"):
-            return {"success": False, "message": result["error"]}
-        
-        return {"success": True, "emails": result}
-    
     except Exception as e:
-        return {"success" : False, "message": f"An unexpected error occurred: {str(e)}"}
+        return {"success": False, "message": str(e)}
+
     
 
 @router.post("/store-fetch-emails")

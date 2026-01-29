@@ -14,8 +14,7 @@ from app.db import SessionLocal
 from app.models.email.email_model import Email
 from app.schemas.email.email_schema import InboxEmail
 
-from app.utils.smtp_config import SMTP_CONFIG
-from app.utils.imap_config import IMAP_CONFIG
+from load_env import SMTP_SERVER, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD
 
 
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
@@ -38,16 +37,16 @@ def send_email(to_email: List[str], subject: str, body: str):
     try:
         # Compose message
         message = MIMEMultipart()
-        message['From'] = SMTP_CONFIG["EMAIL"]
+        message['From'] = SMTP_EMAIL
         message['To'] = ", ".join(to_email)
         message['Subject'] = subject
         message.attach(MIMEText(body, "plain"))
 
         # Connect and send
-        server = smtplib.SMTP(SMTP_CONFIG["SMTP_SERVER"], SMTP_CONFIG["SMTP_PORT"])
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
-        server.login(SMTP_CONFIG["EMAIL"], SMTP_CONFIG["PASSWORD"])
-        server.sendmail(SMTP_CONFIG["EMAIL"], to_email, message.as_string())
+        server.login(SMTP_EMAIL, SMTP_PASSWORD)
+        server.sendmail(SMTP_EMAIL, to_email, message.as_string())
         server.quit()
 
         return {"message": "Email sent successfully"}
@@ -61,33 +60,32 @@ def fetch_all_emails():
     messages = []
 
     try:
-        with MailBox(IMAP_CONFIG["IMAP_SERVER"]).login(
-            IMAP_CONFIG["EMAIL"],
-            IMAP_CONFIG["PASSWORD"],
+        with MailBox(SMTP_SERVER).login(
+            SMTP_EMAIL,
+            SMTP_PASSWORD,
             initial_folder="INBOX"
         ) as mailbox:
 
             for msg in mailbox.fetch():
-                # Extract and validate fields
                 message_id = msg.headers.get("message-id")
                 sender = msg.from_
 
                 if not message_id or not sender:
-                    continue 
+                    continue
 
                 messages.append({
                     "message_id": str(message_id).strip(),
-                    "sender": str(sender).strip(), 
+                    "sender": str(sender).strip(),
                     "subject": msg.subject or "",
                     "date": msg.date.isoformat() if msg.date else None,
                     "text": msg.text or "",
                     "html": msg.html or "",
                 })
 
-    except Exception as e:
-        return {"error": str(e)}
+        return messages
 
-    return messages
+    except Exception as e:
+        raise Exception(f"Failed to fetch emails: {str(e)}")
 
 
 def store_emails_in_db():

@@ -42,9 +42,11 @@ redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI")
 scope = os.getenv("LINKEDIN_SCOPES", "openid profile")
 
 
-print(cohere_api_key)
-print(google_search_api_key)
-print(google_search_cse_id)
+# Gmail Configuration Settings
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_PORT = os.getenv("SMTP_PORT")
+SMTP_EMAIL = os.getenv("SMTP_EMAIL")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
 
 
