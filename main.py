@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI,Request,HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -10,23 +10,29 @@ import secrets
 from app.routes.linkedIn import signIn_route
 from app.routes.user import user_routes
 from app.routes.email import email_route
-from app.routes.resume import resume_processing_route
+from app.routes.resume import resume_crud_route, resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
 from app.routes.ai import cohere_chat_route, voice_agent_route
 from app.routes.user import user_page_routes
+from app.schemas.response_schema import ResponseSchema
 from app.services.scheduler.scheduler import start_email_scheduler
 
 app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key = secrets.token_hex(32))
 
-# exception handler
-@app.exception_handler(HTTPException)
-async def redirect_exception_handler(request:Request, exc:HTTPException):
-    if exc.status_code == 303 and "Location" in exc.headers:
-        return RedirectResponse(url=exc.headers["Location"], status_code=303)
-    raise exc
+# Exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content=ResponseSchema(
+            status=False,
+            message="Something went wrong.",
+            data=None
+        ).dict()
+    )
 
 
 # Mount static folder (for CSS, JS, images, HTML etc.)  
@@ -59,6 +65,7 @@ def on_startup():
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
 app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
 app.include_router(resume_processing_route.router, prefix="/api/resume-parser", tags=["Resume"])
+app.include_router(resume_crud_route.router, prefix="/api/resumes", tags=["Resume CRUD"])
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
 app.include_router(job_route.router, tags=["Job"])
 app.include_router(google_search_route.router, prefix="/api/google-search", tags=["Google"])
