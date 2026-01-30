@@ -1,8 +1,8 @@
-# app\routes\user\user_page.py
+# app/routes/user/user_page.py
 
 from io import BytesIO
 import os
-from fastapi import APIRouter, Form, HTTPException,Request,Depends
+from fastapi import APIRouter, Form, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 import pdfkit
@@ -25,7 +25,7 @@ async def chrome_devtools_json():
     return {"message": "Not used"}
 
 @router.get("/", response_class=HTMLResponse)
-def show_login(request:Request):
+def show_login(request: Request):
     return templates.TemplateResponse("user/login.html", {
         "request": request,
         "hide_navbar": True,
@@ -36,22 +36,21 @@ def show_login(request:Request):
     })
 
 @router.get("/register")
-def show_register_form(request:Request):
+def show_register_form(request: Request):
     return templates.TemplateResponse("user/register.html", {
         "request": request,
         "hide_navbar": True,
         "hide_footer": True,
         "fullscreen": True,
         "hide_sidebar": True,
-        "hide_resume":True
-
+        "hide_resume": True
     })
 
 @router.get("/dashboard", response_class=HTMLResponse)
 def show_dashboard(
     request: Request,
     current_user: User = Depends(get_current_user)
-    ):
+):
     return templates.TemplateResponse("shared/dashboard/dashboard.html", {
         "request": request,
         "user": current_user,
@@ -61,42 +60,42 @@ def show_dashboard(
 @router.get("/resume-upload", response_class=HTMLResponse)
 async def upload_resume(
     request: Request,
-    current_user : User = Depends(get_current_user)
-    ):
+    current_user: User = Depends(get_current_user)
+):
     return templates.TemplateResponse("resume/resume-upload.html", {
         "request": request,
         "user": current_user,
         "hide_resume": False
-        })
+    })
 
 @router.get("/email/compose-email", response_class=HTMLResponse)
 async def compose_email(
-    request:Request,
+    request: Request,
     current_user: User = Depends(get_current_user)
-    ):
+):
     return templates.TemplateResponse("email/compose_email.html", {
         "request": request,
-        "user" : current_user,
+        "user": current_user,
         "hide_resume": True
-        })
+    })
 
 @router.get("/email/inbox", response_class=HTMLResponse)
-def email_inbox(request: Request,
-                current_user : User = Depends(get_current_user),
-                db:Session = Depends(get_db)
-                ):
-      
-      emails = db.query(Email).order_by(desc(Email.Date)).all()
+def email_inbox(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    emails = db.query(Email).order_by(desc(Email.Date)).all()
 
-      # Remove cid: images from HTML
-      for email in emails:
-          if email.Html:
-              email.Html = senitize_email_html(email.Html)
+    # Remove cid: images from HTML
+    for email in emails:
+        if email.Html:
+            email.Html = senitize_email_html(email.Html)
 
-      return templates.TemplateResponse("email/email_inbox.html", {
+    return templates.TemplateResponse("email/email_inbox.html", {
         "request": request,
         "hide_resume": True,
-        "user" : current_user,
+        "user": current_user,
         "emails": emails
     })
 
@@ -116,9 +115,7 @@ async def job_list_page(
     })
 
 @router.get("/forgot-password", response_class=HTMLResponse)
-def forgot_password(
-    request: Request
-    ):
+def forgot_password(request: Request):
     return templates.TemplateResponse("user/forgot_password.html", {
         "request": request,
         "hide_navbar": True,
@@ -127,7 +124,7 @@ def forgot_password(
         "hide_sidebar": True
     })
 
-@router.get("/reset-request-sent",response_class=HTMLResponse)
+@router.get("/reset-request-sent", response_class=HTMLResponse)
 def reset_request_sent(request: Request, email: str):
     return templates.TemplateResponse("user/reset_request_sent.html", {
         "request": request,
@@ -152,29 +149,42 @@ def reset_password_form(request: Request, token: str):
         }
     )
 
-@router.get("/resume/{user_id}", response_class=HTMLResponse)
-def profile_page(
+
+# ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
+
+@router.get("/resume/manage", response_class=HTMLResponse)
+async def resume_manage_page(
     request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Render the resume CRUD management page
+    """
+    return templates.TemplateResponse(
+        "resume/resume_crud.html",
+        {
+            "request": request,
+            "user": current_user
+        }
+    )
+
+
+@router.get("/resume/download/{user_id}")
+def download_resume_route(
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """
+    Download resume as PDF
+    """
     # Ensure user is accessing their own resume (or admin check)
     if current_user.Id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
-
-    return templates.TemplateResponse("resume/get_resume.html", {
-        "request": request,
-        "user": current_user,
-        "resume": resume
-    })
-
-@router.get("/resume/download/{user_id}", name="download_resume_route")
-def download_resume_route(user_id: int, db: Session = Depends(get_db)):
     # Fetch resume
-    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
+    resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
 
@@ -236,6 +246,30 @@ def download_resume_route(user_id: int, db: Session = Depends(get_db)):
         headers={"Content-Disposition": f"attachment; filename={safe_name}_Resume.pdf"}
     )
 
+
+@router.get("/resume/{user_id}", response_class=HTMLResponse)
+def view_resume_page(
+    request: Request,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    View resume page (HTML display)
+    """
+    # Ensure user is accessing their own resume (or admin check)
+    if current_user.Id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
+
+    return templates.TemplateResponse("resume/get_resume.html", {
+        "request": request,
+        "user": current_user,
+        "resume": resume
+    })
+
+
 @router.get("/user/{user_id}", response_class=HTMLResponse)
 def profile_page(
     request: Request,
@@ -243,11 +277,14 @@ def profile_page(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Ensure user is accessing their own resume (or admin check)
+    """
+    User profile edit page
+    """
+    # Ensure user is accessing their own profile (or admin check)
     if current_user.Id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
+    resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
 
     return templates.TemplateResponse("profile/edit_profile.html", {
         "request": request,
