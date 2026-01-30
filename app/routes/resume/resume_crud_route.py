@@ -1,18 +1,18 @@
-# app\routes\resume\resume_crud_route.py
+# app/routes/resume/resume_crud_route.py
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from init_db import get_db
+from app.db import get_db
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
 from app.services.resume import resume_crud_service as service
 
 
-router = APIRouter(prefix="/resumes", tags=["Resumes"])
+router = APIRouter()
 
 
-@router.post("/", response_model=ResponseSchema)
+@router.post("/resumes/", response_model=ResponseSchema)
 def create_resume(
     payload: ResumeCreate,
     db: Session = Depends(get_db)
@@ -26,7 +26,7 @@ def create_resume(
     )
 
 
-@router.get("/", response_model=ResponseSchema)
+@router.get("/resumes/", response_model=ResponseSchema)
 def get_all_resumes(db: Session = Depends(get_db)):
     resumes = service.get_all_resumes(db)
 
@@ -34,6 +34,30 @@ def get_all_resumes(db: Session = Depends(get_db)):
         status=True,
         message="Resumes fetched successfully",
         data=resumes
+    )
+
+
+@router.get("/user/{user_id}", response_model=ResponseSchema)
+def get_resume_by_user_id(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get resume by user ID - This must come BEFORE /resumes/{resume_id}
+    """
+    resume = service.get_resume_by_user_id(db, user_id)
+
+    if not resume:
+        return ResponseSchema(
+            status=False,
+            message="Resume not found for this user",
+            data=None
+        )
+
+    return ResponseSchema(
+        status=True,
+        message="User resume fetched successfully",
+        data=resume
     )
 
 
@@ -58,28 +82,7 @@ def get_resume_by_id(
     )
 
 
-@router.get("/user/{user_id}", response_model=ResponseSchema)
-def get_resume_by_user_id(
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    resume = service.get_resume_by_user_id(db, user_id)
-
-    if not resume:
-        return ResponseSchema(
-            status=False,
-            message="Resume not found for this user",
-            data=None
-        )
-
-    return ResponseSchema(
-        status=True,
-        message="User resume fetched successfully",
-        data=resume
-    )
-
-
-@router.put("/{resume_id}", response_model=ResponseSchema)
+@router.put("/resumes/{resume_id}", response_model=ResponseSchema)
 def update_resume(
     resume_id: int,
     payload: ResumeUpdate,
@@ -101,7 +104,7 @@ def update_resume(
     )
 
 
-@router.delete("/{resume_id}", response_model=ResponseSchema)
+@router.delete("/resumes/{resume_id}", response_model=ResponseSchema)
 def delete_resume(
     resume_id: int,
     db: Session = Depends(get_db)
