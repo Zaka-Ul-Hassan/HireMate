@@ -1,3 +1,4 @@
+<!-- frontend\templates\resume\resume_crud.html -->
 {% extends "shared/base.html" %}
 
 {% block title %}Resume Management{% endblock %}
@@ -9,7 +10,7 @@
 {% block content %}
 <div class="resume-container">
     <h1 class="page-title">Resume Management</h1>
-    
+
     <!-- Loading State -->
     <div id="loadingState" class="loading-state">
         <div class="spinner"></div>
@@ -37,66 +38,88 @@
         <div class="resume-card">
             <div class="resume-header">
                 <div class="profile-section">
-                    <img id="displayProfileImage" src="" alt="Profile" class="profile-image">
+                    <!-- Profile image/initials will be inserted here dynamically -->
+                    <div id="profileImageContainer" class="profile-image-container">
+                        <!-- This will be populated by JavaScript -->
+                    </div>
                     <div class="profile-info">
                         <h2 id="displayFullName"></h2>
                         <p id="displayDeveloperType" class="developer-type"></p>
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <button id="updateResumeBtn" class="btn btn-secondary">Update</button>
-                    <button id="deleteResumeBtn" class="btn btn-danger">Delete</button>
+                    <a id="downloadResumeBtn" href="#" class="btn btn-success">
+                        <i class="bi bi-download"></i>
+                        <span>Download</span>
+                    </a>
+                    <button id="updateResumeBtn" class="btn btn-secondary">
+                        <i class="bi bi-pencil"></i>
+                        <span>Update</span>
+                    </button>
+                    <button id="deleteResumeBtn" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        <span>Delete</span>
+                    </button>
                 </div>
             </div>
-            
+
             <div class="resume-content">
-                <div class="info-section">
+                <!-- Contact Information -->
+                <div id="contactInfoSection" class="info-section">
                     <h3>Contact Information</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <strong>Email:</strong>
+                            <strong>Email</strong>
                             <span id="displayEmail"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Phone:</strong>
+                            <strong>Phone</strong>
                             <span id="displayPhoneNumber"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Address:</strong>
+                            <strong>Address</strong>
                             <span id="displayAddress"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Date of Birth:</strong>
+                            <strong>Date of Birth</strong>
                             <span id="displayDateOfBirth"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="info-section">
+                <!-- Professional Summary -->
+                <div id="summarySection" class="info-section">
                     <h3>Professional Summary</h3>
                     <p id="displaySummary"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Objective -->
+                <div id="objectiveSection" class="info-section">
                     <h3>Objective</h3>
                     <p id="displayObjective"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Skills -->
+                <div id="skillsSection" class="info-section">
                     <h3>Skills</h3>
                     <p id="displaySkills"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Experience -->
+                <div id="experienceSection" class="info-section">
                     <h3>Experience</h3>
                     <div class="experience-details">
                         <h4 id="displayExperienceTitle"></h4>
-                        <p class="company-info"><strong id="displayExperienceCompany"></strong> | <span id="displayExperienceDuration"></span></p>
+                        <p class="company-info">
+                            <strong id="displayExperienceCompany"></strong> |
+                            <span id="displayExperienceDuration"></span>
+                        </p>
                         <p id="displayExperienceDescription"></p>
                     </div>
                 </div>
 
-                <div class="info-section">
+                <!-- Education -->
+                <div id="educationSection" class="info-section">
                     <h3>Education</h3>
                     <ul class="education-list">
                         <li id="displayEducation1"></li>
@@ -105,7 +128,8 @@
                     </ul>
                 </div>
 
-                <div class="info-section">
+                <!-- Projects -->
+                <div id="projectsSection" class="info-section">
                     <h3>Projects</h3>
                     <ul class="project-list">
                         <li id="displayProject1"></li>
@@ -113,11 +137,16 @@
                     </ul>
                 </div>
 
-                <div class="info-section">
+                <!-- Links -->
+                <div id="linksSection" class="info-section">
                     <h3>Links</h3>
                     <div class="links">
-                        <a id="displayLinkedIn" href="" target="_blank" class="social-link">LinkedIn</a>
-                        <a id="displayGitHub" href="" target="_blank" class="social-link">GitHub</a>
+                        <a id="displayLinkedIn" href="" target="_blank" class="social-link">
+                            <i class="bi bi-linkedin me-1"></i>LinkedIn
+                        </a>
+                        <a id="displayGitHub" href="" target="_blank" class="social-link">
+                            <i class="bi bi-github me-1"></i>GitHub
+                        </a>
                     </div>
                 </div>
             </div>
@@ -131,35 +160,39 @@
                 <h2 id="formTitle">Create Resume</h2>
                 <button id="cancelFormBtn" class="btn-close">×</button>
             </div>
-            
+
             <form id="resumeForm">
                 <div class="form-section">
                     <h3>Personal Information</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" name="FullName" class="form-control">
+                            <label for="fullName">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" id="fullName" name="FullName" class="form-control" required>
+                            <div class="invalid-feedback">Full Name is required.</div>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="Email" class="form-control">
+                            <label for="email">Email <span class="text-danger">*</span></label>
+                            <input type="email" id="email" name="Email" class="form-control" required>
+                            <div class="invalid-feedback">Valid Email is required.</div>
                         </div>
                         <div class="form-group">
                             <label for="phoneNumber">Phone Number</label>
                             <input type="tel" id="phoneNumber" name="PhoneNumber" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="dateOfBirth">Date of Birth</label>
-                            <input type="date" id="dateOfBirth" name="DateOfBirth" class="form-control">
+                            <label for="dateOfBirth">Date of Birth <span class="text-danger">*</span></label>
+                            <input type="date" id="dateOfBirth" name="DateOfBirth" class="form-control" required>
+                            <div class="invalid-feedback">Date of Birth is required.</div>
                         </div>
                         <div class="form-group">
-                            <label for="gender">Gender</label>
-                            <select id="gender" name="Gender" class="form-control">
+                            <label for="gender">Gender <span class="text-danger">*</span></label>
+                            <select id="gender" name="Gender" class="form-control" required>
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Other">Other</option>
                             </select>
+                            <div class="invalid-feedback">Gender is required.</div>
                         </div>
                         <div class="form-group">
                             <label for="country">Country</label>
@@ -170,8 +203,9 @@
                             <input type="text" id="nationality" name="Nationality" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="address">Address</label>
-                            <input type="text" id="address" name="Address" class="form-control">
+                            <label for="address">Address <span class="text-danger">*</span></label>
+                            <input type="text" id="address" name="Address" class="form-control" required>
+                            <div class="invalid-feedback">Address is required.</div>
                         </div>
                     </div>
                 </div>
@@ -179,8 +213,9 @@
                 <div class="form-section">
                     <h3>Professional Information</h3>
                     <div class="form-group">
-                        <label for="developerType">Developer Type</label>
-                        <input type="text" id="developerType" name="DeveloperType" class="form-control">
+                        <label for="developerType">Developer Type <span class="text-danger">*</span></label>
+                        <input type="text" id="developerType" name="DeveloperType" class="form-control" required>
+                        <div class="invalid-feedback">Developer Type is required.</div>
                     </div>
                     <div class="form-group">
                         <label for="summary">Professional Summary</label>
@@ -191,8 +226,9 @@
                         <textarea id="objective" name="Objective" rows="3" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="skills">Skills</label>
-                        <textarea id="skills" name="Skills" rows="3" class="form-control"></textarea>
+                        <label for="skills">Skills <span class="text-danger">*</span></label>
+                        <textarea id="skills" name="Skills" rows="3" class="form-control" required></textarea>
+                        <div class="invalid-feedback">Skills are required.</div>
                     </div>
                 </div>
 
@@ -218,7 +254,8 @@
                     </div>
                     <div class="form-group">
                         <label for="experienceDescription">Experience Description</label>
-                        <textarea id="experienceDescription" name="ExperienceDescription" rows="4" class="form-control"></textarea>
+                        <textarea id="experienceDescription" name="ExperienceDescription" rows="4"
+                            class="form-control"></textarea>
                     </div>
                 </div>
 
@@ -277,6 +314,7 @@
                     <button type="submit" id="submitBtn" class="btn btn-primary">Save Resume</button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>

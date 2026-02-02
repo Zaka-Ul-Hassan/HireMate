@@ -1,13 +1,16 @@
 /* frontend\static\css\layout\sidebar.css */
 
 .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 251px;
+    height: 100vh; /* full height including behind navbar */
     background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-    border-right: none;
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1050; /* slightly under navbar */
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+
 
 .sidebar::-webkit-scrollbar {
     width: 6px;

@@ -5,35 +5,20 @@ from app.models.resume.resume_model import Resume
 from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
 
 
-def create_resume(db: Session, data: ResumeCreate):
-    """
-    Create a new resume. If a resume already exists for the user,
-    soft delete it before creating the new one.
-    """
-    # Check if user already has a resume
-    existing_resume = (
-        db.query(Resume)
-        .filter(
-            Resume.UserId == data.UserId,
-            Resume.IsDeleted == False
-        )
-        .first()
-    )
-    
-    # If existing resume found, soft delete it
+def create_resume(db: Session, user_id: int, data: ResumeCreate):
+    # 1. Delete any existing resume for this user permanently
+    existing_resume = db.query(Resume).filter(Resume.UserId == user_id).first()
     if existing_resume:
-        existing_resume.IsDeleted = True
-        db.commit()
-    
-    # Create new resume
-    resume = Resume(**data.dict())
-    resume.IsActive = True
-    resume.IsDeleted = False
+        db.delete(existing_resume)
+        db.commit()  # commit after delete
 
-    db.add(resume)
+    # 2. Add new resume
+    new_resume = Resume(**data.dict())
+    new_resume.UserId = user_id
+    db.add(new_resume)
     db.commit()
-    db.refresh(resume)
-    return resume
+    db.refresh(new_resume)
+    return new_resume
 
 
 def get_resume_by_id(db: Session, resume_id: int):
@@ -84,11 +69,11 @@ def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
 
 
 def delete_resume(db: Session, resume_id: int):
-    """Soft delete a resume"""
+    """Permanently delete a resume"""
     resume = get_resume_by_id(db, resume_id)
     if not resume:
-        return None
+        return None 
 
-    resume.IsDeleted = True
+    db.delete(resume)
     db.commit()
     return True

@@ -1,3 +1,5 @@
+// frontend\static\js\resume\resume_crud.js
+
 // API Configuration
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 let currentUserId = null;
@@ -13,6 +15,7 @@ const resumeFormState = document.getElementById('resumeFormState');
 const createResumeBtn = document.getElementById('createResumeBtn');
 const updateResumeBtn = document.getElementById('updateResumeBtn');
 const deleteResumeBtn = document.getElementById('deleteResumeBtn');
+const downloadResumeBtn = document.getElementById('downloadResumeBtn');
 const cancelFormBtn = document.getElementById('cancelFormBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 const resumeForm = document.getElementById('resumeForm');
@@ -54,6 +57,89 @@ async function fetchCurrentUser() {
     }
 }
 
+// Set Download Button URL
+function setDownloadButton(userId) {
+    if (downloadResumeBtn && userId) {
+        downloadResumeBtn.href = `/resume/download/${userId}`;
+    }
+}
+
+/**
+ * Function to extract initials from full name
+ * @param {string} fullName - The full name
+ * @returns {string} - The initials (max 2 characters)
+ */
+function getInitials(fullName) {
+    if (!fullName || fullName.trim() === '') {
+        return '??';
+    }
+    
+    const nameParts = fullName.trim().split(' ').filter(part => part.length > 0);
+    
+    if (nameParts.length === 0) {
+        return '??';
+    } else if (nameParts.length === 1) {
+        // Single name: take first two characters
+        return nameParts[0].substring(0, 2).toUpperCase();
+    } else {
+        // Multiple names: take first letter of first and last name
+        const firstInitial = nameParts[0][0];
+        const lastInitial = nameParts[nameParts.length - 1][0];
+        return (firstInitial + lastInitial).toUpperCase();
+    }
+}
+
+/**
+ * Function to display user initials in a container
+ * @param {string} fullName - The full name of the user
+ * @param {HTMLElement} container - The container element
+ */
+function displayInitials(fullName, container) {
+    const initialsDiv = document.createElement('div');
+    initialsDiv.className = 'profile-initials';
+    
+    // Extract initials from full name
+    const initials = getInitials(fullName);
+    initialsDiv.textContent = initials;
+    
+    container.appendChild(initialsDiv);
+}
+
+/**
+ * Function to create and display profile image or initials
+ * @param {string} fullName - The full name of the user
+ * @param {string} imageUrl - Optional image URL if user has a profile picture
+ */
+function displayProfileImage(fullName, imageUrl = null) {
+    const container = document.getElementById('profileImageContainer');
+    
+    if (!container) {
+        console.warn('Profile image container not found');
+        return;
+    }
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    if (imageUrl && imageUrl.trim() !== '') {
+        // Display profile image if available
+        const img = document.createElement('img');
+        img.src = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl.replace(/\\/g, '/');
+        img.alt = fullName || 'Profile Picture';
+        img.className = 'profile-image';
+        img.onerror = function() {
+            // Fallback to initials if image fails to load
+            console.warn('Failed to load profile image, falling back to initials');
+            container.innerHTML = '';
+            displayInitials(fullName, container);
+        };
+        container.appendChild(img);
+    } else {
+        // Display initials if no image
+        displayInitials(fullName, container);
+    }
+}
+
 // Load User Resume
 async function loadUserResume() {
     if (!currentUserId) {
@@ -70,6 +156,10 @@ async function loadUserResume() {
             if (result.status && result.data) {
                 currentResumeId = result.data.Id;
                 displayResume(result.data);
+                
+                // Set download button URL
+                setDownloadButton(currentUserId);
+                
                 showState('display');
             } else {
                 showState('noResume');
@@ -85,75 +175,121 @@ async function loadUserResume() {
     }
 }
 
+// Helper function to show/hide sections
+function showHideSection(sectionId, hasContent) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.style.display = hasContent ? 'block' : 'none';
+    }
+}
+
 // Display Resume Data
 function displayResume(resume) {
-    // Profile Section
-    const profileImage = document.getElementById('displayProfileImage');
-    if (resume.ProfileImage) {
-        profileImage.src = '/' + resume.ProfileImage.replace(/\\/g, '/');
-    } else {
-        profileImage.src = '/static/images/default-avatar.png';
-    }
+    // Profile Section - Use the new displayProfileImage function
+    displayProfileImage(
+        resume.FullName,
+        resume.ProfileImage // This will be null/empty if no image exists
+    );
     
+    // Display name and developer type
     document.getElementById('displayFullName').textContent = resume.FullName || '';
     document.getElementById('displayDeveloperType').textContent = resume.DeveloperType || '';
 
-    // Contact Information
-    document.getElementById('displayEmail').textContent = resume.Email || '';
-    document.getElementById('displayPhoneNumber').textContent = resume.PhoneNumber || '';
-    document.getElementById('displayAddress').textContent = resume.Address || '';
-    document.getElementById('displayDateOfBirth').textContent = resume.DateOfBirth || '';
+    // Contact Information - Show section only if there's data
+    const hasContactInfo = resume.Email || resume.PhoneNumber || resume.Address || resume.DateOfBirth;
+    showHideSection('contactInfoSection', hasContactInfo);
+    
+    if (hasContactInfo) {
+        document.getElementById('displayEmail').textContent = resume.Email || 'N/A';
+        document.getElementById('displayPhoneNumber').textContent = resume.PhoneNumber || 'N/A';
+        document.getElementById('displayAddress').textContent = resume.Address || 'N/A';
+        document.getElementById('displayDateOfBirth').textContent = resume.DateOfBirth || 'N/A';
+    }
 
-    // Professional Info
-    document.getElementById('displaySummary').textContent = resume.Summary || '';
-    document.getElementById('displayObjective').textContent = resume.Objective || '';
-    document.getElementById('displaySkills').textContent = resume.Skills || '';
+    // Professional Summary
+    showHideSection('summarySection', resume.Summary);
+    if (resume.Summary) {
+        document.getElementById('displaySummary').textContent = resume.Summary;
+    }
+
+    // Objective
+    showHideSection('objectiveSection', resume.Objective);
+    if (resume.Objective) {
+        document.getElementById('displayObjective').textContent = resume.Objective;
+    }
+
+    // Skills
+    showHideSection('skillsSection', resume.Skills);
+    if (resume.Skills) {
+        document.getElementById('displaySkills').textContent = resume.Skills;
+    }
 
     // Experience
-    document.getElementById('displayExperienceTitle').textContent = resume.ExperienceTitle || '';
-    document.getElementById('displayExperienceCompany').textContent = resume.ExperienceCompany || '';
-    document.getElementById('displayExperienceDuration').textContent = resume.ExperienceDuration || '';
-    document.getElementById('displayExperienceDescription').textContent = resume.ExperienceDescription || '';
+    const hasExperience = resume.ExperienceTitle || resume.ExperienceCompany || 
+                         resume.ExperienceDuration || resume.ExperienceDescription;
+    showHideSection('experienceSection', hasExperience);
+    
+    if (hasExperience) {
+        document.getElementById('displayExperienceTitle').textContent = resume.ExperienceTitle || '';
+        document.getElementById('displayExperienceCompany').textContent = resume.ExperienceCompany || '';
+        document.getElementById('displayExperienceDuration').textContent = resume.ExperienceDuration || '';
+        document.getElementById('displayExperienceDescription').textContent = resume.ExperienceDescription || '';
+    }
 
     // Education
-    const edu1 = document.getElementById('displayEducation1');
-    const edu2 = document.getElementById('displayEducation2');
-    const edu3 = document.getElementById('displayEducation3');
+    const hasEducation = resume.Education1 || resume.Education2 || resume.Education3;
+    showHideSection('educationSection', hasEducation);
     
-    edu1.textContent = resume.Education1 || '';
-    edu2.textContent = resume.Education2 || '';
-    edu3.textContent = resume.Education3 || '';
-    
-    edu1.style.display = resume.Education1 ? 'list-item' : 'none';
-    edu2.style.display = resume.Education2 ? 'list-item' : 'none';
-    edu3.style.display = resume.Education3 ? 'list-item' : 'none';
+    if (hasEducation) {
+        const edu1 = document.getElementById('displayEducation1');
+        const edu2 = document.getElementById('displayEducation2');
+        const edu3 = document.getElementById('displayEducation3');
+        
+        edu1.textContent = resume.Education1 || '';
+        edu2.textContent = resume.Education2 || '';
+        edu3.textContent = resume.Education3 || '';
+        
+        edu1.style.display = resume.Education1 ? 'list-item' : 'none';
+        edu2.style.display = resume.Education2 ? 'list-item' : 'none';
+        edu3.style.display = resume.Education3 ? 'list-item' : 'none';
+    }
 
     // Projects
-    const proj1 = document.getElementById('displayProject1');
-    const proj2 = document.getElementById('displayProject2');
+    const hasProjects = resume.Project1 || resume.Project2;
+    showHideSection('projectsSection', hasProjects);
     
-    proj1.textContent = resume.Project1 || '';
-    proj2.textContent = resume.Project2 || '';
-    
-    proj1.style.display = resume.Project1 ? 'list-item' : 'none';
-    proj2.style.display = resume.Project2 ? 'list-item' : 'none';
+    if (hasProjects) {
+        const proj1 = document.getElementById('displayProject1');
+        const proj2 = document.getElementById('displayProject2');
+        
+        proj1.textContent = resume.Project1 || '';
+        proj2.textContent = resume.Project2 || '';
+        
+        proj1.style.display = resume.Project1 ? 'list-item' : 'none';
+        proj2.style.display = resume.Project2 ? 'list-item' : 'none';
+    }
 
     // Links
-    const linkedInLink = document.getElementById('displayLinkedIn');
-    const gitHubLink = document.getElementById('displayGitHub');
+    const hasLinks = resume.LinkedIn || resume.GitHub;
+    showHideSection('linksSection', hasLinks);
     
-    if (resume.LinkedIn) {
-        linkedInLink.href = resume.LinkedIn;
-        linkedInLink.style.display = 'inline-block';
-    } else {
-        linkedInLink.style.display = 'none';
-    }
-    
-    if (resume.GitHub) {
-        gitHubLink.href = resume.GitHub;
-        gitHubLink.style.display = 'inline-block';
-    } else {
-        gitHubLink.style.display = 'none';
+    if (hasLinks) {
+        const linkedInLink = document.getElementById('displayLinkedIn');
+        const gitHubLink = document.getElementById('displayGitHub');
+        
+        if (resume.LinkedIn) {
+            linkedInLink.href = resume.LinkedIn;
+            linkedInLink.style.display = 'inline-flex';
+        } else {
+            linkedInLink.style.display = 'none';
+        }
+        
+        if (resume.GitHub) {
+            gitHubLink.href = resume.GitHub;
+            gitHubLink.style.display = 'inline-flex';
+        } else {
+            gitHubLink.style.display = 'none';
+        }
     }
 }
 
@@ -366,3 +502,84 @@ function showState(state) {
             break;
     }
 }
+
+// Resume form runtime validation
+document.addEventListener("DOMContentLoaded", function() {
+    const resumeForm = document.getElementById("resumeForm");
+
+    const fullName = document.getElementById("fullName");
+    const email = document.getElementById("email");
+    const skills = document.getElementById("skills");
+    const developerType = document.getElementById("developerType");
+    const gender = document.getElementById("gender");
+    const dateOfBirth = document.getElementById("dateOfBirth");
+    const address = document.getElementById("address"); // Added Address field
+
+    resumeForm.addEventListener("submit", function(event) {
+        let isValid = true;
+        let messages = [];
+
+        // Full Name
+        if (fullName.value.trim() === "") {
+            isValid = false;
+            messages.push("Full Name is required.");
+            fullName.classList.add("is-invalid");
+        } else fullName.classList.remove("is-invalid");
+
+        // Email
+        if (email.value.trim() === "") {
+            isValid = false;
+            messages.push("Email is required.");
+            email.classList.add("is-invalid");
+        } else if (!validateEmail(email.value.trim())) {
+            isValid = false;
+            messages.push("Email is not valid.");
+            email.classList.add("is-invalid");
+        } else email.classList.remove("is-invalid");
+
+        // Skills
+        if (skills.value.trim() === "") {
+            isValid = false;
+            messages.push("Skills are required.");
+            skills.classList.add("is-invalid");
+        } else skills.classList.remove("is-invalid");
+
+        // Developer Type
+        if (developerType.value.trim() === "") {
+            isValid = false;
+            messages.push("Developer Type is required.");
+            developerType.classList.add("is-invalid");
+        } else developerType.classList.remove("is-invalid");
+
+        // Gender
+        if (gender.value.trim() === "") {
+            isValid = false;
+            messages.push("Gender is required.");
+            gender.classList.add("is-invalid");
+        } else gender.classList.remove("is-invalid");
+
+        // Date of Birth
+        if (dateOfBirth.value.trim() === "") {
+            isValid = false;
+            messages.push("Date of Birth is required.");
+            dateOfBirth.classList.add("is-invalid");
+        } else dateOfBirth.classList.remove("is-invalid");
+
+        // Address
+        if (address.value.trim() === "") {
+            isValid = false;
+            messages.push("Address is required.");
+            address.classList.add("is-invalid");
+        } else address.classList.remove("is-invalid");
+
+        if (!isValid) {
+            event.preventDefault();
+            alert(messages.join("\n"));
+        }
+    });
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+});

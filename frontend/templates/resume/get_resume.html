@@ -4,19 +4,24 @@
 
 {% block title %}My Resume{% endblock %}
 
-{% block content %}
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/resume/get_resume.css">
 {% endblock %}
 
-
+{% block content %}
 <div class="resume-container main-content">
     <div class="container-fluid py-4">
         <div class="resume-card mx-auto" style="max-width: 1000px;">
-            
-            <!-- Header -->
+
+            <!-- Header with Download Button -->
             <div class="resume-header">
                 <h2>My Resume</h2>
+                {% if resume %}
+                <a href="{{ request.url_for('download_resume_route', user_id=user.Id) }}" class="download-btn-header">
+                    <i class="bi bi-download"></i>
+                    <span>Download PDF</span>
+                </a>
+                {% endif %}
             </div>
 
             <div class="p-4 p-md-5">
@@ -143,6 +148,7 @@
                 {% endif %}
 
                 <!-- Certifications & Languages -->
+                {% if resume.Certifications or resume.Languages %}
                 <div class="two-column-grid">
                     {% if resume.Certifications %}
                     <div class="section-card">
@@ -161,15 +167,7 @@
                     </div>
                     {% endif %}
                 </div>
-
-                <!-- Download Button -->
-                <div class="text-center mt-5">
-                    {% if resume.ResumeFile %}
-                    <a href="{{ url_for('download_resume_route', user_id=resume.UserId) }}" class="download-btn">
-                        <i class="bi bi-download"></i> Download Resume
-                    </a>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>
