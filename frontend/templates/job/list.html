@@ -12,10 +12,11 @@
     <h2 class="text-center mb-5">Recommended Jobs</h2>
 
     <!-- Placeholder for error alerts -->
-    <div id="jobAlert"></div>
+    <div id="jobAlert" class="mb-3 text-center"></div>
 
     <!-- Template (hidden) -->
-    <div id="jobTemplate" class="card flex-row align-items-center p-3 shadow-sm rounded border-0 hover-effect" style="display: none;">
+    <div id="jobTemplate" class="card flex-row align-items-center p-3 shadow-sm rounded border-0 hover-effect"
+        style="display: none;">
         <div class="flex-grow-1">
             <h5 class="mb-1 job-title"></h5>
             <p class="mb-1 text-muted company-name"></p>
@@ -39,11 +40,11 @@
     <div id="jobContainer" class="d-flex flex-column gap-3 ms-1"></div>
 
     <!-- Spinner -->
-<div id="loadingSpinner" class="text-center my-5" style="display: none;">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-</div>
+    <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 
 </div>
 {% endblock %}
