@@ -504,7 +504,6 @@ function showState(state) {
 }
 
 // Resume form runtime validation
-// Resume form runtime validation
 document.addEventListener("DOMContentLoaded", function() {
     const resumeForm = document.getElementById("resumeForm");
 
