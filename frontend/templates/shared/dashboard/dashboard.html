@@ -4,231 +4,814 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard/dashboard.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
 {% include 'shared/sidebar.html' %}
 
-<main id="main" class="container-fluid px-5 py-4">
+<main id="main" class="container-fluid px-4 py-4">
 
-  <!-- Welcome Banner -->
-  <section class="welcome-banner text-center py-4 mb-2 animate__animated animate__fadeInDown">
-    <h1 class="display-4  text-dark mb-3">👋 Welcome Back</h1>
-    <p class="lead text-secondary">
-      Explore your job dashboard, track your performance, and stay updated with the latest hiring trends.
-    </p>
+  <!-- Modern Header Section -->
+  <section class="header-section mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h1 class="dashboard-title mb-1">Welcome back!</h1>
+      </div>
+    </div>
   </section>
 
-  <section class="container-fluid dashboard-content">
-
-    <!-- Top Summary Cards -->
-    <div class="row gy-4">
-      <div class="col-lg-3 col-md-6">
-        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
-          <h5 class="fw-semibold text-dark">Total Jobs</h5>
-          <p class="display-6 fw-bold text-primary">24</p>
-          <p class="text-secondary small">Active job listings</p>
+  <!-- KPI Cards with Modern Design -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card kpi-primary">
+        <div class="kpi-icon">
+          <i class="bi bi-briefcase-fill"></i>
         </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
-          <h5 class="fw-semibold text-dark">Applicants</h5>
-          <p class="display-6 fw-bold text-success">135</p>
-          <p class="text-secondary small">Applications submitted</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
-          <h5 class="fw-semibold text-dark">Interviews</h5>
-          <p class="display-6 fw-bold text-warning">18</p>
-          <p class="text-secondary small">This week report</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="card shadow-lg p-4 animate__animated animate__fadeInUp">
-          <h5 class="fw-semibold text-dark">Hired</h5>
-          <p class="display-6 fw-bold text-info">7</p>
-          <p class="text-secondary small">Successful hires</p>
+        <div class="kpi-content">
+          <span class="kpi-label">Active Jobs</span>
+          <h2 class="kpi-value mb-0">24</h2>
+          <span class="kpi-trend positive">
+            <i class="bi bi-arrow-up"></i> 12% from last month
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="row mt-5">
-      <div class="col-lg-8 mb-4">
-        <div class="card shadow-lg p-4">
-          <h5 class="text-dark mb-3 fw-semibold">📊 Job Applications Over Time</h5>
-          <canvas id="jobsChart" height="310"></canvas>
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card kpi-success">
+        <div class="kpi-icon">
+          <i class="bi bi-people-fill"></i>
         </div>
-      </div>
-
-      <div class="col-lg-4 mb-4">
-        <div class="card shadow-lg p-4 mb-4">
-          <h5 class="text-dark mb-3 fw-semibold">🏢 Top Companies Hiring</h5>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">Systems Limited (Lahore) — 12 openings</li>
-            <li class="list-group-item">NetSol Technologies (Lahore) — 8 openings</li>
-            <li class="list-group-item">Confiz Limited (Lahore) — 10 openings</li>
-            <li class="list-group-item">VentureDive (Karachi) — 6 openings</li>
-            <li class="list-group-item">Arpatech (Karachi) — 5 openings</li>
-             <li class="list-group-item">Tkxel (Lahore) — 5 openings</li>
-              <li class="list-group-item">10Pearls (Karachi) — 5 openings</li>
-          </ul>
+        <div class="kpi-content">
+          <span class="kpi-label">Total Applicants</span>
+          <h2 class="kpi-value mb-0">135</h2>
+          <span class="kpi-trend positive">
+            <i class="bi bi-arrow-up"></i> 8% increase
+          </span>
         </div>
-
       </div>
     </div>
 
-    <!-- Featured Jobs -->
-<!-- Featured Jobs -->
-<div class="row mt-4">
-  <div class="col-12">
-    <div class="card shadow-lg p-4">
-      <h5 class="text-dark mb-4 fw-semibold">💼 Featured Job Openings</h5>
-      <div class="row g-4">
-        
-        <div class="col-md-4">
-          <div class="p-4 border rounded bg-light hover-card">
-            <h6 class="fw-bold text-dark">Software Engineer</h6>
-            <p class="mb-1 text-secondary">Company: Systems Limited</p>
-            <p class="mb-1 text-secondary">Location: Lahore, PK</p>
-            <p class="small text-dark">Salary: Rs. 180,000/month</p>
-          </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card kpi-warning">
+        <div class="kpi-icon">
+          <i class="bi bi-calendar-check-fill"></i>
         </div>
-
-        <div class="col-md-4">
-          <div class="p-4 border rounded bg-light hover-card">
-            <h6 class="fw-bold text-dark">Frontend Developer</h6>
-            <p class="mb-1 text-secondary">Company: 10Pearls</p>
-            <p class="mb-1 text-secondary">Location: Karachi, PK</p>
-            <p class="small text-dark">Salary: Rs. 160,000/month</p>
-          </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Interviews Scheduled</span>
+          <h2 class="kpi-value mb-0">18</h2>
+          <span class="kpi-trend neutral">
+            <i class="bi bi-dash"></i> This week
+          </span>
         </div>
+      </div>
+    </div>
 
-        <div class="col-md-4">
-          <div class="p-4 border rounded bg-light hover-card">
-            <h6 class="fw-bold text-dark">Data Scientist</h6>
-            <p class="mb-1 text-secondary">Company: Arbisoft</p>
-            <p class="mb-1 text-secondary">Location: Lahore, PK</p>
-            <p class="small text-dark">Salary: Rs. 220,000/month</p>
-          </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card kpi-info">
+        <div class="kpi-icon">
+          <i class="bi bi-check-circle-fill"></i>
         </div>
-
-        <div class="col-md-4">
-          <div class="p-4 border rounded bg-light hover-card">
-            <h6 class="fw-bold text-dark">Mobile App Developer</h6>
-            <p class="mb-1 text-secondary">Company: Tkxel</p>
-            <p class="mb-1 text-secondary">Location: Islamabad, PK</p>
-            <p class="small text-dark">Salary: Rs. 190,000/month</p>
-          </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Hired</span>
+          <h2 class="kpi-value mb-0">7</h2>
+          <span class="kpi-trend positive">
+            <i class="bi bi-arrow-up"></i> 2 this week
+          </span>
         </div>
-
-        <div class="col-md-4">
-          <div class="p-4 border rounded bg-light hover-card">
-            <h6 class="fw-bold text-dark">UI/UX Designer</h6>
-            <p class="mb-1 text-secondary">Company: VentureDive</p>
-            <p class="mb-1 text-secondary">Location: Karachi, PK</p>
-            <p class="small text-dark">Salary: Rs. 170,000/month</p>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
-</div>
 
-
-    <!-- Career Insights -->
-    <div class="row mt-4">
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-lg p-4">
-          <h5 class="text-dark fw-semibold mb-3">💡 Career Tips</h5>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">Learn trending technologies like AI And Cloud Computing</li>
-            <li class="list-group-item">Keep your resume updated quarterly.</li>
-            <li class="list-group-item">Build a strong LinkedIn profile.</li>
-            <li class="list-group-item">Join webinars and networking sessions.</li>
-            <li class="list-group-item">Practice coding problems regularly.</li>
-            <li class="list-group-item">Prepare thoroughly for interviews.</li>
-            <li class="list-group-item">Seek feedback to improve your skills.</li>
-            <li class="list-group-item">Stay positive and persistent in your job.</li>
-            <li class="list-group-item">Customize applications for each job.</li>
-            <li class="list-group-item">Research companies before interviews.</li>
-            <li class="list-group-item">Enhance both technical and soft skills.</li>
-            <li class="list-group-item">Set clear career goals and track progress and focus on new opportunities</li>
-          </ul>
+  <!-- Quick Stats Bar -->
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-icon stat-icon-purple">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value">4.2 days</span>
+            <span class="stat-label">Avg. Response Time</span>
+          </div>
         </div>
-      </div>
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-lg p-4">
-          <h5 class="text-dark fw-semibold mb-3">📈 Job Market Overview</h5>
-          <canvas id="marketChart" height="120"></canvas>
+        <div class="stat-item">
+          <div class="stat-icon stat-icon-blue">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value">68%</span>
+            <span class="stat-label">Interview Rate</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon stat-icon-green">
+            <i class="bi bi-trophy"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value">32%</span>
+            <span class="stat-label">Hire Success Rate</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon stat-icon-orange">
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value">4.8/5</span>
+            <span class="stat-label">Candidate Satisfaction</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon stat-icon-pink">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value">Rs. 185K</span>
+            <span class="stat-label">Avg. Salary Offered</span>
+          </div>
         </div>
       </div>
     </div>
-        <div class="card shadow-lg p-4">
-          <h5 class="text-dark mb-3 fw-semibold">🔥 Skills in Demand</h5>
-          <canvas id="skillsChart" height="150"></canvas>
-        </div>
+  </div>
 
-    <!-- Contact Section -->
-    <div class="row mt-5">
-      <div class="col-12">
-        <div class="card shadow-lg p-5 text-center bg-light">
-          <h4 class="text-dark fw-bold mb-3">📬 Contact Us</h4>
-          <p class="text-secondary mb-4">Have questions or suggestions? We’d love to hear from you!</p>
-          <p><strong>Email:</strong> support@jobfinder.com</p>
-          <p><strong>Phone:</strong> +92 300 1234567</p>
-          <p><strong>Address:</strong> Office #23, Tech Hub Plaza, Lahore, Pakistan</p>
+  <!-- Main Content Grid -->
+  <div class="row g-4 mb-4">
+    <!-- Applications Chart -->
+    <div class="col-lg-8">
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <div>
+            <h5 class="card-title-modern mb-1">Application Trends</h5>
+            <p class="text-muted small mb-0">Monthly application overview</p>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary active">6M</button>
+            <button class="btn btn-outline-secondary">1Y</button>
+            <button class="btn btn-outline-secondary">All</button>
+          </div>
+        </div>
+        <div class="card-body-modern">
+          <canvas id="jobsChart" height="200"></canvas>
         </div>
       </div>
     </div>
 
-  </section>
+    <!-- Quick Stats Sidebar -->
+    <div class="col-lg-4">
+      <div class="modern-card mb-3">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Job Distribution</h5>
+        </div>
+        <div class="card-body-modern">
+          <canvas id="marketChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body-modern p-0">
+          <a href="#" class="quick-action-item">
+            <i class="bi bi-file-earmark-text"></i>
+            <span>View All Applications</span>
+            <i class="bi bi-chevron-right ms-auto"></i>
+          </a>
+          <a href="#" class="quick-action-item">
+            <i class="bi bi-graph-up"></i>
+            <span>Analytics Report</span>
+            <i class="bi bi-chevron-right ms-auto"></i>
+          </a>
+          <a href="#" class="quick-action-item">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+            <i class="bi bi-chevron-right ms-auto"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills & Companies Section -->
+  <div class="row g-4 mb-4">
+    <!-- Recruitment Funnel -->
+    <div class="col-lg-5">
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Recruitment Funnel</h5>
+        </div>
+        <div class="card-body-modern">
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 100%; background: linear-gradient(90deg, #4f46e5, #6366f1);">
+              <span class="funnel-label">Applications Received</span>
+              <span class="funnel-count">180</span>
+            </div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 75%; background: linear-gradient(90deg, #06b6d4, #22d3ee);">
+              <span class="funnel-label">Screening Passed</span>
+              <span class="funnel-count">135</span>
+            </div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 55%; background: linear-gradient(90deg, #8b5cf6, #a78bfa);">
+              <span class="funnel-label">Technical Assessment</span>
+              <span class="funnel-count">99</span>
+            </div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 35%; background: linear-gradient(90deg, #f59e0b, #fbbf24);">
+              <span class="funnel-label">Interviews Scheduled</span>
+              <span class="funnel-count">63</span>
+            </div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 20%; background: linear-gradient(90deg, #10b981, #34d399);">
+              <span class="funnel-label">Offers Extended</span>
+              <span class="funnel-count">36</span>
+            </div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-bar" style="width: 12%; background: linear-gradient(90deg, #ec4899, #f472b6);">
+              <span class="funnel-label">Hired</span>
+              <span class="funnel-count">18</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Top Skills in Demand</h5>
+        </div>
+        <div class="card-body-modern">
+          <canvas id="skillsChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Companies Hiring -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Top Hiring Companies</h5>
+        </div>
+        <div class="card-body-modern p-0">
+          <div class="company-grid">
+            <div class="company-card">
+              <div class="company-card-header">
+                <div class="company-avatar-large">SL</div>
+                <span class="company-badge badge-hot">Hot 🔥</span>
+              </div>
+              <h6 class="company-card-title">Systems Limited</h6>
+              <p class="company-card-location"><i class="bi bi-geo-alt"></i> Lahore, Pakistan</p>
+              <div class="company-card-stats">
+                <div class="company-stat">
+                  <span class="stat-number">12</span>
+                  <span class="stat-text">Open Jobs</span>
+                </div>
+                <div class="company-stat">
+                  <span class="stat-number">45</span>
+                  <span class="stat-text">Applications</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="company-card">
+              <div class="company-card-header">
+                <div class="company-avatar-large">CF</div>
+                <span class="company-badge badge-trending">Trending 📈</span>
+              </div>
+              <h6 class="company-card-title">Confiz Limited</h6>
+              <p class="company-card-location"><i class="bi bi-geo-alt"></i> Lahore, Pakistan</p>
+              <div class="company-card-stats">
+                <div class="company-stat">
+                  <span class="stat-number">10</span>
+                  <span class="stat-text">Open Jobs</span>
+                </div>
+                <div class="company-stat">
+                  <span class="stat-number">38</span>
+                  <span class="stat-text">Applications</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="company-card">
+              <div class="company-card-header">
+                <div class="company-avatar-large">NS</div>
+                <span class="company-badge">Active</span>
+              </div>
+              <h6 class="company-card-title">NetSol Technologies</h6>
+              <p class="company-card-location"><i class="bi bi-geo-alt"></i> Lahore, Pakistan</p>
+              <div class="company-card-stats">
+                <div class="company-stat">
+                  <span class="stat-number">8</span>
+                  <span class="stat-text">Open Jobs</span>
+                </div>
+                <div class="company-stat">
+                  <span class="stat-number">32</span>
+                  <span class="stat-text">Applications</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="company-card">
+              <div class="company-card-header">
+                <div class="company-avatar-large">VD</div>
+                <span class="company-badge">Active</span>
+              </div>
+              <h6 class="company-card-title">VentureDive</h6>
+              <p class="company-card-location"><i class="bi bi-geo-alt"></i> Karachi, Pakistan</p>
+              <div class="company-card-stats">
+                <div class="company-stat">
+                  <span class="stat-number">6</span>
+                  <span class="stat-text">Open Jobs</span>
+                </div>
+                <div class="company-stat">
+                  <span class="stat-number">24</span>
+                  <span class="stat-text">Applications</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Jobs Grid -->
+  <div class="modern-card mb-4">
+    <div class="card-header-modern">
+      <div>
+        <h5 class="card-title-modern mb-1">Featured Opportunities</h5>
+        <p class="text-muted small mb-0">Trending positions in your area</p>
+      </div>
+      <a href="#" class="btn btn-sm btn-link">View all →</a>
+    </div>
+    <div class="card-body-modern">
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">SL</div>
+              <span class="job-badge">Full-time</span>
+            </div>
+            <h6 class="job-title">Software Engineer</h6>
+            <p class="job-company">Systems Limited</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Lahore, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 180K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">Python</span>
+              <span class="tag">React</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">10P</div>
+              <span class="job-badge badge-remote">Remote</span>
+            </div>
+            <h6 class="job-title">Frontend Developer</h6>
+            <p class="job-company">10Pearls</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Karachi, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 160K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">React</span>
+              <span class="tag">TypeScript</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">AS</div>
+              <span class="job-badge badge-hybrid">Hybrid</span>
+            </div>
+            <h6 class="job-title">Data Scientist</h6>
+            <p class="job-company">Arbisoft</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Lahore, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 220K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">Python</span>
+              <span class="tag">ML</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">TX</div>
+              <span class="job-badge">Full-time</span>
+            </div>
+            <h6 class="job-title">Mobile App Developer</h6>
+            <p class="job-company">Tkxel</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Islamabad, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 190K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">Flutter</span>
+              <span class="tag">React Native</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">VD</div>
+              <span class="job-badge badge-remote">Remote</span>
+            </div>
+            <h6 class="job-title">UI/UX Designer</h6>
+            <p class="job-company">VentureDive</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Karachi, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 170K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">Figma</span>
+              <span class="tag">Design Systems</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card">
+            <div class="job-card-header">
+              <div class="job-company-badge">CF</div>
+              <span class="job-badge badge-hybrid">Hybrid</span>
+            </div>
+            <h6 class="job-title">DevOps Engineer</h6>
+            <p class="job-company">Confiz Limited</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> Lahore, PK</span>
+              <span><i class="bi bi-cash"></i> Rs. 200K/mo</span>
+            </div>
+            <div class="job-tags">
+              <span class="tag">AWS</span>
+              <span class="tag">Docker</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Career Resources -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="modern-card">
+        <div class="card-header-modern">
+          <h5 class="card-title-modern mb-0">Career Development Tips</h5>
+        </div>
+        <div class="card-body-modern">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="tip-card">
+                <div class="tip-icon tip-icon-blue">
+                  <i class="bi bi-lightbulb"></i>
+                </div>
+                <div class="tip-content">
+                  <h6>Stay Updated</h6>
+                  <p>Learn trending technologies like AI and Cloud Computing</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="tip-card">
+                <div class="tip-icon tip-icon-green">
+                  <i class="bi bi-file-person"></i>
+                </div>
+                <div class="tip-content">
+                  <h6>Resume Optimization</h6>
+                  <p>Keep your resume updated quarterly with latest skills</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="tip-card">
+                <div class="tip-icon tip-icon-purple">
+                  <i class="bi bi-linkedin"></i>
+                </div>
+                <div class="tip-content">
+                  <h6>Network Actively</h6>
+                  <p>Build a strong LinkedIn profile and attend webinars</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="tip-card">
+                <div class="tip-icon tip-icon-orange">
+                  <i class="bi bi-code-slash"></i>
+                </div>
+                <div class="tip-content">
+                  <h6>Practice Coding</h6>
+                  <p>Solve problems regularly on coding platforms</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="modern-card support-card">
+        <div class="support-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+        <h5 class="mt-3 mb-2">Need Help?</h5>
+        <p class="text-muted mb-3">Our support team is here to assist you</p>
+        <div class="support-contacts">
+          <div class="support-item">
+            <i class="bi bi-envelope"></i>
+            <span>support@jobfinder.com</span>
+          </div>
+          <div class="support-item">
+            <i class="bi bi-telephone"></i>
+            <span>+92 300 1234567</span>
+          </div>
+          <div class="support-item">
+            <i class="bi bi-geo-alt"></i>
+            <span>Tech Hub Plaza, Lahore</span>
+          </div>
+        </div>
+        <button class="btn btn-primary w-100 mt-3">Contact Support</button>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
-  // Job Applications Chart
+  // Modern color palette
+  const colors = {
+    primary: '#4f46e5',
+    success: '#10b981',
+    warning: '#f59e0b',
+    info: '#06b6d4',
+    purple: '#8b5cf6',
+    pink: '#ec4899'
+  };
+
+  // Applications Trend Chart with more details
   new Chart(document.getElementById('jobsChart'), {
     type: 'line',
     data: {
-      labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'],
       datasets: [{
-        label: 'Applications',
-        data: [50, 70, 90, 120, 150, 180],
-        borderColor: '#0d6efd',
-        backgroundColor: 'rgba(13,110,253,0.15)',
+        label: 'Applications Received',
+        data: [45, 52, 68, 75, 85, 95, 110, 125, 145, 180],
+        borderColor: colors.primary,
+        backgroundColor: 'rgba(79, 70, 229, 0.08)',
         fill: true,
-        tension: 0.4
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 6,
+        pointBackgroundColor: colors.primary,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 3,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: colors.primary,
+        pointHoverBorderWidth: 3
+      },
+      {
+        label: 'Shortlisted',
+        data: [20, 25, 32, 38, 42, 48, 55, 62, 72, 85],
+        borderColor: colors.success,
+        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 6,
+        pointBackgroundColor: colors.success,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 3,
+        pointHoverRadius: 8
       }]
     },
-    options: { plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        legend: { 
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 15,
+            font: { size: 12, weight: '500' },
+            color: '#6b7280'
+          }
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#1f2937',
+          bodyColor: '#6b7280',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          padding: 15,
+          displayColors: true,
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.parsed.y + ' candidates';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { 
+            color: '#f3f4f6', 
+            drawBorder: false,
+            lineWidth: 1
+          },
+          ticks: { 
+            color: '#9ca3af',
+            font: { size: 11 },
+            padding: 8,
+            callback: function(value) {
+              return value;
+            }
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { 
+            color: '#9ca3af',
+            font: { size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 8
+          }
+        }
+      }
+    }
   });
 
-  // Skills Chart
+  // Skills Chart with more details
   new Chart(document.getElementById('skillsChart'), {
     type: 'bar',
     data: {
-      labels: ['Python', 'React', 'Cloud', 'AI/ML', 'Cybersecurity'],
+      labels: ['Python', 'React', 'Node.js', 'Cloud (AWS/Azure)', 'AI/ML', 'Cybersecurity', 'Docker', 'TypeScript'],
       datasets: [{
-        label: 'Demand Level',
-        data: [85, 75, 90, 95, 70],
-        backgroundColor: '#198754'
+        label: 'Demand Percentage',
+        data: [88, 82, 76, 92, 95, 72, 68, 85],
+        backgroundColor: [
+          colors.primary,
+          colors.info,
+          colors.success,
+          colors.purple,
+          colors.pink,
+          colors.warning,
+          '#06b6d4',
+          '#8b5cf6'
+        ],
+        borderRadius: 8,
+        barThickness: 35,
+        borderWidth: 0
       }]
     },
-    options: { plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#1f2937',
+          bodyColor: '#6b7280',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          padding: 15,
+          displayColors: false,
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            label: function(context) {
+              return 'Market Demand: ' + context.parsed.x + '%';
+            },
+            afterLabel: function(context) {
+              const jobs = Math.round(context.parsed.x * 2.5);
+              return 'Approx. ' + jobs + ' job postings';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          grid: { 
+            color: '#f3f4f6', 
+            drawBorder: false 
+          },
+          ticks: { 
+            color: '#9ca3af',
+            font: { size: 11 },
+            callback: (value) => value + '%'
+          }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { 
+            color: '#374151',
+            font: { size: 11, weight: '500' },
+            padding: 8
+          }
+        }
+      }
+    }
   });
 
-  // Market Chart
+  // Job Distribution Doughnut with enhanced details
   new Chart(document.getElementById('marketChart'), {
     type: 'doughnut',
     data: {
-      labels: ['Remote', 'Hybrid', 'On-site'],
+      labels: ['Remote Work', 'Hybrid Model', 'On-site'],
       datasets: [{
         data: [60, 25, 15],
-        backgroundColor: ['#0d6efd', '#ffc107', '#dc3545']
+        backgroundColor: [colors.primary, colors.warning, colors.info],
+        borderWidth: 0,
+        spacing: 4,
+        hoverOffset: 8
       }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20,
+            font: { size: 12, weight: '500' },
+            color: '#6b7280',
+            usePointStyle: true,
+            pointStyle: 'circle',
+            generateLabels: function(chart) {
+              const data = chart.data;
+              return data.labels.map((label, i) => ({
+                text: label + ' (' + data.datasets[0].data[i] + '%)',
+                fillStyle: data.datasets[0].backgroundColor[i],
+                hidden: false,
+                index: i
+              }));
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#1f2937',
+          bodyColor: '#6b7280',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          padding: 15,
+          displayColors: true,
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.parsed || 0;
+              return label + ': ' + value + '% of total jobs';
+            },
+            afterLabel: function(context) {
+              const total = 24;
+              const jobs = Math.round((context.parsed / 100) * total);
+              return jobs + ' active positions';
+            }
+          }
+        }
+      },
+      cutout: '65%'
     }
   });
 </script>
