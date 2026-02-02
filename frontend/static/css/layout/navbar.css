@@ -1,35 +1,214 @@
 /* frontend\static\css\layout\navbar.css */
 
 .navbar {
-  margin-left: 251px;
+  margin-left: 250px;
   margin-right: 14px;
+  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .navbar .nav-link,
 .navbar .navbar-brand {
   color: white !important;
+  font-weight: 500;
 }
 
 .bg-primary-custom {
   background-color: var(--primary) !important;
 }
 
+/* Brand Styling */
 .stylish-brand {
   font-family: 'Georgia', serif;
-  font-size: 1.75rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: white !important;
   text-transform: capitalize;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding: 0.5rem 0;
+  margin-left: 15px;
+}
+
+.stylish-brand::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: white;
+  transition: width 0.3s ease;
+  border-radius: 2px;
 }
 
 .stylish-brand:hover {
-  color: #a8c4ff;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  color: #a8c4ff !important;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
+.stylish-brand:hover::after {
+  width: 100%;
+}
+
+/* Navbar Content */
 .navbarContent {
   margin-right: 200px;
+  gap: 0.5rem;
 }
 
+/* Nav Links */
+.navbar .nav-link {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-left: 15px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar .nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: width 0.3s ease;
+  border-radius: 1px;
+}
+
+.navbar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.navbar .nav-link:hover::before {
+  width: 70%;
+}
+
+.navbar .nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .nav-link.active::before {
+  width: 70%;
+}
+
+/* Navbar Toggler */
+.navbar-toggler {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 0.75rem;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.navbar-toggler:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .navbar {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .navbarContent {
+    background: var(--primary);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    margin-right: 0;
+  }
+
+  .navbar .nav-link {
+    margin: 0.25rem 0;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .stylish-brand {
+    font-size: 1.5rem;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+
+  .stylish-brand {
+    font-size: 1.35rem;
+  }
+
+  .navbar .nav-link {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+/* Animation on page load */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.navbar {
+  animation: slideDown 0.5s ease-out;
+}
+
+.navbar .nav-item {
+  animation: slideDown 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.navbar .nav-item:nth-child(1) { animation-delay: 0.1s; }
+.navbar .nav-item:nth-child(2) { animation-delay: 0.15s; }
+.navbar .nav-item:nth-child(3) { animation-delay: 0.2s; }
+.navbar .nav-item:nth-child(4) { animation-delay: 0.25s; }
+.navbar .nav-item:nth-child(5) { animation-delay: 0.3s; }
+.navbar .nav-item:nth-child(6) { animation-delay: 0.35s; }
+
+/* Scroll Effect */
+.navbar.scrolled {
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth transitions for all interactive elements */
+.navbar * {
+  transition: all 0.3s ease;
+}

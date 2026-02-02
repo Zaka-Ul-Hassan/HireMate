@@ -4,6 +4,11 @@ body {
   padding-top: 80px;
   padding-left: 250px;
   background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 100px;
+  ;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -44,7 +49,72 @@ input[type="file"] {
 }
 
 .file-name {
-    color: #198754;
-    font-weight: bold;
+  color: #198754;
+  font-weight: bold;
 }
 
+
+main {
+  flex: 1;
+  /* Take all available space */
+}
+
+footer {
+  margin-top: auto;
+  /* Push footer to bottom */
+}
+
+
+/* Container holding file info + button */
+.file-upload-column {
+  display: flex;
+  flex-direction: column;
+  /* Stack vertically */
+  align-items: center;
+  /* Center align everything */
+  gap: 10px;
+  /* Space between file info and button */
+  margin-top: 20px;
+}
+
+/* File info box */
+.file-info-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #6c757d;
+  border-radius: 5px;
+  padding: 5px 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+
+  max-width: 600px;
+  /* Adjust max width if needed */
+  width: 100%;
+  /* Take full width of container */
+  overflow: hidden;
+  /* Important for long filenames */
+}
+
+.file-info-box .file-name {
+  font-weight: bold;
+  color: #198754;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Show "..." for very long names */
+  flex-grow: 1;
+  /* Take remaining space */
+}
+
+/* Clear button stays at end */
+#clearFileBtn {
+  flex-shrink: 0;
+}
+
+/* Upload button */
+#uploadBtn {
+  width: 200px;
+  /* Fixed width button */
+}

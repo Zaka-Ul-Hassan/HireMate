@@ -11,39 +11,39 @@
   ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
   <p><strong>Drag and drop your resume here</strong>, or click to upload</p>
   <input type="file" id="resumeUpload" accept=".pdf,.docx" style="display: none;" />
-  
+
   <!-- Accepted formats text -->
-<div class="text-center mt-2">
-  <span class="text-muted small">Accepted formats: <strong>PDF AND DOCX</strong></span>
-</div>
+  <div class="text-center mt-2">
+    <span class="text-muted small">Accepted formats: <strong>PDF AND DOCX</strong></span>
+  </div>
 </div>
 
 
 <!-- File Info Box + Upload Button Inline -->
 <div class="d-flex justify-content-center align-items-center mt-3 gap-2 flex-wrap">
-  
-<!-- File Info Box -->
-<div id="fileInfoBox"
-  class="file-info-box d-none d-flex justify-content-between align-items-center bg-light border border-secondary rounded p-2 shadow-sm"
-  style="width: 260px;">
-  <div class="d-flex align-items-center gap-2">
-    <i id="fileIcon" class="fas text-success"></i>
-    <span id="fileName" class="file-name text-dark small mb-0"></span>
+
+  <!-- File Info Box -->
+  <!-- File Info Box + Upload Button Stacked Vertically -->
+  <div class="file-upload-column">
+
+    <!-- File Info Box -->
+    <div id="fileInfoBox" class="file-info-box d-none">
+      <i id="fileIcon" class="fas text-success"></i>
+      <span id="fileName" class="file-name"></span>
+      <button id="clearFileBtn" class="btn btn-sm btn-outline-danger border-0 px-2 py-0 ms-2" title="Remove file">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Upload Button -->
+    <button class="btn btn-primary" id="uploadBtn">
+      Upload Resume
+    </button>
+
   </div>
-  <button id="clearFileBtn" class="btn btn-sm btn-outline-danger border-0 px-2 py-0 ms-2" title="Remove file">
-    <i class="fas fa-times"></i>
-  </button>
-</div>
 
+  {% endblock %}
 
-  <!-- Upload Button -->
-  <button class="btn btn-primary" id="uploadBtn">
-    <i></i> Upload Resume
-  </button>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="/static/js/resume/resume-upload.js"></script>
-{% endblock %}
+  {% block extra_js %}
+  <script src="/static/js/resume/resume-upload.js"></script>
+  {% endblock %}
