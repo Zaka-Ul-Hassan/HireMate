@@ -43,13 +43,13 @@ async function fetchCurrentUser() {
     try {
         const response = await fetch(`${API_BASE_URL}/users/current-user`);
         if (!response.ok) throw new Error('Failed to fetch user');
-        
+
         const data = await response.json();
         currentUserId = data.UserId;
-        
+
         // Store in localStorage
         localStorage.setItem('userId', currentUserId);
-        
+
         console.log('Current User ID:', currentUserId);
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -73,9 +73,9 @@ function getInitials(fullName) {
     if (!fullName || fullName.trim() === '') {
         return '??';
     }
-    
+
     const nameParts = fullName.trim().split(' ').filter(part => part.length > 0);
-    
+
     if (nameParts.length === 0) {
         return '??';
     } else if (nameParts.length === 1) {
@@ -97,11 +97,11 @@ function getInitials(fullName) {
 function displayInitials(fullName, container) {
     const initialsDiv = document.createElement('div');
     initialsDiv.className = 'profile-initials';
-    
+
     // Extract initials from full name
     const initials = getInitials(fullName);
     initialsDiv.textContent = initials;
-    
+
     container.appendChild(initialsDiv);
 }
 
@@ -112,22 +112,22 @@ function displayInitials(fullName, container) {
  */
 function displayProfileImage(fullName, imageUrl = null) {
     const container = document.getElementById('profileImageContainer');
-    
+
     if (!container) {
         console.warn('Profile image container not found');
         return;
     }
-    
+
     // Clear existing content
     container.innerHTML = '';
-    
+
     if (imageUrl && imageUrl.trim() !== '') {
         // Display profile image if available
         const img = document.createElement('img');
         img.src = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl.replace(/\\/g, '/');
         img.alt = fullName || 'Profile Picture';
         img.className = 'profile-image';
-        img.onerror = function() {
+        img.onerror = function () {
             // Fallback to initials if image fails to load
             console.warn('Failed to load profile image, falling back to initials');
             container.innerHTML = '';
@@ -150,16 +150,16 @@ async function loadUserResume() {
 
     try {
         const response = await fetch(`${API_BASE_URL}/resumes/user/${currentUserId}`);
-        
+
         if (response.ok) {
             const result = await response.json();
             if (result.status && result.data) {
                 currentResumeId = result.data.Id;
                 displayResume(result.data);
-                
+
                 // Set download button URL
                 setDownloadButton(currentUserId);
-                
+
                 showState('display');
             } else {
                 showState('noResume');
@@ -190,7 +190,7 @@ function displayResume(resume) {
         resume.FullName,
         resume.ProfileImage // This will be null/empty if no image exists
     );
-    
+
     // Display name and developer type
     document.getElementById('displayFullName').textContent = resume.FullName || '';
     document.getElementById('displayDeveloperType').textContent = resume.DeveloperType || '';
@@ -198,7 +198,7 @@ function displayResume(resume) {
     // Contact Information - Show section only if there's data
     const hasContactInfo = resume.Email || resume.PhoneNumber || resume.Address || resume.DateOfBirth;
     showHideSection('contactInfoSection', hasContactInfo);
-    
+
     if (hasContactInfo) {
         document.getElementById('displayEmail').textContent = resume.Email || 'N/A';
         document.getElementById('displayPhoneNumber').textContent = resume.PhoneNumber || 'N/A';
@@ -225,10 +225,10 @@ function displayResume(resume) {
     }
 
     // Experience
-    const hasExperience = resume.ExperienceTitle || resume.ExperienceCompany || 
-                         resume.ExperienceDuration || resume.ExperienceDescription;
+    const hasExperience = resume.ExperienceTitle || resume.ExperienceCompany ||
+        resume.ExperienceDuration || resume.ExperienceDescription;
     showHideSection('experienceSection', hasExperience);
-    
+
     if (hasExperience) {
         document.getElementById('displayExperienceTitle').textContent = resume.ExperienceTitle || '';
         document.getElementById('displayExperienceCompany').textContent = resume.ExperienceCompany || '';
@@ -239,16 +239,16 @@ function displayResume(resume) {
     // Education
     const hasEducation = resume.Education1 || resume.Education2 || resume.Education3;
     showHideSection('educationSection', hasEducation);
-    
+
     if (hasEducation) {
         const edu1 = document.getElementById('displayEducation1');
         const edu2 = document.getElementById('displayEducation2');
         const edu3 = document.getElementById('displayEducation3');
-        
+
         edu1.textContent = resume.Education1 || '';
         edu2.textContent = resume.Education2 || '';
         edu3.textContent = resume.Education3 || '';
-        
+
         edu1.style.display = resume.Education1 ? 'list-item' : 'none';
         edu2.style.display = resume.Education2 ? 'list-item' : 'none';
         edu3.style.display = resume.Education3 ? 'list-item' : 'none';
@@ -257,14 +257,14 @@ function displayResume(resume) {
     // Projects
     const hasProjects = resume.Project1 || resume.Project2;
     showHideSection('projectsSection', hasProjects);
-    
+
     if (hasProjects) {
         const proj1 = document.getElementById('displayProject1');
         const proj2 = document.getElementById('displayProject2');
-        
+
         proj1.textContent = resume.Project1 || '';
         proj2.textContent = resume.Project2 || '';
-        
+
         proj1.style.display = resume.Project1 ? 'list-item' : 'none';
         proj2.style.display = resume.Project2 ? 'list-item' : 'none';
     }
@@ -272,24 +272,33 @@ function displayResume(resume) {
     // Links
     const hasLinks = resume.LinkedIn || resume.GitHub;
     showHideSection('linksSection', hasLinks);
-    
+
     if (hasLinks) {
         const linkedInLink = document.getElementById('displayLinkedIn');
         const gitHubLink = document.getElementById('displayGitHub');
-        
+
         if (resume.LinkedIn) {
-            linkedInLink.href = resume.LinkedIn;
+            let linkedInUrl = resume.LinkedIn.trim();
+            if (!linkedInUrl.startsWith('http://') && !linkedInUrl.startsWith('https://')) {
+                linkedInUrl = 'https://' + linkedInUrl; // Prepend https
+            }
+            linkedInLink.href = linkedInUrl;
             linkedInLink.style.display = 'inline-flex';
         } else {
             linkedInLink.style.display = 'none';
         }
-        
+
         if (resume.GitHub) {
-            gitHubLink.href = resume.GitHub;
+            let gitHubUrl = resume.GitHub.trim();
+            if (!gitHubUrl.startsWith('http://') && !gitHubUrl.startsWith('https://')) {
+                gitHubUrl = 'https://' + gitHubUrl;
+            }
+            gitHubLink.href = gitHubUrl;
             gitHubLink.style.display = 'inline-flex';
         } else {
             gitHubLink.style.display = 'none';
         }
+
     }
 }
 
@@ -297,13 +306,13 @@ function displayResume(resume) {
 function showForm(updateMode) {
     isUpdateMode = updateMode;
     formTitle.textContent = updateMode ? 'Update Resume' : 'Create Resume';
-    
+
     if (updateMode) {
         populateFormWithResumeData();
     } else {
         resumeForm.reset();
     }
-    
+
     showState('form');
     window.scrollTo(0, 0);
 }
@@ -315,7 +324,7 @@ async function populateFormWithResumeData() {
     try {
         const response = await fetch(`${API_BASE_URL}/resumes/${currentResumeId}`);
         if (!response.ok) throw new Error('Failed to fetch resume');
-        
+
         const result = await response.json();
         const resume = result.data;
 
@@ -364,18 +373,18 @@ function hideForm() {
 // Handle Form Submit
 async function handleSubmit(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(resumeForm);
     const data = {};
-    
+
     // Convert FormData to JSON
     for (let [key, value] of formData.entries()) {
         data[key] = value || null;
     }
-    
+
     // Add UserId
     data.UserId = currentUserId;
-    
+
     // Remove empty strings, replace with null
     Object.keys(data).forEach(key => {
         if (data[key] === '') {
@@ -385,7 +394,7 @@ async function handleSubmit(e) {
 
     try {
         let response;
-        
+
         if (isUpdateMode) {
             // Update existing resume
             response = await fetch(`${API_BASE_URL}/resumes/resumes/${currentResumeId}`, {
@@ -400,7 +409,7 @@ async function handleSubmit(e) {
             if (currentResumeId) {
                 await softDeleteExistingResume();
             }
-            
+
             // Create new resume
             response = await fetch(`${API_BASE_URL}/resumes/resumes/`, {
                 method: 'POST',
@@ -417,10 +426,10 @@ async function handleSubmit(e) {
 
         const result = await response.json();
         toastr.success(isUpdateMode ? 'Resume updated successfully!' : 'Resume created successfully!');
-        
+
         // Reload resume data
         await loadUserResume();
-        
+
     } catch (error) {
         console.error('Error saving resume:', error);
         toastr.error('Failed to save resume');
@@ -433,11 +442,11 @@ async function softDeleteExistingResume() {
         const response = await fetch(`${API_BASE_URL}/resumes/resumes/${currentResumeId}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) {
             throw new Error('Failed to delete existing resume');
         }
-        
+
         console.log('Previous resume soft deleted');
     } catch (error) {
         console.error('Error deleting existing resume:', error);
@@ -504,7 +513,7 @@ function showState(state) {
 }
 
 // Resume form runtime validation
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const resumeForm = document.getElementById("resumeForm");
 
     const fullName = document.getElementById("fullName");
@@ -515,7 +524,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateOfBirth = document.getElementById("dateOfBirth");
     const address = document.getElementById("address"); // Added Address field
 
-    resumeForm.addEventListener("submit", function(event) {
+    resumeForm.addEventListener("submit", function (event) {
         let isValid = true;
         let messages = [];
 

@@ -5,20 +5,17 @@ from app.models.resume.resume_model import Resume
 from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
 
 
-def create_resume(db: Session, user_id: int, data: ResumeCreate):
-    # 1. Delete any existing resume for this user permanently
-    existing_resume = db.query(Resume).filter(Resume.UserId == user_id).first()
-    if existing_resume:
-        db.delete(existing_resume)
-        db.commit()  # commit after delete
+def create_resume(db: Session, data: ResumeCreate):
+    """Create a new resume"""
+    # Create new resume
+    resume = Resume(**data.dict())
+    resume.IsActive = True
+    resume.IsDeleted = False
 
-    # 2. Add new resume
-    new_resume = Resume(**data.dict())
-    new_resume.UserId = user_id
-    db.add(new_resume)
+    db.add(resume)
     db.commit()
-    db.refresh(new_resume)
-    return new_resume
+    db.refresh(resume)
+    return resume
 
 
 def get_resume_by_id(db: Session, resume_id: int):
@@ -69,10 +66,9 @@ def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
 
 
 def delete_resume(db: Session, resume_id: int):
-    """Permanently delete a resume"""
     resume = get_resume_by_id(db, resume_id)
     if not resume:
-        return None 
+        return None  
 
     db.delete(resume)
     db.commit()
