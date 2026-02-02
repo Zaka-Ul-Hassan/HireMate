@@ -1,14 +1,15 @@
 /* frontend\static\css\resume\get_resume.css */
 .resume-container {
     min-height: calc(100vh - 56px);
-    padding: 3rem 0;
+    padding: 2rem 0;
     margin-left: 100px;
     width: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
 }
 
 .resume-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     animation: fadeInUp 0.6s ease-out;
@@ -28,7 +29,7 @@
 
 .resume-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2.5rem;
+    padding: 3rem 2.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -46,12 +47,9 @@
 }
 
 @keyframes pulse {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: scale(1);
     }
-
     50% {
         transform: scale(1.1);
     }
@@ -59,27 +57,59 @@
 
 .resume-header h2 {
     color: white;
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 1.5rem 0;
     position: relative;
     z-index: 1;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.5px;
+}
+
+/* Download Button in Header */
+.download-btn-header {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.download-btn-header:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    background: white;
+    color: #764ba2;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.download-btn-header i {
+    font-size: 1.25rem;
 }
 
 .section-card {
     border: none;
-    border-radius: 16px;
+    border-radius: 18px;
     background: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     overflow: hidden;
 }
 
 .section-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
 }
 
 .section-card .card-body {
@@ -88,10 +118,10 @@
 
 .section-title {
     color: #667eea;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1rem;
     border-bottom: 3px solid #f0f0f0;
     position: relative;
 }
@@ -101,7 +131,7 @@
     position: absolute;
     bottom: -3px;
     left: 0;
-    width: 60px;
+    width: 80px;
     height: 3px;
     background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     border-radius: 2px;
@@ -110,102 +140,196 @@
 .info-label {
     color: #6c757d;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.75rem;
 }
 
 .info-value {
     color: #2d3748;
     font-size: 1rem;
-    padding: 0.75rem 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 3px solid #667eea;
+    padding: 0.9rem 1.25rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    font-weight: 500;
 }
 
 .text-content {
-    padding: 1.25rem;
+    padding: 1.25rem 1.5rem;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 10px;
+    border-radius: 12px;
     color: #2d3748;
-    line-height: 1.7;
-    border-left: 4px solid #667eea;
+    line-height: 1.8;
+    border-left: 5px solid #667eea;
+    font-size: 1rem;
 }
 
 .list-item {
     background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 1rem;
     transition: all 0.3s ease;
-    border-left: 3px solid transparent;
+    border-left: 4px solid transparent;
+    font-size: 1rem;
 }
 
 .list-item:hover {
     border-left-color: #667eea;
     background: #f8f9fa;
-    transform: translateX(5px);
+    transform: translateX(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .list-item:last-child {
     margin-bottom: 0;
 }
 
-.download-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 50px;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.download-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
-    color: white;
-}
-
-.download-btn i {
-    font-size: 1.2rem;
-}
-
 .experience-badge {
     display: inline-block;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 0.5rem 1.25rem;
+    padding: 0.65rem 1.5rem;
     border-radius: 50px;
-    font-weight: 600;
-    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .two-column-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
+/* Profile Section for Resume Header (Optional Enhancement) */
+.profile-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-image-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-initials {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: #667eea;
+    text-transform: uppercase;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+    .resume-container {
+        margin-left: 0;
+        padding: 1rem 0;
+    }
+
+    .resume-header {
+        padding: 2.5rem 1.5rem;
+    }
+
     .resume-header h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .download-btn-header {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .download-btn-header i {
+        font-size: 1.1rem;
     }
 
     .section-card .card-body {
         padding: 1.5rem;
     }
 
+    .section-title {
+        font-size: 1.3rem;
+    }
+
     .two-column-grid {
         grid-template-columns: 1fr;
+    }
+
+    .info-value,
+    .text-content,
+    .list-item {
+        font-size: 0.95rem;
+    }
+
+    .profile-image-container,
+    .profile-initials {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-initials {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .resume-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .download-btn-header {
+        padding: 0.65rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .download-btn-header i {
+        font-size: 1rem;
+    }
+
+    .section-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .profile-image-container,
+    .profile-initials {
+        width: 90px;
+        height: 90px;
+    }
+
+    .profile-initials {
+        font-size: 36px;
     }
 }

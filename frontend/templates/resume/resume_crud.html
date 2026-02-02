@@ -1,3 +1,4 @@
+<!-- frontend\templates\resume\resume_crud.html -->
 {% extends "shared/base.html" %}
 
 {% block title %}Resume Management{% endblock %}
@@ -37,66 +38,88 @@
         <div class="resume-card">
             <div class="resume-header">
                 <div class="profile-section">
-                    <img id="displayProfileImage" src="" alt="Profile" class="profile-image">
+                    <!-- Profile image/initials will be inserted here dynamically -->
+                    <div id="profileImageContainer" class="profile-image-container">
+                        <!-- This will be populated by JavaScript -->
+                    </div>
                     <div class="profile-info">
                         <h2 id="displayFullName"></h2>
                         <p id="displayDeveloperType" class="developer-type"></p>
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <button id="updateResumeBtn" class="btn btn-secondary">Update</button>
-                    <button id="deleteResumeBtn" class="btn btn-danger">Delete</button>
+                    <a id="downloadResumeBtn" href="#" class="btn btn-success">
+                        <i class="bi bi-download"></i>
+                        <span>Download</span>
+                    </a>
+                    <button id="updateResumeBtn" class="btn btn-secondary">
+                        <i class="bi bi-pencil"></i>
+                        <span>Update</span>
+                    </button>
+                    <button id="deleteResumeBtn" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        <span>Delete</span>
+                    </button>
                 </div>
             </div>
             
             <div class="resume-content">
-                <div class="info-section">
+                <!-- Contact Information -->
+                <div id="contactInfoSection" class="info-section">
                     <h3>Contact Information</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <strong>Email:</strong>
+                            <strong>Email</strong>
                             <span id="displayEmail"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Phone:</strong>
+                            <strong>Phone</strong>
                             <span id="displayPhoneNumber"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Address:</strong>
+                            <strong>Address</strong>
                             <span id="displayAddress"></span>
                         </div>
                         <div class="info-item">
-                            <strong>Date of Birth:</strong>
+                            <strong>Date of Birth</strong>
                             <span id="displayDateOfBirth"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="info-section">
+                <!-- Professional Summary -->
+                <div id="summarySection" class="info-section">
                     <h3>Professional Summary</h3>
                     <p id="displaySummary"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Objective -->
+                <div id="objectiveSection" class="info-section">
                     <h3>Objective</h3>
                     <p id="displayObjective"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Skills -->
+                <div id="skillsSection" class="info-section">
                     <h3>Skills</h3>
                     <p id="displaySkills"></p>
                 </div>
 
-                <div class="info-section">
+                <!-- Experience -->
+                <div id="experienceSection" class="info-section">
                     <h3>Experience</h3>
                     <div class="experience-details">
                         <h4 id="displayExperienceTitle"></h4>
-                        <p class="company-info"><strong id="displayExperienceCompany"></strong> | <span id="displayExperienceDuration"></span></p>
+                        <p class="company-info">
+                            <strong id="displayExperienceCompany"></strong> | 
+                            <span id="displayExperienceDuration"></span>
+                        </p>
                         <p id="displayExperienceDescription"></p>
                     </div>
                 </div>
 
-                <div class="info-section">
+                <!-- Education -->
+                <div id="educationSection" class="info-section">
                     <h3>Education</h3>
                     <ul class="education-list">
                         <li id="displayEducation1"></li>
@@ -105,7 +128,8 @@
                     </ul>
                 </div>
 
-                <div class="info-section">
+                <!-- Projects -->
+                <div id="projectsSection" class="info-section">
                     <h3>Projects</h3>
                     <ul class="project-list">
                         <li id="displayProject1"></li>
@@ -113,11 +137,16 @@
                     </ul>
                 </div>
 
-                <div class="info-section">
+                <!-- Links -->
+                <div id="linksSection" class="info-section">
                     <h3>Links</h3>
                     <div class="links">
-                        <a id="displayLinkedIn" href="" target="_blank" class="social-link">LinkedIn</a>
-                        <a id="displayGitHub" href="" target="_blank" class="social-link">GitHub</a>
+                        <a id="displayLinkedIn" href="" target="_blank" class="social-link">
+                            <i class="bi bi-linkedin me-1"></i>LinkedIn
+                        </a>
+                        <a id="displayGitHub" href="" target="_blank" class="social-link">
+                            <i class="bi bi-github me-1"></i>GitHub
+                        </a>
                     </div>
                 </div>
             </div>
