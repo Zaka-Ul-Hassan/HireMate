@@ -6,25 +6,7 @@ from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
 
 
 def create_resume(db: Session, data: ResumeCreate):
-    """
-    Create a new resume. If a resume already exists for the user,
-    soft delete it before creating the new one.
-    """
-    # Check if user already has a resume
-    existing_resume = (
-        db.query(Resume)
-        .filter(
-            Resume.UserId == data.UserId,
-            Resume.IsDeleted == False
-        )
-        .first()
-    )
-    
-    # If existing resume found, soft delete it
-    if existing_resume:
-        existing_resume.IsDeleted = True
-        db.commit()
-    
+    """Create a new resume"""
     # Create new resume
     resume = Resume(**data.dict())
     resume.IsActive = True
