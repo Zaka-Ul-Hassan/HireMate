@@ -69,11 +69,11 @@ def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
 
 
 def delete_resume(db: Session, resume_id: int):
-    """Soft delete a resume"""
+    """Permanently delete a resume"""
     resume = get_resume_by_id(db, resume_id)
     if not resume:
-        return None
+        return None 
 
-    resume.IsDeleted = True
+    db.delete(resume)
     db.commit()
     return True
