@@ -502,3 +502,85 @@ function showState(state) {
             break;
     }
 }
+
+// Resume form runtime validation
+// Resume form runtime validation
+document.addEventListener("DOMContentLoaded", function() {
+    const resumeForm = document.getElementById("resumeForm");
+
+    const fullName = document.getElementById("fullName");
+    const email = document.getElementById("email");
+    const skills = document.getElementById("skills");
+    const developerType = document.getElementById("developerType");
+    const gender = document.getElementById("gender");
+    const dateOfBirth = document.getElementById("dateOfBirth");
+    const address = document.getElementById("address"); // Added Address field
+
+    resumeForm.addEventListener("submit", function(event) {
+        let isValid = true;
+        let messages = [];
+
+        // Full Name
+        if (fullName.value.trim() === "") {
+            isValid = false;
+            messages.push("Full Name is required.");
+            fullName.classList.add("is-invalid");
+        } else fullName.classList.remove("is-invalid");
+
+        // Email
+        if (email.value.trim() === "") {
+            isValid = false;
+            messages.push("Email is required.");
+            email.classList.add("is-invalid");
+        } else if (!validateEmail(email.value.trim())) {
+            isValid = false;
+            messages.push("Email is not valid.");
+            email.classList.add("is-invalid");
+        } else email.classList.remove("is-invalid");
+
+        // Skills
+        if (skills.value.trim() === "") {
+            isValid = false;
+            messages.push("Skills are required.");
+            skills.classList.add("is-invalid");
+        } else skills.classList.remove("is-invalid");
+
+        // Developer Type
+        if (developerType.value.trim() === "") {
+            isValid = false;
+            messages.push("Developer Type is required.");
+            developerType.classList.add("is-invalid");
+        } else developerType.classList.remove("is-invalid");
+
+        // Gender
+        if (gender.value.trim() === "") {
+            isValid = false;
+            messages.push("Gender is required.");
+            gender.classList.add("is-invalid");
+        } else gender.classList.remove("is-invalid");
+
+        // Date of Birth
+        if (dateOfBirth.value.trim() === "") {
+            isValid = false;
+            messages.push("Date of Birth is required.");
+            dateOfBirth.classList.add("is-invalid");
+        } else dateOfBirth.classList.remove("is-invalid");
+
+        // Address
+        if (address.value.trim() === "") {
+            isValid = false;
+            messages.push("Address is required.");
+            address.classList.add("is-invalid");
+        } else address.classList.remove("is-invalid");
+
+        if (!isValid) {
+            event.preventDefault();
+            alert(messages.join("\n"));
+        }
+    });
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+});
