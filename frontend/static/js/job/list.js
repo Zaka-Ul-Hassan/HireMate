@@ -1,5 +1,3 @@
-// frontend\static\js\job\list.js
-
 document.addEventListener("DOMContentLoaded", function () {
 
     const jobContainer = document.getElementById("jobContainer");
@@ -21,7 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-
             const data = await res.json();
 
             if (!res.ok) {
@@ -40,24 +37,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error(data.detail || "Failed to fetch jobs.");
             }
 
-            const jobs = data.jobs || [];
+            // Handle backend message object
+            if (data.jobs && data.jobs.message) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Jobs Found',
+                    text: data.jobs.message,
+                });
+                return;
+            }
+
+            // Ensure jobs is an array
+            const jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
             if (jobs.length === 0) {
                 Swal.fire({
                     icon: 'info',
                     title: 'No Jobs Found',
-                    text: 'No relevant jobs found. Please update your resume.',
+                    text: 'No jobs available at the moment.',
                 });
                 return;
             }
+
+            // Show total job count
+            jobAlert.innerHTML = `<span class="badge bg-success fs-6 py-2 px-3">Found ${jobs.length} job(s)</span>`;
 
             jobs.forEach(job => {
                 const clone = jobTemplate.cloneNode(true);
                 clone.style.display = "flex";
                 clone.removeAttribute("id");
 
-                clone.querySelector(".job-title").textContent = job.job_title;
-                clone.querySelector(".company-name").textContent = job.company_name;
+                clone.querySelector(".job-title").textContent = job.job_title || "N/A";
+                clone.querySelector(".company-name").textContent = job.company_name || "N/A";
                 clone.querySelector(".job-location").textContent = `Location: ${job.job_location || "Remote"}`;
                 clone.querySelector(".posted-date").textContent = `Posted Date: ${job.posted_date || "N/A"}`;
 
@@ -70,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     tagsContainer.appendChild(span);
                 });
 
-                // Set job URL only if it exists
+                // Job URL
                 const jobViewBtn = clone.querySelector(".job-view-btn");
                 if (job.linkedin_job_url_cleaned) {
                     jobViewBtn.href = job.linkedin_job_url_cleaned;
@@ -80,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     jobViewBtn.style.pointerEvents = "none";
                 }
 
-                // Set company URL only if it exists
+                // Company URL
                 const companyLink = clone.querySelector(".job-company-link");
                 if (job.linkedin_company_url_cleaned) {
                     companyLink.href = job.linkedin_company_url_cleaned;
