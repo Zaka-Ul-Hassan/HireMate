@@ -41,36 +41,12 @@ client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
 redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI")
 scope = os.getenv("LINKEDIN_SCOPES", "openid profile")
 
-
 # Gmail Configuration Settings
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = os.getenv("SMTP_PORT")
 SMTP_EMAIL = os.getenv("SMTP_EMAIL")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-
-
-# .env
-
-# COHERE_API_KEY = TPYZyygnpLZEOCnZHrPhYgBv2ATu15qrg58gpkDX
-
-# GOOGLE_SEARCH_API_KEY = AIzaSyD6AiYMzsqDEqfO-SJXHG2EMtePoxGaVXE
-# GOOGLE_SEARCH_CSE_ID = b4e1a840bdf5746ee
-
-# VAPI_PUBLIC_KEY = a486bd3f-70f4-46fd-8ebd-182fc56b5b50
-# VAPI_PRIVATE_KEY = 326af1df-ebc3-4cea-bea7-e6d575d5cdd7
-# VAPI_ASSISTANT_ID = 4dfef0b2-5fa8-4ad2-82d3-200d7e26f0a4
-# VAPI_ASSISTANT_NAME = General Assistant
-
-# # TWILIO_ACCOUNT_SID = ACf36fd78e502b0689e181a0c5a595d1d4
-# # TWILIO_AUTH_TOKEN = 51419a168782cbe13bbc51ccff9b6f2c
-# # TWILIO_PHONE_NUMBER = +12175831747
-
-# TWILIO_ACCOUNT_SID = AC6ee47111587de096aec8ec056422ab72
-# TWILIO_AUTH_TOKEN = ec7653cab2dc396b3e2190fb394cdc15
-# TWILIO_PHONE_NUMBER = +12175133920
-
-# VAPI_TRANSCRIBER_PROVIDER=deepgram
-# VAPI_MODEL_PROVIDER = openai
-# VAPI_MODEL_NAME = gpt-4o-mini
-# VAPI_SYSTEM_PROMPT = You are a helpful AI assistant.
+# Qdrant Configuration Settings
+QDRANT_CLUSTER_URL = os.getenv("QDRANT_CLUSTER_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")

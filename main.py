@@ -8,12 +8,13 @@ from starlette.middleware.sessions import SessionMiddleware
 import secrets
 
 from app.routes.linkedIn import signIn_route
+from app.routes.qdrant import qdrant_route
 from app.routes.user import user_routes
 from app.routes.email import email_route
 from app.routes.resume import resume_crud_route, resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
-from app.routes.ai import cohere_chat_route, voice_agent_route
+from app.routes.ai import cohere_chat_route, cohere_rag_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.schemas.response_schema import ResponseSchema
 from app.services.scheduler.scheduler import start_email_scheduler
@@ -67,10 +68,12 @@ app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
 app.include_router(resume_processing_route.router, prefix="/api/resume-parser", tags=["Resume"])
 app.include_router(resume_crud_route.router, prefix="/api/resumes", tags=["Resume CRUD"])
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
+app.include_router(cohere_rag_route.router, prefix="/api/ai-rag", tags=["AI RAG"])
 app.include_router(job_route.router, tags=["Job"])
 app.include_router(google_search_route.router, prefix="/api/google-search", tags=["Google"])
 app.include_router(voice_agent_route.router, prefix="/api/voice-agent", tags=["Voice Agent"])
-app.include_router(signIn_route.router, prefix="/api/auth", tags=["LinkedIn Auth"]  )
+app.include_router(signIn_route.router, prefix="/api/auth", tags=["LinkedIn Auth"])
+app.include_router(qdrant_route.router, prefix="/api/qdrant", tags=["Qdrant"])
 
 # API routes frontend
 app.include_router(user_page_routes.router)

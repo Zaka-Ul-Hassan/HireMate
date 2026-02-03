@@ -1,6 +1,6 @@
 # Core backend stack
 sqlalchemy>=2.0,<3.0               # ORM for database models and SQL operations
-pyodbc>=5.0,<6.0                   # SQL Server DB driver (ODBC) for Python
+pyodbc>=5.0,<6.0                   # SQL Server DB driver (ODBC) for Python 
 fastapi>=0.100.0,<1.0.0            # Web framework for building APIs
 uvicorn>=0.20.0,<1.0.0             # ASGI server to run FastAPI apps
 
@@ -47,3 +47,5 @@ google-api-python-client>=2.120.0,<3.0     # Google Custom Search API client
 pdfkit==1.0.0  
 weasyprint>=58.0,<60.0
 
+# Qdrant vector database client
+qdrant-client>=1.8.0,<2.0.0
