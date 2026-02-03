@@ -45,15 +45,27 @@ def login_user_api(request:LoginRequest, db:Session = Depends(get_db)):
     )
     return response
 
+
 @router.get("/current-user")
-def get_logged_in_user(current_user:User = Depends(auth_service.get_current_user)):
-    return{
-        "UserId" : current_user.Id,
-        "Name": current_user.FirstName + current_user.MiddleName + current_user.LastName,
-        "Email": current_user.Email,
-        "Country" : current_user.Country,
-        "Image" : current_user.Image
+def get_logged_in_user(current_user: User = Depends(auth_service.get_current_user)):
+    name_parts = []
+    if current_user.FirstName:
+        name_parts.append(current_user.FirstName)
+    if current_user.MiddleName:
+        name_parts.append(current_user.MiddleName)
+    if current_user.LastName:
+        name_parts.append(current_user.LastName)
+
+    full_name = " ".join(name_parts)
+
+    return {
+        "UserId": current_user.Id,
+        "Name": full_name,                 
+        "Email": current_user.Email or "",     
+        "Country": current_user.Country or "", 
+        "Image": current_user.Image or ""    
     }
+
 
 @router.post("/logout")
 async def logout(request: Request):

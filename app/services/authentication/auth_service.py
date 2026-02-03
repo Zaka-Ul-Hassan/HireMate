@@ -1,6 +1,6 @@
 # app\services\authentication\auth_service.py
 from datetime import datetime, timedelta
-from jose import jwt, JWTError
+from jose import ExpiredSignatureError, jwt, JWTError
 from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException,status,Request
 from fastapi.security import HTTPBearer
@@ -45,28 +45,31 @@ def decode_access_token(token:str):
 def validate_user_password(plain_password:str, hashed_passsword:str) -> bool:
     return verify_password(plain_password,hashed_passsword)
 
+# Get current logged-in user from token
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db),
 ) -> User:
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(status_code=status.HTTP_303_SEE_OTHER, headers={"Location": "/"})
-       
+        raise HTTPException(status_code=401, detail="Token missing")
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if not email:
-            raise HTTPException(status_code=status.HTTP_303_SEE_OTHER, headers={"Location": "/"})
-        
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_303_SEE_OTHER,headers={"Location": "/"})
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     user = user_service.get_user_by_email(db, email=email)
     if not user:
-        raise HTTPException(status_code=status.HTTP_303_SEE_OTHER, headers={"Location": "/"})
+        raise HTTPException(status_code=404, detail="User not found")
     
     return user
+    
 
 def generate_reset_token(email: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
