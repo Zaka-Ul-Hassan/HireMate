@@ -5,9 +5,8 @@ from app.models.resume.resume_model import Resume
 from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
 
 
+# Create new resume
 def create_resume(db: Session, data: ResumeCreate):
-    """Create a new resume"""
-    # Create new resume
     resume = Resume(**data.dict())
     resume.IsActive = True
     resume.IsDeleted = False
@@ -17,9 +16,8 @@ def create_resume(db: Session, data: ResumeCreate):
     db.refresh(resume)
     return resume
 
-
+# Get resume by resume ID
 def get_resume_by_id(db: Session, resume_id: int):
-    """Get resume by resume ID"""
     return (
         db.query(Resume)
         .filter(
@@ -29,9 +27,8 @@ def get_resume_by_id(db: Session, resume_id: int):
         .first()
     )
 
-
+# Get resume by user ID
 def get_resume_by_user_id(db: Session, user_id: int):
-    """Get resume by user ID"""
     return (
         db.query(Resume)
         .filter(
@@ -41,18 +38,16 @@ def get_resume_by_user_id(db: Session, user_id: int):
         .first()
     )
 
-
+# Get all active resumes
 def get_all_resumes(db: Session):
-    """Get all active resumes"""
     return (
         db.query(Resume)
         .filter(Resume.IsDeleted == False)
         .all()
     )
 
-
+# Update existing resume
 def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
-    """Update existing resume"""
     resume = get_resume_by_id(db, resume_id)
     if not resume:
         return None

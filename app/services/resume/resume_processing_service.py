@@ -100,15 +100,13 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
     "Certifications": ""
     }}
     """
-    print(prompt)
+
     # Call AI service
     ai_response = requests.post(
         "http://127.0.0.1:8000/api/ai-chat/chat",
         json={"prompt": prompt}
     )
 
-    # ai_response = cohere_chat(prompt)
-    # print(prompt)
     if not ai_response.ok:
         raise RuntimeError(f"AI chat service failed: {ai_response.text}")
 
