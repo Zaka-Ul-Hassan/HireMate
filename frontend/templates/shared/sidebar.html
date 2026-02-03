@@ -8,14 +8,21 @@
   <div class="side-inner">
     <div class="profile">
       {% if user.Image %}
-      <img src="{{ '/' + user.Image.replace('\\', '/') }}" alt="Image" class="img-fluid">
+        <img src="{{ '/' + user.Image.replace('\\', '/') }}" alt="Image" class="img-fluid">
       {% else %}
-      <div class="avatar-placeholder">
-        {{ user.FirstName[0] }}
-      </div>
+        <div class="avatar-placeholder">
+          {{ (user.FirstName or '')[:1] }}  <!-- First letter of first name -->
+        </div>
       {% endif %}
-      <h3 class="name">{{ user.FirstName }} {{ user.MiddleName }} {{ user.LastName }}</h3>
-      <span class="country">{{ user.Address }}</span>
+
+      <h3 class="name">
+        {%- set name_parts = [user.FirstName, user.MiddleName, user.LastName] | selectattr("strip") | list -%}
+        {{ name_parts | join(' ') }}
+      </h3>
+
+      {% if user.Address %}
+        <span class="country">{{ user.Address }}</span>
+      {% endif %}
     </div>
 
     <div class="nav-menu">
@@ -99,6 +106,7 @@
     </div>
   </div>
 </aside>
+
 
 {% block extra_js %}
 <script src="/static/js/layout/sidebar.js"></script>
