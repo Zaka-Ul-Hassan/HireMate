@@ -18,3 +18,9 @@ venv/
 .vscode/
 .idea/
 
+# Ignore pdf and docx files
+*.pdf
+*.docx
+
+# Ignore uploaded resumes
+uploads/resumes/

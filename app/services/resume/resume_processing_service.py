@@ -1,18 +1,23 @@
+from click import prompt
 import requests
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from datetime import datetime
 import json
+from qdrant_client.models import PointStruct
 
 from app.models.resume.resume_model import Resume
 from app.services.ai.cohere_chat_service import cohere_chat
+from app.services.ai.cohere_rag_service import generate_embeddings
+from app.services.qdrant.qdrant_service import delete_point, upsert_points
 from app.utils.file_util import save_upload_resume
 from app.models.user.user import User
 
 def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_existing: bool = False):
     """
     Extract fields from resume, check for existing resume, and store in DB.
+    Also handles updating Qdrant points when updating resumes.
     """
     # Fetch existing resumes
     existing_resumes = db.execute(
@@ -47,7 +52,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
     if not extracted_text:
         raise ValueError("No text extracted from resume")
 
-  # Create AI prompt
+      # Create AI prompt
     prompt = f"""
     Extract structured resume data from the unstructured resume text below.
 
@@ -100,15 +105,13 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
     "Certifications": ""
     }}
     """
-    print(prompt)
+
     # Call AI service
     ai_response = requests.post(
         "http://127.0.0.1:8000/api/ai-chat/chat",
         json={"prompt": prompt}
     )
 
-    # ai_response = cohere_chat(prompt)
-    # print(prompt)
     if not ai_response.ok:
         raise RuntimeError(f"AI chat service failed: {ai_response.text}")
 
@@ -130,13 +133,21 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
 
     created_by = f"{user.FirstName} {user.MiddleName or ''} {user.LastName}"
 
-    # Delete old resumes if updating
+    # Delete old resumes and their Qdrant points if updating
     if existing_resumes and update_existing:
         for resume_obj in existing_resumes:
+            # Delete Qdrant point
+            qdrant_response = delete_point(
+                collection_name="Resume3",
+                point_id=resume_obj.Id
+            )
+            if not qdrant_response.status:
+                print(f"Warning: {qdrant_response.message}")
+            # Delete resume from DB
             db.delete(resume_obj)
         db.commit()
 
-    
+    # Save uploaded resume file
     unique_filename = save_upload_resume(file, upload_dir="uploads/resumes")
 
     # Save new resume
@@ -151,7 +162,7 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
         Country=parsed.get("Country") or user.Country,
         ProfileImage=parsed.get("ProfileImage") or user.Image,
         Nationality=parsed.get("Nationality"),
-        ResumeFile= unique_filename,
+        ResumeFile=unique_filename,
         Summary=parsed.get("Summary"),
         Objective=parsed.get("Objective"),
         Education1=parsed.get("Education1"),
@@ -178,6 +189,28 @@ def extract_fields_and_store(file: UploadFile, db: Session, user: User, update_e
     db.add(resume)
     db.commit()
     db.refresh(resume)
+
+    # Generate embeddings for RAG
+    embedding_vector = generate_embeddings(extracted_text)
+
+    # Create Qdrant point
+    point = PointStruct(
+        id=resume.Id,
+        vector=embedding_vector,
+        payload={
+            "prompt": extracted_text,
+            "resume_id": resume.Id,
+            "user_id": resume.UserId
+        }
+    )
+    # Upsert into Qdrant (collection = Resume3)
+    response = upsert_points(
+        collection_name="Resume3",
+        points=[point]
+    )
+
+    if not response.status:
+        raise Exception(response.message)
 
     return {
         "message": "Resume processed and saved successfully.",
