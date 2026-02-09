@@ -152,6 +152,32 @@ def reset_password_form(request: Request, token: str):
 
 # ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
 
+@router.get("/resume/list", response_class=HTMLResponse)
+async def resume_list_page(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Resume List Page - Browse all resumes in database
+    Shows all available resumes with search and filter functionality
+    """
+    # Fetch all active resumes ordered by newest first
+    resumes = db.query(Resume).filter(
+        Resume.IsDeleted == False
+    ).order_by(Resume.CreatedAt.desc()).all()
+
+    return templates.TemplateResponse(
+        "resume/resume_list.html",
+        {
+            "request": request,
+            "user": current_user,
+            "resumes": resumes,
+            "hide_resume": False
+        }
+    )
+
+
 @router.get("/resume/rag", response_class=HTMLResponse)
 async def resume_rag_page(
     request: Request,

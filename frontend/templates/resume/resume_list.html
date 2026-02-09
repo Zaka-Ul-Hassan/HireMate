@@ -1,0 +1,365 @@
+<!-- frontend\templates\resume\resume_list.html -->
+
+{% extends "shared/base.html" %}
+
+{% block title %}Resume List{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/resume/resume_list.css">
+<!-- Toastify CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="resume-list-container main-content">
+    <div class="container-fluid py-4">
+        <div class="resume-list-card mx-auto" style="max-width: 1400px;">
+            
+            <!-- Header -->
+            <div class="list-header">
+                <div class="header-content">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <h2 class="mb-0">Resume List</h2>
+                            <p class="mb-0 header-subtitle">Browse and search all candidate resumes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-header-action" id="refreshBtn" title="Refresh List">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="search-wrapper">
+                            <i class="bi bi-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                class="form-control search-input" 
+                                id="searchInput" 
+                                placeholder="Search by name"
+                                autocomplete="off"
+                            >
+                            <button class="btn-clear-search" id="clearSearchBtn" style="display: none;">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select filter-select" id="experienceFilter">
+                            <option value="">All Experience Levels</option>
+                            <option value="0-2">0-2 years</option>
+                            <option value="2-5">2-5 years</option>
+                            <option value="5-10">5-10 years</option>
+                            <option value="10+">10+ years</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select filter-select" id="sortFilter">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name-asc">Name A-Z</option>
+                            <option value="name-desc">Name Z-A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="bi bi-people-fill"></i>
+                    <span id="totalCount">{{ resumes|length }}</span> total resumes
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-eye-fill"></i>
+                    <span id="displayCount">{{ resumes|length }}</span> showing
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-funnel-fill"></i>
+                    <span id="filterStatus">No filters applied</span>
+                </div>
+            </div>
+
+            <!-- Resume Cards Grid -->
+            <div class="resume-grid" id="resumeGrid">
+                {% if resumes %}
+                    {% for resume in resumes %}
+                    <div class="resume-card" 
+                         data-resume-id="{{ resume.Id }}"
+                         data-name="{{ resume.FullName|lower }}"
+                         data-skills="{{ resume.Skills|lower }}"
+                         data-email="{{ resume.Email|lower }}"
+                         data-position="{{ resume.DeveloperType|lower }}"
+                         data-experience="{{ resume.TotalExperience }}"
+                         data-created="{{ resume.CreatedAt }}"
+                         data-resume-file="{{ resume.ResumeFile }}">
+                        
+                        <!-- Card Header -->
+                        <div class="card-header-section">
+                            <div class="profile-section">
+                                {% if resume.ProfileImage %}
+                                <img src="{{ '/' + resume.ProfileImage.replace('\\', '/') }}" 
+                                     alt="{{ resume.FullName }}" 
+                                     class="profile-image">
+                                {% else %}
+                                <div class="profile-placeholder">
+                                    {{ resume.FullName[:1] }}
+                                </div>
+                                {% endif %}
+                                <div class="profile-info">
+                                    <h3 class="candidate-name">{{ resume.FullName }}</h3>
+                                    <p class="candidate-position">{{ resume.DeveloperType or 'Developer' }}</p>
+                                    <div class="candidate-meta">
+                                        <span class="meta-item">
+                                            <i class="bi bi-geo-alt"></i> {{ resume.Address or resume.Country or 'N/A' }}
+                                        </span>
+                                        <span class="meta-item">
+                                            <i class="bi bi-briefcase"></i> {{ resume.TotalExperience or 'N/A' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        {% if resume.Summary %}
+                        <div class="card-summary">
+                            <div class="section-title">
+                                <i class="bi bi-file-text"></i> Professional Summary
+                            </div>
+                            <p class="summary-text">{{ resume.Summary }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Objective -->
+                        {% if resume.Objective %}
+                        <div class="card-summary">
+                            <div class="section-title">
+                                <i class="bi bi-bullseye"></i> Objective
+                            </div>
+                            <p class="summary-text">{{ resume.Objective }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Skills -->
+                        {% if resume.Skills %}
+                        <div class="skills-section">
+                            <div class="section-title">
+                                <i class="bi bi-code-square"></i> Skills
+                            </div>
+                            <div class="skills-tags">
+                                {% set skills_list = resume.Skills.split(',') %}
+                                {% for skill in skills_list %}
+                                <span class="skill-tag">{{ skill.strip() }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Experience -->
+                        {% if resume.ExperienceDescription or resume.TotalExperience %}
+                        <div class="experience-section">
+                            <div class="section-title">
+                                <i class="bi bi-briefcase-fill"></i> Experience
+                            </div>
+                            {% if resume.TotalExperience %}
+                            <p class="info-line"><strong>Total Experience:</strong> {{ resume.TotalExperience }}</p>
+                            {% endif %}
+                            {% if resume.ExperienceTitle %}
+                            <p class="info-line"><strong>Title:</strong> {{ resume.ExperienceTitle }}</p>
+                            {% endif %}
+                            {% if resume.ExperienceCompany %}
+                            <p class="info-line"><strong>Company:</strong> {{ resume.ExperienceCompany }}</p>
+                            {% endif %}
+                            {% if resume.ExperienceDuration %}
+                            <p class="info-line"><strong>Duration:</strong> {{ resume.ExperienceDuration }}</p>
+                            {% endif %}
+                            {% if resume.ExperienceDescription %}
+                            <p class="description-text">{{ resume.ExperienceDescription }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Education -->
+                        {% if resume.Education1 or resume.Education2 or resume.Education3 %}
+                        <div class="education-section">
+                            <div class="section-title">
+                                <i class="bi bi-mortarboard-fill"></i> Education
+                            </div>
+                            {% if resume.Education1 %}
+                            <p class="education-item">• {{ resume.Education1 }}</p>
+                            {% endif %}
+                            {% if resume.Education2 %}
+                            <p class="education-item">• {{ resume.Education2 }}</p>
+                            {% endif %}
+                            {% if resume.Education3 %}
+                            <p class="education-item">• {{ resume.Education3 }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Projects -->
+                        {% if resume.Project1 or resume.Project2 %}
+                        <div class="projects-section">
+                            <div class="section-title">
+                                <i class="bi bi-kanban-fill"></i> Projects
+                            </div>
+                            {% if resume.Project1 %}
+                            <p class="project-item">• {{ resume.Project1 }}</p>
+                            {% endif %}
+                            {% if resume.Project2 %}
+                            <p class="project-item">• {{ resume.Project2 }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Personal Info -->
+                        {% if resume.DateOfBirth or resume.Gender or resume.Nationality %}
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="bi bi-person-badge"></i> Personal Information
+                            </div>
+                            <div class="info-grid">
+                                {% if resume.DateOfBirth %}
+                                <div class="info-item">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <span><strong>DOB:</strong> {{ resume.DateOfBirth }}</span>
+                                </div>
+                                {% endif %}
+                                {% if resume.Gender %}
+                                <div class="info-item">
+                                    <i class="bi bi-person"></i>
+                                    <span><strong>Gender:</strong> {{ resume.Gender }}</span>
+                                </div>
+                                {% endif %}
+                                {% if resume.Nationality %}
+                                <div class="info-item">
+                                    <i class="bi bi-flag"></i>
+                                    <span><strong>Nationality:</strong> {{ resume.Nationality }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Languages & Certifications -->
+                        {% if resume.Languages or resume.Certifications %}
+                        <div class="additional-info">
+                            {% if resume.Languages %}
+                            <div class="info-block">
+                                <div class="section-title">
+                                    <i class="bi bi-translate"></i> Languages
+                                </div>
+                                <p>{{ resume.Languages }}</p>
+                            </div>
+                            {% endif %}
+                            {% if resume.Certifications %}
+                            <div class="info-block">
+                                <div class="section-title">
+                                    <i class="bi bi-award-fill"></i> Certifications
+                                </div>
+                                <p>{{ resume.Certifications }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Contact Info -->
+                        <div class="contact-section">
+                            <div class="section-title">
+                                <i class="bi bi-envelope-fill"></i> Contact Information
+                            </div>
+                            <div class="contact-grid">
+                                <div class="contact-item">
+                                    <i class="bi bi-envelope"></i>
+                                    <a href="mailto:{{ resume.Email }}" class="contact-link">{{ resume.Email }}</a>
+                                </div>
+                                {% if resume.PhoneNumber %}
+                                <div class="contact-item">
+                                    <i class="bi bi-telephone"></i>
+                                    <span>{{ resume.PhoneNumber }}</span>
+                                </div>
+                                {% endif %}
+                                {% if resume.LinkedIn %}
+                                <div class="contact-item">
+                                    <i class="bi bi-linkedin"></i>
+                                    <a href="{{ resume.LinkedIn }}" target="_blank" class="contact-link">LinkedIn Profile</a>
+                                </div>
+                                {% endif %}
+                                {% if resume.GitHub %}
+                                <div class="contact-item">
+                                    <i class="bi bi-github"></i>
+                                    <a href="{{ resume.GitHub }}" target="_blank" class="contact-link">GitHub Profile</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="card-footer-section">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> Added {{ resume.CreatedAt.strftime('%b %d, %Y') }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <h3>No Resumes Found</h3>
+                        <p>There are no resumes in the database yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <div class="empty-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h3>No matches found</h3>
+                <p>Try adjusting your search or filters</p>
+                <button class="btn btn-primary" id="clearAllFiltersBtn">Clear All Filters</button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading resumes...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Detail Modal -->
+<div class="modal fade" id="resumeDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resume Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="resumeDetailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/static/js/resume/resume_list.js"></script>
+{% endblock %}
