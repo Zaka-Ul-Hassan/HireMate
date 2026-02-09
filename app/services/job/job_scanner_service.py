@@ -99,7 +99,7 @@ def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
 
     headers = {
         # "x-rapidapi-key": "e2a86bac4cmsh58dd16b827ce10fp1271a6jsn05c34d42c369",
-        "x-rapidapi-key": "1121f55c01msh96c7dc387435ed3p19a140jsn845b2219b5d7",
+        "x-rapidapi-key": "cb8cbdb11dmsh7959b5125003ae2p13066cjsn62cf823afb95",
         "x-rapidapi-host": "jsearch.p.rapidapi.com"
     }
 

@@ -74,12 +74,13 @@ def get_resume_by_user_id(db: Session, user_id: int):
     )
 
 # Get all active resumes
-def get_all_resumes(db: Session):
-    return (
-        db.query(Resume)
-        .filter(Resume.IsDeleted == False)
-        .all()
-    )
+def get_all_resumes(db: Session, name: str | None = None):
+    query = db.query(Resume).filter(Resume.IsDeleted == False)
+
+    if name:
+        query = query.filter(Resume.FullName.ilike(f"%{name}%"))
+
+    return query.all()
 
 # Update existing resume and its Qdrant point
 def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
