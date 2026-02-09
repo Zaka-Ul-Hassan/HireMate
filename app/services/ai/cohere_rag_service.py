@@ -79,7 +79,7 @@ Rules:
 - Do not show all the user just shoe the relevant user which have same skill and experience according to the question
 - Show the user wich have same skill and experience according to the question
 - Give detailed answers according to question and resume data
-
+- Give detailed answers
 Resume Data:
 {context}
 
