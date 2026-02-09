@@ -8,11 +8,11 @@
   <div class="side-inner">
     <div class="profile">
       {% if user.Image %}
-        <img src="{{ '/' + user.Image.replace('\\', '/') }}" alt="Image" class="img-fluid">
+      <img src="{{ '/' + user.Image.replace('\\', '/') }}" alt="Image" class="img-fluid">
       {% else %}
-        <div class="avatar-placeholder">
-          {{ (user.FirstName or '')[:1] }}  <!-- First letter of first name -->
-        </div>
+      <div class="avatar-placeholder">
+        {{ (user.FirstName or '')[:1] }} <!-- First letter of first name -->
+      </div>
       {% endif %}
 
       <h3 class="name">
@@ -21,7 +21,7 @@
       </h3>
 
       {% if user.Address %}
-        <span class="country">{{ user.Address }}</span>
+      <span class="country">{{ user.Address }}</span>
       {% endif %}
     </div>
 
@@ -68,8 +68,8 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-rss me-2"></i>Feed
+          <a class="nav-link" href="/resume/rag" id="findCandidateButton">
+            <i class="fas fa-users me-2"></i>Find Candidates
           </a>
         </li>
 

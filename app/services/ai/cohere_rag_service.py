@@ -50,8 +50,8 @@ def answer_user_from_resume(user_prompt: str) -> ResponseSchema:
         if not qdrant_response.status or not qdrant_response.data:
             return ResponseSchema(
                 status=True,
-                message="No relevant data found",
-                data="The information is not available in the resume."
+                message="No Cadidate found",
+                data="The information is not available"
             )
 
         # Build context from Qdrant results
@@ -74,6 +74,8 @@ Rules:
 - Keep the answer clear and concise
 - Just answer the question, do not add any extra information
 - Just reply on Hi or Hello with a greeting, do not add any extra information
+- Give detailed answers for technical questions
+- Find the exact answer in the resume, do not infer or guess
 
 Resume Data:
 {context}

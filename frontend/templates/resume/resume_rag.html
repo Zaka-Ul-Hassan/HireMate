@@ -1,0 +1,145 @@
+<!-- frontend\templates\resume\resume_rag.html -->
+
+{% extends "shared/base.html" %}
+
+{% block title %}Find Candidates{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/resume/resume_rag.css">
+<!-- Toastify CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="chat-container main-content">
+    <div class="container-fluid py-4">
+        <div class="chat-card mx-auto" style="max-width: 1200px;">
+            
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="header-content">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="ai-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-0">AI Candidate Finder</h2>
+                            <p class="mb-0 header-subtitle">
+                                <span id="statusIndicator" class="status-online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-header-action" id="clearChatBtn" title="Clear Chat">Clear Chat
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                    <button class="btn btn-header-action" id="exportChatBtn" title="Export Chat">Export Chat
+                        <i class="bi bi-download"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="bi bi-chat-dots"></i>
+                    <span id="messageCount">0</span> messages
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-people"></i>
+                    <span id="candidateCount">0</span> candidates found
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-clock-history"></i>
+                    <span id="sessionTime">0m</span>
+                </div>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome message -->
+                <div class="welcome-banner">
+                    <div class="welcome-icon">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <h3>Welcome to AI Candidate Finder</h3>
+                    <p>I can help you find the perfect candidates based on skills, experience, and qualifications.</p>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" data-prompt="Show me all available candidates">
+                            <i class="bi bi-list-ul"></i> All Candidates
+                        </button>
+                        <button class="quick-action-btn" data-prompt="Find senior developers">
+                            <i class="bi bi-star"></i> Senior Devs
+                        </button>
+                        <button class="quick-action-btn" data-prompt="Show candidates with Python skills">
+                            <i class="bi bi-code-slash"></i> Python Experts
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <span class="typing-text">AI is thinking...</span>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        class="form-control chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask me to find candidates... (e.g., 'Find candidates with .NET experience')"
+                        autocomplete="off"
+                    >
+                    <button class="btn-send" type="button" id="sendBtn"> Send
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+                <div class="suggestions">
+                    <div class="suggestion-scroll">
+                        <button class="suggestion-chip" data-prompt="Find candidates with Python experience">
+                            <i class="bi bi-code"></i> Python developers
+                        </button>
+                        <button class="suggestion-chip" data-prompt="Show me candidates with 5+ years experience">
+                            <i class="bi bi-briefcase"></i> 5+ years exp
+                        </button>
+                        <button class="suggestion-chip" data-prompt="Find full stack developers">
+                            <i class="bi bi-layers"></i> Full stack devs
+                        </button>
+                        <button class="suggestion-chip" data-prompt="Show me .NET developers">
+                            <i class="bi bi-microsoft"></i> .NET experts
+                        </button>
+                        <button class="suggestion-chip" data-prompt="Find React developers">
+                            <i class="bi bi-bootstrap"></i> React devs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div class="spinner-overlay" id="loadingSpinner" style="display: none;">
+    <div class="spinner-container">
+        <div class="spinner-border text-light" role="status"></div>
+        <p class="loading-text">Processing your request...</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/static/js/resume/resume_rag.js"></script>
+{% endblock %}
