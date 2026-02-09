@@ -152,6 +152,22 @@ def reset_password_form(request: Request, token: str):
 
 # ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
 
+@router.get("/resume/rag", response_class=HTMLResponse)
+async def resume_rag_page(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    AI Candidate Finder - RAG-based chatbot interface
+    """
+    return templates.TemplateResponse(
+        "resume/resume_rag.html",
+        {
+            "request": request,
+            "user": current_user
+        }
+    )
+
 @router.get("/resume/manage", response_class=HTMLResponse)
 async def resume_manage_page(
     request: Request,
