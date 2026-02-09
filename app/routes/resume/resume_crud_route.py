@@ -1,6 +1,6 @@
 # app/routes/resume/resume_crud_route.py
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -27,8 +27,11 @@ def create_resume(
 
 
 @router.get("/resumes/", response_model=ResponseSchema)
-def get_all_resumes(db: Session = Depends(get_db)):
-    resumes = service.get_all_resumes(db)
+def get_all_resumes(
+    name: str | None = Query(None, description="Search by full name"),
+    db: Session = Depends(get_db)
+):
+    resumes = service.get_all_resumes(db, name)
 
     return ResponseSchema(
         status=True,
