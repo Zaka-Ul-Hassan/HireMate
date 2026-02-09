@@ -76,6 +76,9 @@ Rules:
 - Just reply on Hi or Hello with a greeting, do not add any extra information
 - Give detailed answers for technical questions
 - Find the exact answer in the resume, do not infer or guess
+- Do not show all the user just shoe the relevant user which have same skill and experience according to the question
+- Show the user wich have same skill and experience according to the question
+- Give detailed answers according to question and resume data
 
 Resume Data:
 {context}
