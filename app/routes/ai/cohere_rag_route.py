@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.ai.embedding_request import EmbeddingRequest
-from app.services.ai.cohere_rag_service import generate_embeddings
+from app.services.ai.cohere_rag_service import answer_user_from_resume, generate_embeddings
 
 router = APIRouter()
 
@@ -27,3 +27,8 @@ async def generate_embedding_route(request: EmbeddingRequest):
             status_code=500,
             detail=str(e)
         )
+
+# Ask from Resume Route
+@router.post("/ask", response_model=ResponseSchema)
+async def ask_from_resume(prompt: str):
+    return answer_user_from_resume(prompt)
