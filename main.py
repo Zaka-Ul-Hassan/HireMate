@@ -12,6 +12,7 @@ from app.routes.linkedIn import signIn_route
 from app.routes.qdrant import qdrant_route
 from app.routes.user import user_routes
 from app.routes.email import email_route
+from app.routes.email import email_settings_route
 from app.routes.resume import resume_crud_route, resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
@@ -74,6 +75,7 @@ def on_startup():
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
 app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
+app.include_router(email_settings_route.router, prefix="/api/email-settings", tags=["Email Settings"])
 app.include_router(resume_processing_route.router, prefix="/api/resume-parser", tags=["Resume"])
 app.include_router(resume_crud_route.router, prefix="/api/resumes", tags=["Resume CRUD"])
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])
