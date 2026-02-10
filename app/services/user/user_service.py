@@ -1,4 +1,6 @@
 # app\services\user\user_service.py
+from operator import or_
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from datetime import datetime
 import os,uuid
@@ -7,8 +9,9 @@ from app.models.user.role import Role
 from app.models.user.user import User
 from app.models.user.user_role import UserRole
 from app.schemas.email.email_schema import SendSystemEmailSchema
+from app.schemas.pagination_schema import PaginatedResponseSchema
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.user.user_schema import CreateUserSchema, RegisterUser
+from app.schemas.user.user_schema import CreateUserSchema, RegisterUser, UpdateProfileSchema
 from app.services.authentication import auth_service
 from app.services.authentication.security import hash_password
 from app.services.email import email_service
@@ -153,3 +156,144 @@ def register_user(data:RegisterUser, db:Session, created_by:str = "self"):
 # Get user by email
 def get_user_by_email(db:Session, email:str) -> User | None:
     return db.query(User).filter(User.Email == email).first()
+
+# List users with pagination and search
+def list_users(db: Session, search: str, skip: int, limit: int):
+
+    query = db.query(User).filter(User.IsDeleted == False)
+
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            or_(
+                User.FirstName.ilike(search_filter),
+                User.LastName.ilike(search_filter),
+                User.Email.ilike(search_filter)
+            )
+        )
+
+    total_count = query.count()
+
+    users = (
+        query
+        .order_by(User.CreatedAt.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    paginated_response = PaginatedResponseSchema(
+                totalCount=total_count,
+                skipCount=skip,
+                maxCount=limit,
+                item=users,
+                status="success"
+            )
+    return ResponseSchema(
+        status=True,
+        message="Users fetched successfully",
+        data=paginated_response
+        )
+
+# Activate or Deactivate user
+def toggle_user_activation(db: Session, user_id: int):
+    user = db.query(User).filter(User.Id == user_id, User.IsDeleted == False).first()
+    if not user:
+        return ResponseSchema(status=False, message="User not found", data=None)
+    
+    user.IsActive = not user.IsActive
+    db.commit()
+    db.refresh(user)
+
+    status_message = "activated" if user.IsActive else "deactivated"
+    return ResponseSchema(
+        status=True,
+        message=f"User {status_message} successfully",
+        data={
+            "Id": user.Id,
+            "Name": f"{user.FirstName} {user.LastName}",
+            "Email": user.Email,
+            "IsActive": user.IsActive
+        }
+    )
+
+# Update user profile
+def update_user_profile(db: Session, data, user_id: int):
+
+    user = db.query(User).filter(
+        User.Id == user_id,
+        User.IsDeleted == False
+    ).first()
+
+    if not user:
+        return ResponseSchema(
+            status=False,
+            message="User not found",
+            data=None
+        )
+
+    # Upload image if provided
+    image_path = sav_upload_file(data.Image)
+    if image_path:
+        user.Image = image_path
+
+    if data.FirstName is not None:
+        user.FirstName = data.FirstName
+    if data.LastName is not None:
+        user.LastName = data.LastName
+    if data.PhoneNumber is not None:
+        user.PhoneNumber = data.PhoneNumber
+    if data.Country is not None:
+        user.Country = data.Country
+    if data.Address is not None:
+        user.Address = data.Address
+    if data.Age is not None:
+        user.Age = data.Age
+    if data.Gender is not None:
+        user.Gender = data.Gender
+    if data.Dob is not None:
+        user.Dob = data.Dob
+
+    db.commit()
+    db.refresh(user)
+
+    return ResponseSchema(
+        status=True,
+        message="Profile updated successfully",
+        data=user
+    )
+
+# Get user by id
+def get_user_by_id(db: Session, id: int):
+    user = db.query(User).filter(User.Id == id, User.IsDeleted == False).first()
+    if not user:
+        return ResponseSchema(
+            status=False,
+            message="User not found",
+            data=None
+        )
+    
+    return ResponseSchema(
+        status=True,
+        message="User fetched successfully",
+        data=user
+    )
+
+# soft delete user
+def delete_user(db: Session, user_id: int):
+    user = db.query(User).filter(User.Id == user_id, User.IsDeleted == False).first()
+    if not user:
+        return ResponseSchema(
+            status=False,
+            message="User not found",
+            data=None
+        )
+    
+    user.IsDeleted = True
+    db.commit()
+
+    return ResponseSchema(
+        status=True,
+        message="User deleted successfully",
+        data=None
+    )

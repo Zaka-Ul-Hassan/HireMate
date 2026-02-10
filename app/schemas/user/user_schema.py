@@ -5,6 +5,8 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import date, datetime
 
+from sqlalchemy import Column, String
+
 from app.schemas.shared.gender_enum import GenderEnum
 
 # Custom class (NOT BaseModel) for registration with image upload
@@ -92,3 +94,27 @@ class UserListSchema(UserBaseSchema):
     class Config:
         orm_mode = True
     
+
+
+class UpdateProfileSchema:
+    def __init__(
+        self,
+        FirstName: Optional[str] = Form(None),
+        LastName: Optional[str] = Form(None),
+        PhoneNumber: Optional[str] = Form(None),
+        Country: Optional[str] = Form(None),
+        Address: Optional[str] = Form(None),
+        Age: Optional[int] = Form(None),
+        Gender: Optional[str] = Form(None),
+        Dob: Optional[date] = Form(None),
+        Image: Optional[UploadFile] = File(None),
+    ):
+        self.FirstName = FirstName
+        self.LastName = LastName
+        self.PhoneNumber = PhoneNumber
+        self.Country = Country
+        self.Address = Address
+        self.Age = Age
+        self.Gender = Gender
+        self.Dob = Dob
+        self.Image = Image

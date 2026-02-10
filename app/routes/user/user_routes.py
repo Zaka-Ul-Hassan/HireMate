@@ -3,8 +3,9 @@ from fastapi import APIRouter,Depends, Query,Request,HTTPException,status
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
+from app.schemas.pagination_schema import PaginationInputSchema
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.user.user_schema import CreateUserSchema, CurrentUserSchema, LoginUserSchema, RegisterUser,LoginRequest,TokenResponse
+from app.schemas.user.user_schema import CreateUserSchema, CurrentUserSchema, LoginUserSchema, RegisterUser,LoginRequest,TokenResponse, UpdateProfileSchema
 from app.schemas.auth.forgot_password import ForgotPasswordRequest,ResetPasswordRequest
 from app.models.user.user import User
 from app.services.user import user_service 
@@ -43,6 +44,9 @@ def login_user_route(request: LoginUserSchema, db: Session = Depends(get_db)):
 
     user = user_service.get_user_by_email(db, request.Email)
 
+    if user.IsActive == False:
+        return ResponseSchema(status=False, message="Account is not active. Please contact administrator.", data=None)
+
     if not user or not auth_service.validate_user_password(request.Password, user.Password):
         return JSONResponse(
             content=ResponseSchema(status=False, message="Invalid email or password").dict()
@@ -54,10 +58,10 @@ def login_user_route(request: LoginUserSchema, db: Session = Depends(get_db)):
 
 
     token_data = {
-        "id": user.Id,
-        "name": f"{user.FirstName} {user.LastName}",
-        "sub": user.Email,
-        "roles": roles_dict
+        "Id": user.Id,
+        "Name": f"{user.FirstName} {user.LastName}",
+        "Email": user.Email,
+        "Roles": roles_dict
     }
 
     token = auth_service.create_access_token(data=token_data)
@@ -67,11 +71,11 @@ def login_user_route(request: LoginUserSchema, db: Session = Depends(get_db)):
         status=True, 
         message="Login successful", 
         data={
-            "id": user.Id,
-            "name": f"{user.FirstName} {user.LastName}",
-            "email": user.Email,
-            "access_token": token,
-            "roles": roles_dict,
+            "Id": user.Id,
+            "Name": f"{user.FirstName} {user.LastName}",
+            "Email": user.Email,
+            "AccessToken": token,
+            "Roles": roles_dict,
         }
     ).dict()
 
@@ -100,7 +104,6 @@ def forgot_password(
 ):
     return auth_service.forgot_password_email(db, request)
 
-
 # Set new password using token from email link
 @router.post("/reset-password", response_model=ResponseSchema)
 def reset_password_route(
@@ -119,3 +122,64 @@ def set_password_route(
 ):
     return auth_service.set_password(db, token, request)
 
+# Users list with pagination and search
+@router.post("/list")
+def list_users(
+    payload: PaginationInputSchema,
+    db: Session = Depends(get_db)
+):
+    return user_service.list_users(
+        db=db,
+        search=payload.search,
+        skip=payload.skipCount,
+        limit=payload.maxCount
+    )
+
+# Activate or Deactivate user
+@router.post("/toggle-activation/{user_id}")
+def toggle_user_activation(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+
+    return user_service.toggle_user_activation(db, user_id)
+
+
+# Update user profile
+@router.put("/update-profile")
+def update_profile(
+    data: UpdateProfileSchema = Depends(),
+    db: Session = Depends(get_db),
+    user_id: int = Query(..., description="User ID to update")
+):
+    return user_service.update_user_profile(
+        db=db,
+        data=data,
+        user_id=user_id
+    )
+
+# Get User by id
+@router.get("/{id}")
+def get_user_by_id(
+    id: int,
+    db: Session = Depends(get_db)
+):
+    return user_service.get_user_by_id(db, id)
+
+
+# get user by email
+@router.get("/email/{email}")
+def get_user_by_email(
+    email: str,
+    db: Session = Depends(get_db)
+):
+    return user_service.get_user_by_email(db, email)
+
+
+# Delete user (soft delete)
+@router.delete("/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    return user_service.delete_user(db, user_id)
