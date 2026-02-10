@@ -50,3 +50,27 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 # Qdrant Configuration Settings
 QDRANT_CLUSTER_URL = os.getenv("QDRANT_CLUSTER_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+
+
+# Encryption Key
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+
+# Frontend URL
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL")
+
+# Super Admin Credentials
+FIRSTNAME = os.getenv("FIRSTNAME")
+LASTNAME = os.getenv("LASTNAME")
+EMAIL = os.getenv("EMAIL")
+PASSWORD = os.getenv("PASSWORD")
+ROLE = os.getenv("ROLE")
+PHONE = os.getenv("PHONE")
+
+# JWT settings
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+JWT_EXPIRATION = int(os.getenv("JWT_EXPIRATION_MINUTES"))
+
+# Forgot Password
+RESET_TOKEN_EXPIRE_MINUTES = os.getenv("RESET_TOKEN_EXPIRE_MINUTES")
+

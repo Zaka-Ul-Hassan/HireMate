@@ -13,7 +13,6 @@ from app.services.authentication.auth_service import get_current_user
 from app.utils.file_util import BASE_DIR, senitize_email_html
 from app.models.user.user import User
 from app.models.resume.resume_model import Resume
-from app.models.email.email_model import Email
 from app.db import get_db
 
 templates = Jinja2Templates(directory="frontend/templates")
@@ -68,36 +67,6 @@ async def upload_resume(
         "hide_resume": False
     })
 
-@router.get("/email/compose-email", response_class=HTMLResponse)
-async def compose_email(
-    request: Request,
-    current_user: User = Depends(get_current_user)
-):
-    return templates.TemplateResponse("email/compose_email.html", {
-        "request": request,
-        "user": current_user,
-        "hide_resume": True
-    })
-
-@router.get("/email/inbox", response_class=HTMLResponse)
-def email_inbox(
-    request: Request,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    emails = db.query(Email).order_by(desc(Email.Date)).all()
-
-    # Remove cid: images from HTML
-    for email in emails:
-        if email.Html:
-            email.Html = senitize_email_html(email.Html)
-
-    return templates.TemplateResponse("email/email_inbox.html", {
-        "request": request,
-        "hide_resume": True,
-        "user": current_user,
-        "emails": emails
-    })
 
 @router.get("/job/list", response_class=HTMLResponse)
 async def job_list_page(

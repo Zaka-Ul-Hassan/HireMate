@@ -1,19 +1,17 @@
 # app\schemas\auth\forgot_password.py
 
-from pydantic import BaseModel,EmailStr
+from pydantic import BaseModel, EmailStr, Field
+
+class ChangePasswordSchema(BaseModel):
+    OldPassword : str
+    NewPassword : str
+    ConfirmPassword : str
+
 
 class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
-
-class ForgotPasswordResponse(BaseModel):
-    message: str
+    Email: EmailStr = Field(..., description="User email for password reset")
 
 
 class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str
-    confirm_password: str
-
-
-class ResetPasswordResponse(BaseModel):
-    message: str
+    NewPassword : str = Field(...,description="New Password")
+    ConfirmPassword : str = Field(..., description="Confirm New Password")

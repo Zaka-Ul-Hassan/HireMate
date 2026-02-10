@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
 
+from app.db import get_db
 from app.routes.linkedIn import signIn_route
 from app.routes.qdrant import qdrant_route
 from app.routes.user import user_routes
@@ -17,6 +18,7 @@ from app.routes.google import google_search_route
 from app.routes.ai import cohere_chat_route, cohere_rag_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.schemas.response_schema import ResponseSchema
+from app.services.authentication.superadmin_provider import SuperAdminProvider
 from app.services.scheduler.scheduler import start_email_scheduler
 
 app = FastAPI()
@@ -35,6 +37,13 @@ async def global_exception_handler(request: Request, exc: Exception):
         ).dict()
     )
 
+# Startup Event
+# 1. Seed Superadmin into DB if not exists
+@app.on_event("startup")
+async def startup_tasks():
+    db = next(get_db())
+    SuperAdminProvider.seed_superadmin(db)
+    db.close()
 
 # Mount static folder (for CSS, JS, images, HTML etc.)  
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
