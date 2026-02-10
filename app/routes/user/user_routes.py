@@ -122,6 +122,7 @@ def set_password_route(
 ):
     return auth_service.set_password(db, token, request)
 
+
 # Users list with pagination and search
 @router.post("/list")
 def list_users(
@@ -144,7 +145,6 @@ def toggle_user_activation(
 
     return user_service.toggle_user_activation(db, user_id)
 
-
 # Update user profile
 @router.put("/update-profile")
 def update_profile(
@@ -166,7 +166,6 @@ def get_user_by_id(
 ):
     return user_service.get_user_by_id(db, id)
 
-
 # get user by email
 @router.get("/email/{email}")
 def get_user_by_email(
@@ -174,7 +173,6 @@ def get_user_by_email(
     db: Session = Depends(get_db)
 ):
     return user_service.get_user_by_email(db, email)
-
 
 # Delete user (soft delete)
 @router.delete("/{user_id}")
