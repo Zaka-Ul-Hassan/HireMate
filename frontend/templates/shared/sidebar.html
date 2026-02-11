@@ -16,7 +16,7 @@
       {% endif %}
 
       <h3 class="name">
-        {%- set name_parts = [user.FirstName, user.MiddleName, user.LastName] | selectattr("strip") | list -%}
+        {%- set name_parts = [user.FirstName, user.LastName] | selectattr("strip") | list -%}
         {{ name_parts | join(' ') }}
       </h3>
 
@@ -29,7 +29,6 @@
       <ul class="nav flex-column sidebar-menu">
 
         <!-- Resume Dropdown -->
-        <!-- Resume Dropdown -->
         <li class="nav-item">
           <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
             href="#resumeMenu" role="button" aria-expanded="false">
@@ -40,11 +39,13 @@
             <li><a class="nav-link submenu-link" href="/resume/manage">
                 <i class="fas fa-edit me-2"></i>Manage Resume
               </a></li>
-            <li><a class="nav-link submenu-link" href="/resume/list">
-                <i class="fas fa-list me-2"></i>Resume List
-              </a></li>
           </ul>
         </li>
+
+        <!-- Resume List -->
+        <li><a class="nav-link submenu-link" href="/resume/list">
+            <i class="fas fa-list me-2"></i>Resume List
+          </a></li>
 
         <!-- Email Dropdown -->
         <li class="nav-item">
@@ -61,50 +62,55 @@
                 <i class="fas fa-inbox me-2"></i>Inbox
               </a></li>
           </ul>
-        </li>
+        <li><a class="nav-link submenu-link" href="/email/settings">
+            <i class="fas fa-cog me-2"></i>Settings
+          </a></li>
+      </ul>
 
-        <!-- Other Nav Items -->
-        <li class="nav-item">
-          <a class="nav-link" href="/job/list" id="findJobButton">
-            <i class="fas fa-briefcase me-2"></i>Find Jobs
-          </a>
-        </li>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="/resume/rag" id="findCandidateButton">
-            <i class="fas fa-users me-2"></i>Find Candidates
-          </a>
-        </li>
+      <!-- Other Nav Items -->
+      <li class="nav-item">
+        <a class="nav-link" href="/job/list" id="findJobButton">
+          <i class="fas fa-briefcase me-2"></i>Find Jobs
+        </a>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-compass me-2"></i>Explore
-          </a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/resume/rag" id="findCandidateButton">
+          <i class="fas fa-users me-2"></i>Find Candidates
+        </a>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-bell me-2"></i>Notifications
-          </a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-compass me-2"></i>Explore
+        </a>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-comment me-2"></i>Direct
-          </a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-bell me-2"></i>Notifications
+        </a>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-chart-bar me-2"></i>Stats
-          </a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-comment me-2"></i>Direct
+        </a>
+      </li>
 
-        <li class="nav-item">
-          <a class="nav-link logout-link" href="javascript:void(0);" id="logoutButton">
-            <i class="fas fa-sign-out-alt me-2"></i>Log out
-          </a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-chart-bar me-2"></i>Stats
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link logout-link" href="javascript:void(0);" id="logoutButton">
+          <i class="fas fa-sign-out-alt me-2"></i>Log out
+        </a>
+      </li>
       </ul>
     </div>
   </div>

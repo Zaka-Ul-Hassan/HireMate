@@ -141,7 +141,6 @@ def register_user(data:RegisterUser, db:Session, created_by:str = "self"):
     
     user = User(
         FirstName=data.first_name,
-        MiddleName=data.middle_name,
         LastName=data.last_name,
         Age=data.age,
         Gender=data.gender.value,
