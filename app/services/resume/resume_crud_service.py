@@ -166,3 +166,25 @@ def delete_resume(db: Session, resume_id: int):
     db.commit()
 
     return True
+
+
+# Get Resume by email
+def get_resume_by_email(db: Session, email: str):
+    
+    resume = db.query(Resume).filter(
+        Resume.Email == email,
+        Resume.IsDeleted == False
+    ).first()
+
+    if not resume:
+        return ResponseSchema(
+            status=False,
+            message="Resume not found",
+            data=None
+        )
+    
+    return ResponseSchema(
+        status=True,
+        message="Resume fetched successfully",
+        data=resume
+    )

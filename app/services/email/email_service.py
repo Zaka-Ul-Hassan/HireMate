@@ -3,8 +3,8 @@
 import smtplib
 import re
 import uuid
-from pydantic import ValidationError
-from typing import List, Optional
+from app.models.user.user import User
+from typing import List
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from imap_tools import MailBox, AND
@@ -14,10 +14,13 @@ from app.db import SessionLocal
 
 from app.models.email.email_replies import EmailReply
 from app.models.email.sent_emails import SentEmail
+from app.routes.resume.resume_crud_route import get_resume_by_email
 from app.schemas.email.email_schema import FetchEmailSchema, InboxEmail, RepliedEmailResponseSchema, SaveSentEmailSchema, SendClientEmailSchema, SendSystemEmailSchema, SentEmailResponseSchema
 from app.schemas.pagination_schema import PaginatedResponseSchema, PaginationInputSchema
 from app.schemas.response_schema import ResponseSchema
+from app.services.ai.cohere_chat_service import cohere_chat
 from app.services.email import email_settings_service
+from app.services.resume.resume_crud_service import get_resume_by_email
 from load_env import SMTP_SERVER, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD
 
 
@@ -451,4 +454,81 @@ def get_replied_emails_with_sent(
         status=True,
         message="Replied emails fetched successfully",
         data=response
+    )
+
+# Generate AI-based email content for employer to hire candidate based on resume
+def generate_email_content(
+    db: Session,
+    current_user: User,
+    candidate_email: str
+):
+
+    employer = current_user.data
+
+    employer_name = employer.Name
+    employer_email = employer.Email
+    employer_roles = ", ".join(employer.RoleNames) if employer.RoleNames else "Employer"
+
+    # Get resume by email
+    resume_response = get_resume_by_email(db, candidate_email)
+
+    if not resume_response.status:
+        return ResponseSchema(
+            status=False,
+            message="Candidate resume not found",
+            data=None
+        )
+
+    resume = resume_response.data
+
+    # Prepare AI Prompt
+    prompt = f"""
+You are an HR professional writing a hiring email.
+
+Employer Details:
+Name: {employer_name}
+Email: {employer_email}
+Role: {employer_roles}
+
+Candidate Details:
+Full Name: {resume.FullName or ""}
+Email: {resume.Email or ""}
+Developer Type: {resume.DeveloperType or ""}
+Skills: {resume.Skills or ""}
+Total Experience: {resume.TotalExperience or ""}
+Summary: {resume.Summary or ""} 
+
+Instructions:
+- Write a professional and polite hiring email
+- Employer is interested in hiring the candidate
+- Mention candidate skills and experience briefly
+- Invite candidate for further discussion/interview
+- Keep tone formal and respectful
+- End email with "Best regards" and employer name
+- Do NOT include subject line
+- Do NOT use markdown
+- Return plain text only
+"""
+
+    # Call Cohere
+
+    email_content = cohere_chat(prompt)
+
+    if not email_content:
+        return ResponseSchema(
+            status=False,
+            message="Failed to generate email content",
+            data=None
+        )
+    
+    return ResponseSchema(
+        status=True,
+        message="Email content generated successfully",
+        data={
+            "to": resume.Email,
+            "from": employer_email,
+            "employer_name": employer_name,
+            "candidate_name": resume.FullName,
+            "email_content": email_content
+        }
     )

@@ -6,6 +6,7 @@ from requests import Session
 from app.schemas.email.email_schema import EmailSchema,InboxEmail, SendClientEmailSchema, SendSystemEmailSchema
 from app.schemas.pagination_schema import PaginationInputSchema
 from app.schemas.response_schema import ResponseSchema
+from app.services.authentication import auth_service
 from app.services.email import email_service
 from app.services.email.email_service import send_email,fetch_all_emails
 from init_db import get_db
@@ -57,3 +58,12 @@ def fetch_replied_emails(
 ):
 
     return email_service.get_replied_emails_with_sent(db, user_id, pagination)
+
+# Genetate Email Content using AI
+@router.post("/generate-content", response_model=ResponseSchema)
+def generate_email_content(
+    email: str = Query(..., description="Email content prompt") ,
+    current_user = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db)
+):
+    return email_service.generate_email_content(db, current_user, email)

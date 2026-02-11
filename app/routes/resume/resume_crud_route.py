@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
-from app.services.resume import resume_crud_service as service
-
+from app.services.resume import resume_crud_service
 
 router = APIRouter()
 
@@ -17,8 +16,7 @@ def create_resume(
     payload: ResumeCreate,
     db: Session = Depends(get_db)
 ):
-    resume = service.create_resume(db, payload)
-
+    resume = resume_crud_service.create_resume(db, payload)
     return ResponseSchema(
         status=True,
         message="Resume created successfully",
@@ -31,8 +29,7 @@ def get_all_resumes(
     name: str | None = Query(None, description="Search by full name"),
     db: Session = Depends(get_db)
 ):
-    resumes = service.get_all_resumes(db, name)
-
+    resumes = resume_crud_service.get_all_resumes(db, name)
     return ResponseSchema(
         status=True,
         message="Resumes fetched successfully",
@@ -45,10 +42,7 @@ def get_resume_by_user_id(
     user_id: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Get resume by user ID - This must come BEFORE /resumes/{resume_id}
-    """
-    resume = service.get_resume_by_user_id(db, user_id)
+    resume = resume_crud_service.get_resume_by_user_id(db, user_id)
 
     if not resume:
         return ResponseSchema(
@@ -64,12 +58,20 @@ def get_resume_by_user_id(
     )
 
 
-@router.get("/{resume_id}", response_model=ResponseSchema)
+@router.get("/by-email", response_model=ResponseSchema)
+def get_resume_by_email(
+    email: str,
+    db: Session = Depends(get_db)
+):
+    return resume_crud_service.get_resume_by_email(db, email)
+
+
+@router.get("/by-id/{resume_id}", response_model=ResponseSchema)
 def get_resume_by_id(
     resume_id: int,
     db: Session = Depends(get_db)
 ):
-    resume = service.get_resume_by_id(db, resume_id)
+    resume = resume_crud_service.get_resume_by_id(db, resume_id)
 
     if not resume:
         return ResponseSchema(
@@ -91,7 +93,7 @@ def update_resume(
     payload: ResumeUpdate,
     db: Session = Depends(get_db)
 ):
-    resume = service.update_resume(db, resume_id, payload)
+    resume = resume_crud_service.update_resume(db, resume_id, payload)
 
     if not resume:
         return ResponseSchema(
@@ -112,7 +114,7 @@ def delete_resume(
     resume_id: int,
     db: Session = Depends(get_db)
 ):
-    result = service.delete_resume(db, resume_id)
+    result = resume_crud_service.delete_resume(db, resume_id)
 
     if not result:
         return ResponseSchema(

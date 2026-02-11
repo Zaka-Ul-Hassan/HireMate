@@ -188,3 +188,11 @@ def list_roles(
     db: Session = Depends(get_db)
 ):
     return user_service.list_roles(db)
+
+# Resend confirmation email
+@router.post("/resend-confirmation-email")
+def resend_confirmation_email_route(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    return user_service.resend_confirmation_email(user_id, db)

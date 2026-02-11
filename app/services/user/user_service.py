@@ -331,3 +331,59 @@ def list_roles(db: Session):
         message="Roles fetched successfully",
         data=[RoleResponseSchema.from_orm(role) for role in roles]
     )
+
+# Resend confirmation email
+def resend_confirmation_email(user_id: int, db: Session) -> ResponseSchema:
+    # Get user
+    user = db.query(User).filter(
+        User.Id == user_id,
+        User.IsDeleted == False
+    ).first()
+
+    if not user:
+        return ResponseSchema(status=False, message="User not found")
+
+    if user.IsActive:
+        return ResponseSchema(status=False, message="User already activated")
+
+    # Generate new token
+    token = auth_service.create_reset_token(user.Email)
+    confirm_link = f"{FRONTEND_BASE_URL}/user/reset-password?token={token}"
+
+    # Send email
+    email_payload = SendSystemEmailSchema(
+        Recipient=[user.Email],
+        Subject="Resend: Confirm Your Email - LeadPulse",
+        Body=f"""
+Hi {user.FirstName} {user.LastName},
+
+It looks like you haven't confirmed your email yet.
+
+Please confirm your email and set your password by clicking the link below:
+
+<a href="{confirm_link}">Confirm Email & Set Password</a>
+
+If you didn’t request this, you can safely ignore this email.
+<br><br>
+Regards,<br>
+LeadPulse Team
+"""
+    )
+
+    send_system_email = email_service.send_system_email(email_payload)
+
+    if not send_system_email.status:
+        return ResponseSchema(
+            status=False,
+            message="Failed to resend confirmation email",
+            data=None
+        )
+
+    return ResponseSchema(
+        status=True,
+        message="Confirmation email resent successfully",
+        data={
+            "Id": user.Id,
+            "Email": user.Email
+        }
+    )

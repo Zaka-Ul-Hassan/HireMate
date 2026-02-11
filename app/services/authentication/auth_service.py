@@ -116,6 +116,7 @@ def send_reset_email(to_email: str, token: str):
 
     response = email_service.send_system_email(payload)
     return response
+
 def forgot_password_email(db, request):
     user = db.query(User).filter(User.Email == request.Email).first()
     if not user:
