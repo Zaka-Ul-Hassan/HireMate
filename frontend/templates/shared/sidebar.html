@@ -7,29 +7,37 @@
 <aside class="sidebar">
   <div class="side-inner">
     <div class="profile">
-      {% if user.Image %}
-      <img src="{{ '/' + user.Image.replace('\\', '/') }}" alt="Image" class="img-fluid">
-      {% else %}
-      <div class="avatar-placeholder">
-        {{ (user.FirstName or '')[:1] }} <!-- First letter of first name -->
+      <!-- Avatar: JS will populate initials or image from localStorage -->
+      <div class="avatar-placeholder" id="sidebarAvatar">
+        <!-- filled by sidebar.js -->
       </div>
-      {% endif %}
 
-      <h3 class="name">
-        {%- set name_parts = [user.FirstName, user.LastName] | selectattr("strip") | list -%}
-        {{ name_parts | join(' ') }}
+      <h3 class="name" id="sidebarName">
+        <!-- filled by sidebar.js -->
       </h3>
 
-      {% if user.Address %}
-      <span class="country">{{ user.Address }}</span>
-      {% endif %}
+      <span class="country" id="sidebarAddress" style="display:none;"></span>
     </div>
 
     <div class="nav-menu">
       <ul class="nav flex-column sidebar-menu">
 
-        <!-- Resume Dropdown -->
-        <li class="nav-item">
+        <!-- Manage User - Shown to superadmin only -->
+        <li class="nav-item" data-role="superadmin">
+          <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+            href="#userMenu" role="button" aria-expanded="false">
+            <span><i class="fas fa-users-cog me-2"></i>User</span>
+            <span class="menu-arrow">&#9662;</span>
+          </a>
+          <ul class="collapse list-unstyled ps-3" id="userMenu">
+            <li><a class="nav-link submenu-link" href="/user/manage">
+                <i class="fas fa-edit me-2"></i>Manage User
+              </a></li>
+          </ul>
+        </li>
+
+        <!-- Resume Dropdown - Only for User role, now visible to superadmin too -->
+        <li class="nav-item" data-role="user,superadmin">
           <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
             href="#resumeMenu" role="button" aria-expanded="false">
             <span><i class="fas fa-file-alt me-2"></i>Resume</span>
@@ -42,13 +50,15 @@
           </ul>
         </li>
 
-        <!-- Resume List -->
-        <li><a class="nav-link submenu-link" href="/resume/list">
+        <!-- Resume List - Only for Employer role, now visible to superadmin too -->
+        <li class="nav-item" data-role="employer,superadmin">
+          <a class="nav-link" href="/resume/list">
             <i class="fas fa-list me-2"></i>Resume List
-          </a></li>
+          </a>
+        </li>
 
-        <!-- Email Dropdown -->
-        <li class="nav-item">
+        <!-- Email Dropdown - Shown to all authenticated users -->
+        <li class="nav-item" data-role="user,employer,superadmin">
           <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
             href="#emailMenu" role="button" aria-expanded="false">
             <span><i class="fas fa-envelope me-2"></i>Email</span>
@@ -61,56 +71,32 @@
             <li><a class="nav-link submenu-link" href="/email/inbox">
                 <i class="fas fa-inbox me-2"></i>Inbox
               </a></li>
+            <li><a class="nav-link submenu-link" href="/email/settings">
+                <i class="fas fa-cog me-2"></i>Email Settings
+              </a></li>
           </ul>
-        <li><a class="nav-link submenu-link" href="/email/settings">
-            <i class="fas fa-cog me-2"></i>Settings
-          </a></li>
-      </ul>
+        </li>
 
-      </li>
+        <!-- Find Jobs - Only for User role, now visible to superadmin too -->
+        <li class="nav-item" data-role="user,superadmin">
+          <a class="nav-link" href="/job/list" id="findJobButton">
+            <i class="fas fa-briefcase me-2"></i>Find Jobs
+          </a>
+        </li>
 
-      <!-- Other Nav Items -->
-      <li class="nav-item">
-        <a class="nav-link" href="/job/list" id="findJobButton">
-          <i class="fas fa-briefcase me-2"></i>Find Jobs
-        </a>
-      </li>
+        <!-- Find Candidates - Only for Employer role, now visible to superadmin too -->
+        <li class="nav-item" data-role="employer,superadmin">
+          <a class="nav-link" href="/resume/rag" id="findCandidateButton">
+            <i class="fas fa-users me-2"></i>Find Candidates
+          </a>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link" href="/resume/rag" id="findCandidateButton">
-          <i class="fas fa-users me-2"></i>Find Candidates
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#">
-          <i class="fas fa-compass me-2"></i>Explore
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#">
-          <i class="fas fa-bell me-2"></i>Notifications
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#">
-          <i class="fas fa-comment me-2"></i>Direct
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#">
-          <i class="fas fa-chart-bar me-2"></i>Stats
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link logout-link" href="javascript:void(0);" id="logoutButton">
-          <i class="fas fa-sign-out-alt me-2"></i>Log out
-        </a>
-      </li>
+        <!-- Logout - Shown to all authenticated users -->
+        <li class="nav-item" data-role="user,employer,superadmin">
+          <a class="nav-link logout-link" href="javascript:void(0);" id="logoutButton">
+            <i class="fas fa-sign-out-alt me-2"></i>Log out
+          </a>
+        </li>
       </ul>
     </div>
   </div>

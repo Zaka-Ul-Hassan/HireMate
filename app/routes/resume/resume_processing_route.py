@@ -38,12 +38,15 @@ async def store_resume(
     file: UploadFile,
     update_existing: bool = Form(False),
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
+    if not current_user.status or current_user.data is None:
+        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+    
     result = await extract_fields_and_store(
         file,
         db,
-        user,
+        current_user,
         update_existing=update_existing
     )
     return result

@@ -19,14 +19,6 @@
   <!-- favicon -->
   <link rel="icon" href="/static/icon/favicon.ico" type="image/x-icon">
 
-  <!-- SweetAlert2 (Global for all pages) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <!-- Toastr – Toast-style Notifications -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
   <!-- Base Styles -->
   <link rel="stylesheet" href="/static/css/layout/layout.css" />
 
@@ -70,8 +62,20 @@
   </footer>
   {% endif %}
 
+  <!-- jQuery (Required for Toastr) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
   <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- SweetAlert2 for Notifications -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Toastr for Toast Notifications -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <!-- Auth Helper - Must load before page-specific scripts -->
+  <script src="/static/js/shared/auth-helper.js"></script>
 
   {% block extra_js %}{% endblock %}
 </body>

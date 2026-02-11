@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 import pdfkit
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
+from typing import Optional
 
 from app.services.authentication.auth_service import get_current_user
 from app.utils.file_util import BASE_DIR, senitize_email_html
@@ -48,22 +49,49 @@ def show_register_form(request: Request):
 @router.get("/dashboard", response_class=HTMLResponse)
 def show_dashboard(
     request: Request,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
+    """
+    Dashboard page - authentication is checked client-side via JavaScript
+    The page is rendered without backend auth check, then JS verifies the token
+    """
+    # Create a minimal user object for template rendering
+    # The actual auth check happens in JavaScript
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     return templates.TemplateResponse("shared/dashboard/dashboard.html", {
         "request": request,
-        "user": current_user,
+        "user": minimal_user,
         "hide_resume": True
     })
 
 @router.get("/resume-upload", response_class=HTMLResponse)
 async def upload_resume(
     request: Request,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
+    """
+    Resume upload page - authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     return templates.TemplateResponse("resume/resume-upload.html", {
         "request": request,
-        "user": current_user,
+        "user": minimal_user,
         "hide_resume": False
     })
 
@@ -71,16 +99,25 @@ async def upload_resume(
 @router.get("/job/list", response_class=HTMLResponse)
 async def job_list_page(
     request: Request,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    resume = db.query(Resume).filter(Resume.UserId == current_user.Id).first()
-
+    """
+    Job list page - authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     return templates.TemplateResponse("job/list.html", {
         "request": request,
-        "user": current_user,
-        "resume_id": resume.Id if resume else None,
-        "hide_resume": not resume,
+        "user": minimal_user,
+        "resume_id": None,
+        "hide_resume": True,
     })
 
 @router.get("/forgot-password", response_class=HTMLResponse)
@@ -124,13 +161,22 @@ def reset_password_form(request: Request, token: str):
 @router.get("/resume/list", response_class=HTMLResponse)
 async def resume_list_page(
     request: Request,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Resume List Page - Browse all resumes in database
     Shows all available resumes with search and filter functionality
+    Authentication checked client-side
     """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     # Fetch all active resumes ordered by newest first
     resumes = db.query(Resume).filter(
         Resume.IsDeleted == False
@@ -140,7 +186,7 @@ async def resume_list_page(
         "resume/resume_list.html",
         {
             "request": request,
-            "user": current_user,
+            "user": minimal_user,
             "resumes": resumes,
             "hide_resume": False
         }
@@ -149,34 +195,52 @@ async def resume_list_page(
 
 @router.get("/resume/rag", response_class=HTMLResponse)
 async def resume_rag_page(
-    request: Request,
-    current_user: User = Depends(get_current_user)
+    request: Request
 ):
     """
     AI Candidate Finder - RAG-based chatbot interface
+    Authentication checked client-side
     """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     return templates.TemplateResponse(
         "resume/resume_rag.html",
         {
             "request": request,
-            "user": current_user
+            "user": minimal_user
         }
     )
 
 @router.get("/resume/manage", response_class=HTMLResponse)
 async def resume_manage_page(
     request: Request,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Render the resume CRUD management page
+    Authentication checked client-side
     """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
     return templates.TemplateResponse(
         "resume/resume_crud.html",
         {
             "request": request,
-            "user": current_user
+            "user": minimal_user
         }
     )
 
@@ -184,15 +248,8 @@ async def resume_manage_page(
 @router.get("/resume/download/{user_id}")
 def download_resume_route(
     user_id: int,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Download resume as PDF
-    """
-    # Ensure user is accessing their own resume (or admin check)
-    if current_user.Id != user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
 
     # Fetch resume
     resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
@@ -267,9 +324,10 @@ def view_resume_page(
 ):
     """
     View resume page (HTML display)
+    This endpoint requires authentication
     """
     # Ensure user is accessing their own resume (or admin check)
-    if current_user.Id != user_id:
+    if current_user.data.Id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
@@ -290,9 +348,10 @@ def profile_page(
 ):
     """
     User profile edit page
+    This endpoint requires authentication
     """
     # Ensure user is accessing their own profile (or admin check)
-    if current_user.Id != user_id:
+    if current_user.data.Id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()

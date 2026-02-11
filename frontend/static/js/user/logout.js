@@ -1,57 +1,81 @@
-// frontend/static/js/user/logout.js
-if (!window.logoutHandlerAttached) {
-  window.logoutHandlerAttached = true;
+// frontend\static\js\user\logout.js
 
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+    
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, logout',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    performLogout();
+                }
+            });
+        });
+    }
+});
 
-    const logoutModalEl = document.getElementById("logoutModal");
-    let logoutModal = null;
-
-    if (logoutModalEl) {
-      logoutModal = new bootstrap.Modal(logoutModalEl);
+function performLogout() {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:8000/api/users/logout", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.withCredentials = true;
+    
+    // Get access token from localStorage
+    const accessToken = localStorage.getItem('access_token');
+    if (accessToken) {
+        xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
     }
 
-    toastr.options = {
-      closeButton: true,
-      progressBar: true,
-      positionClass: "toast-top-right",
-      timeOut: "1200"
+    xhr.onload = function () {
+        // Clear all stored user data regardless of response
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user_email');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_roles');
+        
+        // Clear sidebar state
+        const sidebarKeys = Object.keys(localStorage).filter(key => key.startsWith('sidebar_'));
+        sidebarKeys.forEach(key => localStorage.removeItem(key));
+        
+        if (xhr.status === 200) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Logged out successfully',
+                customClass: {
+                    popup: 'me-2'
+                },
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                window.location.href = "/";
+            });
+        } else {
+            // Even if logout fails on server, redirect to login
+            window.location.href = "/";
+        }
     };
 
-    logoutModalEl?.addEventListener("hidden.bs.modal", () => {
-      document.body.classList.remove("modal-open");
-      document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-    });
+    xhr.onerror = function() {
+        // Clear localStorage even on error
+        localStorage.clear();
+        window.location.href = "/";
+    };
 
-    document.body.addEventListener("click", (e) => {
-      const target = e.target;
-
-      if (target.closest("#logoutButton")) {
-        e.preventDefault();
-        logoutModal?.show();
-        return;
-      }
-
-      if (target.matches("#confirmLogout")) {
-        logoutModal?.hide();
-        toastr.info("Logging you out...");
-
-        fetch("/api/users/logout", { method: "POST" })
-          .then(res => {
-            if (res.ok) {
-              setTimeout(() => window.location.href = "/", 900);
-            } else {
-              toastr.error("Logout failed.");
-            }
-          })
-          .catch(() => toastr.error("Network error while logging out."));
-        return;
-      }
-
-      if (target.matches("#cancelLogout")) {
-        toastr.info("Logout cancelled.");
-        logoutModal?.hide();
-      }
-    });
-  });
+    xhr.send();
 }

@@ -11,7 +11,7 @@ from app.services.resume import resume_crud_service
 router = APIRouter()
 
 
-@router.post("/resumes/", response_model=ResponseSchema)
+@router.post("/create", response_model=ResponseSchema)
 def create_resume(
     payload: ResumeCreate,
     db: Session = Depends(get_db)
@@ -24,7 +24,7 @@ def create_resume(
     )
 
 
-@router.get("/resumes/", response_model=ResponseSchema)
+@router.get("/all", response_model=ResponseSchema)
 def get_all_resumes(
     name: str | None = Query(None, description="Search by full name"),
     db: Session = Depends(get_db)
@@ -37,7 +37,7 @@ def get_all_resumes(
     )
 
 
-@router.get("/user/{user_id}", response_model=ResponseSchema)
+@router.get("/by-user-id", response_model=ResponseSchema)
 def get_resume_by_user_id(
     user_id: int,
     db: Session = Depends(get_db)
@@ -66,7 +66,7 @@ def get_resume_by_email(
     return resume_crud_service.get_resume_by_email(db, email)
 
 
-@router.get("/by-id/{resume_id}", response_model=ResponseSchema)
+@router.get("/by-id", response_model=ResponseSchema)
 def get_resume_by_id(
     resume_id: int,
     db: Session = Depends(get_db)
@@ -87,7 +87,7 @@ def get_resume_by_id(
     )
 
 
-@router.put("/resumes/{resume_id}", response_model=ResponseSchema)
+@router.put("/update", response_model=ResponseSchema)
 def update_resume(
     resume_id: int,
     payload: ResumeUpdate,
@@ -109,7 +109,7 @@ def update_resume(
     )
 
 
-@router.delete("/resumes/{resume_id}", response_model=ResponseSchema)
+@router.delete("/delete", response_model=ResponseSchema)
 def delete_resume(
     resume_id: int,
     db: Session = Depends(get_db)

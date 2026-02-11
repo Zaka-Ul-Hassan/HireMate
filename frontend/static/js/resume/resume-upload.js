@@ -1,4 +1,4 @@
-// frontend\static\js\resume\resume-upload.js
+// frontend/static/js/resume/resume-upload.js
 
 const resumeInput = document.getElementById('resumeUpload');
 const fileInfoBox = document.getElementById('fileInfoBox');
@@ -6,167 +6,169 @@ const fileNameDisplay = document.getElementById('fileName');
 const clearFileBtn = document.getElementById('clearFileBtn');
 const uploadContainer = document.querySelector('.upload-container');
 const uploadBtn = document.getElementById('uploadBtn');
-const fileIcon = fileInfoBox.querySelector('i'); // Icon inside file info box
+const fileIcon = fileInfoBox.querySelector('i');
 
-// Show file info box and set file name + icon
-function showFileBox(file) {
-    if (file) {
-        const fileName = file.name;
-        const fileExt = fileName.split('.').pop().toLowerCase();
+/* ================= TOAST (SAME AS JOB LIST) ================= */
+function showToast(message, type = "info") {
+    const toastContainerId = "toastContainer";
+    let toastContainer = document.getElementById(toastContainerId);
 
-        fileNameDisplay.textContent = fileName;
-        fileInfoBox.classList.remove('d-none');
-
-        // Set icon based on file type
-        if (fileExt === 'pdf') {
-            fileIcon.className = 'fas fa-file-pdf text-danger';
-        } else if (fileExt === 'doc' || fileExt === 'docx') {
-            fileIcon.className = 'fas fa-file-word text-primary';
-        } else {
-            fileIcon.className = 'fas fa-file-alt text-secondary';
-        }
+    if (!toastContainer) {
+        toastContainer = document.createElement("div");
+        toastContainer.id = toastContainerId;
+        toastContainer.style.position = "fixed";
+        toastContainer.style.top = "1rem";
+        toastContainer.style.right = "1rem";
+        toastContainer.style.zIndex = "9999";
+        document.body.appendChild(toastContainer);
     }
+
+    const toast = document.createElement("div");
+    toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+    toast.style.minWidth = "250px";
+    toast.style.marginTop = "1rem";
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"></button>
+        </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }
 
-// Clear selected file
+/* ================= FILE UI ================= */
+function showFileBox(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    fileNameDisplay.textContent = file.name;
+    fileInfoBox.classList.remove('d-none');
+
+    fileIcon.className =
+        ext === 'pdf' ? 'fas fa-file-pdf text-danger' :
+        (ext === 'doc' || ext === 'docx') ? 'fas fa-file-word text-primary' :
+        'fas fa-file-alt text-secondary';
+}
+
 function clearFileSelection() {
     resumeInput.value = '';
     fileNameDisplay.textContent = '';
     fileInfoBox.classList.add('d-none');
 }
 
-// Handle file selection via input
-resumeInput.addEventListener('change', function () {
-    if (this.files && this.files[0]) {
-        showFileBox(this.files[0]);
-    }
-});
-
-// Handle drag-over
-uploadContainer.addEventListener('dragover', function (e) {
+resumeInput.addEventListener('change', e => showFileBox(e.target.files[0]));
+uploadContainer.addEventListener('dragover', e => e.preventDefault());
+uploadContainer.addEventListener('drop', e => {
     e.preventDefault();
+    resumeInput.files = e.dataTransfer.files;
+    showFileBox(e.dataTransfer.files[0]);
 });
-
-// Handle file drop
-uploadContainer.addEventListener('drop', function (e) {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-        resumeInput.files = e.dataTransfer.files;
-        showFileBox(file);
-    }
-});
-
-// Prevent drop outside container
-['dragover', 'drop'].forEach(evt =>
-    document.addEventListener(evt, function (e) {
-        if (!uploadContainer.contains(e.target)) {
-            e.preventDefault();
-        }
-    })
-);
-
-// Clear button handler
 clearFileBtn.addEventListener('click', clearFileSelection);
 
-// Upload button handler
+/* ================= AUTHENTICATED FORM UPLOAD ================= */
+function sendAuthenticatedFormData(url, formData, success, failure) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.withCredentials = true;
+
+    // ONLY Authorization header
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+
+    xhr.onload = () => success(xhr);
+    xhr.onerror = () => failure(xhr);
+
+    xhr.send(formData);
+}
+
+/* ================= UPLOAD ================= */
 uploadBtn.addEventListener('click', function () {
     const file = resumeInput.files[0];
     if (!file) {
-        Swal.fire("Error", "Please select a resume to upload.", "error");
+        showToast("Please select a resume to upload.", "danger");
         return;
     }
 
     const formData = new FormData();
     formData.append("file", file);
 
+    // Get access token from localStorage
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        showToast("Session expired. Please log in again.", "danger");
+        return;
+    }
+
     Swal.fire({
         title: 'Uploading...',
-        text: 'Please wait while we process your resume.',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
 
+    // Send request with Authorization header
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/resume-parser/store-process-resume', true);
-
-    xhr.onload = function () {
+    xhr.open("POST", "/api/resume-parser/store-process-resume", true);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.onload = () => {
         Swal.close();
 
-        if (xhr.status === 200) {
-            try {
-                const response = JSON.parse(xhr.responseText);
+        let res;
+        try { res = JSON.parse(xhr.responseText); }
+        catch { return showToast("Invalid server response", "danger"); }
 
-                if (response.resume_exists) {
-                    Swal.fire({
-                        title: 'Resume already exists',
-                        text: 'You already have a resume. Do you want to upload a new one and replace it?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, replace it',
-                        cancelButtonText: 'No'
-                    }).then(result => {
-                        if (result.isConfirmed) {
-                    // Show loader again before sending update request
-                    Swal.fire({
-                        title: 'Updating...',
-                        text: 'Please wait while we update your resume.',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
+        if (!res.status) {
+            showToast(res.message || "Upload failed", "danger");
+            return;
+        }
 
-                    const updateFormData = new FormData();
-                    updateFormData.append("file", file);
-                    updateFormData.append("update_existing", "true");
+        if (res.data?.resume_exists) {
+            Swal.fire({
+                title: "Resume already exists",
+                text: res.message,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, replace it"
+            }).then(result => {
+                if (!result.isConfirmed) return clearFileSelection();
 
-                    const updateXhr = new XMLHttpRequest();
-                    updateXhr.open('POST', '/api/resume-parser/store-process-resume', true);
+                const updateForm = new FormData();
+                updateForm.append("file", file);
+                updateForm.append("update_existing", "true");
 
-                    updateXhr.onload = function () {
-                        Swal.close();
-                        clearFileSelection();
-                        if (updateXhr.status === 200) {
-                            Swal.fire("Success", "Resume updated successfully!", "success");
-                        } else {
-                            Swal.fire("Error", "Failed to update resume.", "error");
-                        }
-                    };
+                Swal.fire({
+                    title: 'Updating...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
 
-                    updateXhr.onerror = function () {
-                        Swal.close();
-                        Swal.fire("Error", "Network error while updating resume.", "error");
-                    };
-
-                    updateXhr.send(updateFormData);
-                } else {
-                    // User clicked "No" → clear the selected file
+                const uXhr = new XMLHttpRequest();
+                uXhr.open("POST", "/api/resume-parser/store-process-resume", true);
+                uXhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                uXhr.onload = () => {
+                    Swal.close();
+                    const uRes = JSON.parse(uXhr.responseText);
+                    uRes.status
+                        ? showToast(uRes.message, "success")
+                        : showToast(uRes.message, "danger");
                     clearFileSelection();
-                }
-
-                    });
-                } else {
-                    clearFileSelection();
-                    Swal.fire("Success", "Resume uploaded successfully!", "success");
-                }
-            } catch {
-                clearFileSelection();
-                Swal.fire("Error", "Unexpected response from server.", "error");
-            }
+                };
+                uXhr.onerror = () => {
+                    Swal.close();
+                    showToast("Network error", "danger");
+                };
+                uXhr.send(updateForm);
+            });
         } else {
-            try {
-                const response = JSON.parse(xhr.responseText);
-                const errorMessage = response.error || "Failed to upload resume.";
-                Swal.fire("Error", errorMessage, "error");
-            } catch {
-                Swal.fire("Error", "Failed to upload resume. Please try again.", "error");
-            }
+            showToast(res.message, "success");
+            clearFileSelection();
         }
     };
-
-    xhr.onerror = function () {
+    xhr.onerror = () => {
         Swal.close();
-        Swal.fire("Error", "Network error occurred while uploading.", "error");
+        showToast("Network error occurred", "danger");
     };
-
     xhr.send(formData);
 });

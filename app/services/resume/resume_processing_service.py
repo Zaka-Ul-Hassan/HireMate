@@ -36,7 +36,7 @@ from app.utils.file_util import save_upload_resume
 async def extract_fields_and_store(
     file: UploadFile,
     db: Session,
-    user: User,
+    current_user: User,
     update_existing: bool = False
 ):
     """
@@ -45,7 +45,7 @@ async def extract_fields_and_store(
     """
 
     try:
-        user_id = user.data.Id
+        user_id = current_user.data.Id
 
         # Fetch existing resumes
         existing_resumes = db.execute(
@@ -157,7 +157,7 @@ async def extract_fields_and_store(
             )
 
         # Validate required fields
-        email = parsed.get("Email") or user.data.Email
+        email = parsed.get("Email") or current_user.data.Email
         skills = parsed.get("Skills") or "Management, Communication"
         developer_type = parsed.get("DeveloperType") or "General Engineer"
 
@@ -168,7 +168,7 @@ async def extract_fields_and_store(
                 data=None
             )
 
-        created_by = user.data.Name or user.data.Email or "Unknown"
+        created_by = current_user.data.Name or current_user.data.Email or "Unknown"
 
         # Delete old resumes + Qdrant points if updating
         if existing_resumes and update_existing:
@@ -185,9 +185,9 @@ async def extract_fields_and_store(
 
         # Save resume in DB
         resume = Resume(
-            UserId=user.data.Id,
+            UserId=current_user.data.Id,
             FullName=parsed.get("FullName"),
-            Email=email or user.data.Email,
+            Email=email or current_user.data.Email,
             PhoneNumber=parsed.get("PhoneNumber"),
             Address=parsed.get("Address"),
             DateOfBirth=parsed.get("DateOfBirth"),
