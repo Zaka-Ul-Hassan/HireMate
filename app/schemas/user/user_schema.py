@@ -59,7 +59,7 @@ class UserBaseSchema(BaseModel):
     Email: str
 
 class CreateUserSchema(UserBaseSchema):
-    pass
+    RoleIds: Optional[List[int]] = None
 
 class EditUserSchema(BaseModel):
     Id: int
@@ -118,3 +118,11 @@ class UpdateProfileSchema:
         self.Gender = Gender
         self.Dob = Dob
         self.Image = Image
+
+
+class RoleResponseSchema(BaseModel):
+    Id: int
+    Name: str
+
+    class Config:
+        orm_mode = True

@@ -61,10 +61,10 @@ def get_current_user(
     if not payload:
         return ResponseSchema(status=False, message="Token not found")
 
-    email: str = payload.get("sub")
-    user_id: int = payload.get("id")
-    name: str = payload.get("name")
-    roles: list = payload.get("roles", [])
+    email: str = payload.get("Email")
+    user_id: int = payload.get("Id")
+    name: str = payload.get("Name")
+    roles: list = payload.get("Roles", [])
 
     if not email:
         return ResponseSchema(status=False, message="Token invalid or expired")

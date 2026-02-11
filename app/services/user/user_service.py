@@ -11,7 +11,7 @@ from app.models.user.user_role import UserRole
 from app.schemas.email.email_schema import SendSystemEmailSchema
 from app.schemas.pagination_schema import PaginatedResponseSchema
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.user.user_schema import CreateUserSchema, RegisterUser, UpdateProfileSchema
+from app.schemas.user.user_schema import CreateUserSchema, RegisterUser, RoleResponseSchema, UpdateProfileSchema
 from app.services.authentication import auth_service
 from app.services.authentication.security import hash_password
 from app.services.email import email_service
@@ -23,11 +23,15 @@ from load_env import FRONTEND_BASE_URL
 def create_user(data: CreateUserSchema, db: Session, current_user) -> ResponseSchema:
     try:
         # Check if email already exists
-        existing_user = db.query(User).filter(User.Email == data.Email, User.IsDeleted == False).first()
+        existing_user = (
+            db.query(User)
+            .filter(User.Email == data.Email, User.IsDeleted == False)
+            .first()
+        )
         if existing_user:
-            return ResponseSchema(status=False, message="Email already registered", data=None)
+            return ResponseSchema(status=False, message="Email already registered")
 
-        # Create new user
+        # Create user
         user = User(
             FirstName=data.FirstName,
             LastName=data.LastName,
@@ -42,24 +46,36 @@ def create_user(data: CreateUserSchema, db: Session, current_user) -> ResponseSc
         db.commit()
         db.refresh(user)
 
-        # Ensure "User" role exists
-        role = db.query(Role).filter(Role.Name == "User").first()
-        if not role:
-            role = Role(
-                Name="User",
-                CreatedByUserId=current_user.data.Id,
-                CreatedBy=current_user.data.Name
-            )
-            db.add(role)
-            db.commit()
-            db.refresh(role)
+        role_ids = data.RoleIds or []
 
-        # Assign role to user
-        user_role = UserRole(
-            UserId=user.Id,
-            RoleId=role.Id
-        )
-        db.add(user_role)
+        # If no role provided → assign default "User" role
+        if not role_ids:
+            default_role = db.query(Role).filter(Role.Name == "User").first()
+            if not default_role:
+                default_role = Role(
+                    Name="User",
+                    CreatedByUserId=current_user.data.Id,
+                    CreatedBy=current_user.data.Name
+                )
+                db.add(default_role)
+                db.commit()
+                db.refresh(default_role)
+
+            role_ids = [default_role.Id]
+
+        # Assign multiple roles
+        user_roles = []
+        roles = db.query(Role).filter(Role.Id.in_(role_ids)).all()
+
+        for role in roles:
+            user_roles.append(
+                UserRole(
+                    UserId=user.Id,
+                    RoleId=role.Id
+                )
+            )
+
+        db.bulk_save_objects(user_roles)
         db.commit()
         
         # Send confirmation email
@@ -97,7 +113,7 @@ def create_user(data: CreateUserSchema, db: Session, current_user) -> ResponseSc
                     "Id": user.Id,
                     "Name": f"{user.FirstName} {user.LastName}",
                     "Email": user.Email,
-                    "Role": role.Name
+                    "Role":  [r.Name for r in roles]
                 }
             )
         return ResponseSchema(
@@ -296,4 +312,22 @@ def delete_user(db: Session, user_id: int):
         status=True,
         message="User deleted successfully",
         data=None
+    )
+
+
+# List all roles
+def list_roles(db: Session):
+    roles = (
+        db.query(Role)
+        .filter(
+            Role.IsDeleted == False,
+            Role.Name != "SuperAdmin"
+        )
+        .all()
+    )
+
+    return ResponseSchema(
+        status=True,
+        message="Roles fetched successfully",
+        data=[RoleResponseSchema.from_orm(role) for role in roles]
     )

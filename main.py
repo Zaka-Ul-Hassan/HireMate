@@ -19,6 +19,7 @@ from app.routes.google import google_search_route
 from app.routes.ai import cohere_chat_route, cohere_rag_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.schemas.response_schema import ResponseSchema
+from app.services.authentication.role_provider import RoleProvider
 from app.services.authentication.superadmin_provider import SuperAdminProvider
 from app.services.scheduler.scheduler import start_email_scheduler
 
@@ -44,6 +45,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 async def startup_tasks():
     db = next(get_db())
     SuperAdminProvider.seed_superadmin(db)
+    RoleProvider.seed_roles(db)
     db.close()
 
 # Mount static folder (for CSS, JS, images, HTML etc.)  

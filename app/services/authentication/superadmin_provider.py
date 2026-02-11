@@ -41,8 +41,7 @@ class SuperAdminProvider:
             if not role:
                 role = Role(
                     Name=ROLE,
-                    CreatedByUserId=user.Id,
-                    CreatedBy=f"{user.FirstName} {user.LastName}"
+                    CreatedBy="System"
                 )
                 db.add(role)
                 db.flush()  # flush to get role.Id
