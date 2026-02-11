@@ -59,7 +59,6 @@ def send_email(to_email: List[str], subject: str, body: str):
         # Let ValueErrors bubble up, only catch actual runtime errors here
         raise Exception(f"Failed to send email: {str(e)}")
 
-
 def fetch_all_emails():
     messages = []
 
@@ -91,7 +90,6 @@ def fetch_all_emails():
     except Exception as e:
         raise Exception(f"Failed to fetch emails: {str(e)}")
 
-
 # Send System Email (Using Predefined SMTP Settings)
 def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
     message = MIMEMultipart()
@@ -115,7 +113,6 @@ def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
 
     except Exception as ex:
         return ResponseSchema(status=False, message=str(ex), data=None)
-
 
 # Send Email using Client's Email Settings
 def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
@@ -166,7 +163,6 @@ def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
     except Exception as ex:
         return ResponseSchema(status=False, message=str(ex))
     
-    
 # Save Emails
 def save_email(db: Session, payload: SaveSentEmailSchema) -> ResponseSchema:
     to_email = payload.ToEmail
@@ -197,7 +193,6 @@ def save_email(db: Session, payload: SaveSentEmailSchema) -> ResponseSchema:
         message="Email saved successfully",
         data={"sent_email_id": sent_email.Id},
     )
-
 
 # Get Sent Email By UserId
 def get_sent_email(
@@ -274,7 +269,6 @@ def get_sent_email(
         message="Sent emails fetched successfully",
         data=response
     )
-
 
 # Fetch replied emails only for messages sent by this user and save them.
 def get_header_value(value):
