@@ -1,10 +1,12 @@
-// frontend\static\js\user\logout.js
+// frontend/static/js/user/logout.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
-    
-    if (logoutButton) {
-        logoutButton.addEventListener("click", function (e) {
+    // Use event delegation to handle logout button clicks
+    // This ensures it works even if the button is dynamically shown/hidden
+    document.addEventListener("click", function(e) {
+        const logoutButton = e.target.closest("#logoutButton");
+        
+        if (logoutButton) {
             e.preventDefault();
             
             // Show confirmation dialog
@@ -22,8 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     performLogout();
                 }
             });
-        });
-    }
+        }
+    });
 });
 
 function performLogout() {

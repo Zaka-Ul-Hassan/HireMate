@@ -48,9 +48,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 avatarEl.innerHTML = `<img src="/${image.replace(/\\/g, '/')}" alt="Profile" class="img-fluid" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
             } else {
                 // First letter of first name + first letter of last name
-                const initials =
-                    (firstName ? firstName[0].toUpperCase() : '') +
-                    (lastName  ? lastName[0].toUpperCase()  : '');
+                let initials = '';
+                
+                if (firstName && firstName.length > 0) {
+                    initials += firstName.charAt(0).toUpperCase();
+                }
+                
+                if (lastName && lastName.length > 0) {
+                    initials += lastName.charAt(0).toUpperCase();
+                }
+                
+                // If still no initials, try to extract from full name
+                if (!initials && fullName) {
+                    const parts = fullName.trim().split(/\s+/);
+                    initials = parts[0] ? parts[0].charAt(0).toUpperCase() : '';
+                    if (parts.length > 1 && parts[parts.length - 1]) {
+                        initials += parts[parts.length - 1].charAt(0).toUpperCase();
+                    }
+                }
+                
                 avatarEl.textContent = initials || '?';
             }
         }

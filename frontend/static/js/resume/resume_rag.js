@@ -1,6 +1,7 @@
-// frontend\static\js\resume\resume_rag.js
+// frontend/static/js/resume/resume_rag.js
 
 const STORAGE_KEY = 'candidate_chat_history';
+const SESSION_KEY = 'candidate_chat_session_id';
 const API_BASE_URL = 'http://127.0.0.1:8000/api/ai-rag';
 
 // DOM Elements
@@ -22,10 +23,40 @@ let candidateCount = 0;
 
 // Initialize chat on page load
 document.addEventListener('DOMContentLoaded', () => {
+    checkAndClearOldSession();
     initializeChat();
     startSessionTimer();
     setupEventListeners();
 });
+
+// Check if this is a new session and clear old chat
+function checkAndClearOldSession() {
+    const currentSessionId = generateSessionId();
+    const storedSessionId = localStorage.getItem(SESSION_KEY);
+    
+    // If no stored session or different session, clear chat
+    if (!storedSessionId || storedSessionId !== currentSessionId) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(SESSION_KEY, currentSessionId);
+    }
+}
+
+// Generate session ID based on login time
+function generateSessionId() {
+    // Use user login timestamp or current timestamp
+    const userData = localStorage.getItem('user_data');
+    const accessToken = localStorage.getItem('access_token');
+    
+    if (userData && accessToken) {
+        // Create session ID from user data and current date
+        const user = JSON.parse(userData);
+        const today = new Date().toDateString();
+        return `${user.UserID || user.Email}_${today}_${accessToken.substring(0, 10)}`;
+    }
+    
+    // Fallback to date-based session
+    return `session_${new Date().toDateString()}`;
+}
 
 function initializeChat() {
     loadChatHistory();
@@ -103,7 +134,7 @@ function showToast(message, type = 'info') {
 
     Toastify({
         text: message,
-        duration: 400,
+        duration: 4000,
         gravity: "top",
         position: "right",
         style: {
@@ -364,20 +395,58 @@ function startSessionTimer() {
     }, 10000); // Update every 10 seconds
 }
 
-// Clear chat history
+// Clear chat history with SweetAlert2 confirmation
 function clearChat() {
-    if (confirm('Are you sure you want to clear the chat history? This cannot be undone.')) {
-        localStorage.removeItem(STORAGE_KEY);
-        chatMessages.innerHTML = '';
-        messageCount = 0;
-        candidateCount = 0;
-        updateStats();
-        
-        // Show welcome banner again
-        location.reload();
-        
-        showToast('Chat history cleared', 'success');
-    }
+    Swal.fire({
+        title: 'Clear Chat History?',
+        text: "All messages and candidate information will be permanently deleted. This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, clear it!',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal-custom-popup',
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Clear chat history
+            localStorage.removeItem(STORAGE_KEY);
+            chatMessages.innerHTML = '';
+            messageCount = 0;
+            candidateCount = 0;
+            updateStats();
+            
+            // Show success notification
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Chat history cleared successfully!',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'swal-toast-popup'
+                }
+            });
+            
+            // Also show toastify notification
+            showToast('Chat history cleared successfully!', 'success');
+            
+            // Reload page to show welcome banner again
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Show cancellation message
+            showToast('Clear chat cancelled', 'info');
+        }
+    });
 }
 
 // Export chat
@@ -411,3 +480,19 @@ function exportChat() {
     
     showToast('Chat exported successfully!', 'success');
 }
+
+// Clear chat on logout (listen for storage changes)
+window.addEventListener('storage', (e) => {
+    // If user_data or access_token is removed (logout), clear chat
+    if ((e.key === 'user_data' || e.key === 'access_token') && e.newValue === null) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(SESSION_KEY);
+    }
+});
+
+// Clear chat when user navigates away and comes back (page visibility)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        checkAndClearOldSession();
+    }
+});
