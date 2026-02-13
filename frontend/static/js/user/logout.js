@@ -29,6 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function performLogout() {
+    // Get user ID before clearing localStorage
+    const userId = localStorage.getItem('user_id') || 'default';
+    
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "http://127.0.0.1:8000/api/users/logout", true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -41,7 +44,10 @@ function performLogout() {
     }
 
     xhr.onload = function () {
-        // Clear all stored user data regardless of response
+        // Clear user-specific data first
+        clearUserSpecificData(userId);
+        
+        // Then clear general user data
         localStorage.removeItem('user_data');
         localStorage.removeItem('access_token');
         localStorage.removeItem('user_id');
@@ -74,10 +80,40 @@ function performLogout() {
     };
 
     xhr.onerror = function() {
-        // Clear localStorage even on error
+        // Clear user-specific data before clearing all
+        clearUserSpecificData(userId);
+        
+        // Clear all localStorage on error
         localStorage.clear();
         window.location.href = "/";
     };
 
     xhr.send();
+}
+
+// Function to clear user-specific data
+function clearUserSpecificData(userId) {
+    console.log('Clearing user-specific data for user:', userId);
+    
+    // Clear chat history for this user
+    localStorage.removeItem(`candidate_chat_history_${userId}`);
+    localStorage.removeItem(`candidate_chat_session_id_${userId}`);
+    
+    // Clear sidebar collapse states for this user
+    ['userMenu', 'resumeMenu', 'emailMenu'].forEach(menuId => {
+        localStorage.removeItem(`sidebar_${menuId}_${userId}`);
+    });
+    
+    // Clear any other user-specific keys (add more as needed)
+    // Example: preferences, settings, etc.
+    const userSpecificKeys = Object.keys(localStorage).filter(key => 
+        key.includes(`_${userId}`) || key.endsWith(`_${userId}`)
+    );
+    
+    userSpecificKeys.forEach(key => {
+        console.log('Removing key:', key);
+        localStorage.removeItem(key);
+    });
+    
+    console.log('User-specific data cleared successfully');
 }
