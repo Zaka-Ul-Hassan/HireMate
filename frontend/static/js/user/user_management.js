@@ -100,13 +100,9 @@ function setupEventListeners() {
     cancelBtn.addEventListener('click', hideForm);
     userForm.addEventListener('submit', handleSubmit);
     
-    // Apply filters on button click
     applyFiltersBtn.addEventListener('click', handleFilters);
-    
-    // Reset filters
     resetFiltersBtn.addEventListener('click', resetFilters);
     
-    // Allow Enter key in search box to apply filters
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleFilters();
@@ -121,18 +117,15 @@ function setupEventListeners() {
 // Check if user is SuperAdmin
 // ─────────────────────────────────────────
 function isSuperAdmin(user) {
-    // Check by email
     if (user.Email && user.Email.toLowerCase() === 'superadmin') {
         return true;
     }
     
-    // Check by name
     const fullName = `${user.FirstName} ${user.LastName}`.toLowerCase();
     if (fullName.includes('super') && fullName.includes('admin')) {
         return true;
     }
     
-    // Check by role
     if (user.Roles && user.Roles.some(role => role.Name.toLowerCase() === 'superadmin')) {
         return true;
     }
@@ -230,7 +223,7 @@ async function loadUsers() {
 }
 
 // ─────────────────────────────────────────
-// Handle Filters - FIXED
+// Handle Filters
 // ─────────────────────────────────────────
 function handleFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
@@ -238,7 +231,6 @@ function handleFilters() {
     const statusFilterValue = statusFilter.value;
 
     filteredUsers = allUsers.filter(user => {
-        // Search filter
         const matchesSearch = !searchTerm || 
             (user.FirstName && user.FirstName.toLowerCase().includes(searchTerm)) ||
             (user.LastName && user.LastName.toLowerCase().includes(searchTerm)) ||
@@ -246,11 +238,9 @@ function handleFilters() {
             (user.PhoneNumber && user.PhoneNumber.toLowerCase().includes(searchTerm)) ||
             (user.Roles && user.Roles.some(role => role.Name.toLowerCase().includes(searchTerm)));
 
-        // Role filter
         const matchesRole = !roleFilterValue || 
             (user.Roles && user.Roles.some(role => role.Name === roleFilterValue));
 
-        // Status filter - FIXED: Check boolean directly
         let matchesStatus = true;
         if (statusFilterValue === 'active') {
             matchesStatus = user.IsActive === true;
@@ -309,7 +299,6 @@ function renderUsers() {
         userCardsContainer.appendChild(card);
     });
 
-    // Update pagination
     if (totalPages > 1) {
         paginationContainer.style.display = 'flex';
         pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
@@ -334,7 +323,7 @@ function formatDate(dateString) {
 }
 
 // ─────────────────────────────────────────
-// Create User Card - ENHANCED
+// Create User Card
 // ─────────────────────────────────────────
 function createUserCard(user) {
     const card = document.createElement('div');
@@ -346,8 +335,6 @@ function createUserCard(user) {
     const statusClass = user.IsActive ? 'active' : 'inactive';
     const statusText = user.IsActive ? 'Active' : 'Inactive';
     const roles = user.Roles ? user.Roles.map(r => r.Name).join(', ') : 'No roles';
-    
-    // Get avatar color based on first letter
     const avatarColor = getAvatarColor(user.FirstName);
 
     card.innerHTML = `
@@ -418,7 +405,7 @@ function createUserCard(user) {
 }
 
 // ─────────────────────────────────────────
-// Get Initials - IMPROVED
+// Get Initials
 // ─────────────────────────────────────────
 function getInitials(firstName, lastName) {
     const first = firstName ? firstName.trim().charAt(0).toUpperCase() : '';
@@ -427,20 +414,13 @@ function getInitials(firstName, lastName) {
 }
 
 // ─────────────────────────────────────────
-// Get Avatar Color - NEW
+// Get Avatar Color
 // ─────────────────────────────────────────
 function getAvatarColor(name) {
     const colors = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-        'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-        'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-        'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-        'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-        'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
+        '#5B8DEE', '#E57373', '#64B5F6', '#81C784',
+        '#FFB74D', '#BA68C8', '#4DB6AC', '#FF8A65',
+        '#A1887F', '#90A4AE'
     ];
     
     const firstChar = name ? name.trim().charAt(0).toUpperCase() : 'A';
@@ -493,7 +473,7 @@ function hideForm() {
 }
 
 // ─────────────────────────────────────────
-// Populate Form (for updates)
+// Populate Form
 // ─────────────────────────────────────────
 function populateFormWithUserData(userId) {
     const user = allUsers.find(u => u.Id === userId);
@@ -669,84 +649,57 @@ function showState(state) {
 }
 
 // ─────────────────────────────────────────
-// Validation - ENHANCED WITH REAL-TIME
+// Simple Validation (Like Register)
 // ─────────────────────────────────────────
-function validateEmail(email) {
-    // Comprehensive email regex
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-}
+const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-function validateName(name) {
-    // Name should only contain letters, spaces, and hyphens
-    const nameRegex = /^[a-zA-Z\s-]+$/;
-    return nameRegex.test(name) && name.trim().length >= 2;
+function validateField(input, errorSpan, label) {
+    if (!input.value.trim()) {
+        input.classList.add('is-invalid');
+        errorSpan.textContent = `${label} is required.`;
+        return false;
+    } else {
+        input.classList.remove('is-invalid');
+        errorSpan.textContent = '';
+        return true;
+    }
 }
 
 function clearValidation() {
     document.querySelectorAll('#userForm .is-invalid')
         .forEach(el => el.classList.remove('is-invalid'));
-    document.querySelectorAll('#userForm .is-valid')
-        .forEach(el => el.classList.remove('is-valid'));
+    document.querySelectorAll('#userForm .invalid-feedback')
+        .forEach(el => el.textContent = '');
 }
 
 function validateForm() {
-    clearValidation();
     let isValid = true;
 
-    // First Name validation
     const firstNameEl = document.getElementById('firstName');
-    if (!firstNameEl.value.trim()) {
-        firstNameEl.classList.add('is-invalid');
-        isValid = false;
-    } else if (!validateName(firstNameEl.value.trim())) {
-        firstNameEl.classList.add('is-invalid');
-        const feedback = firstNameEl.nextElementSibling;
-        if (feedback && feedback.classList.contains('invalid-feedback')) {
-            feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
-        }
-        isValid = false;
-    } else {
-        firstNameEl.classList.add('is-valid');
-    }
+    const firstNameError = firstNameEl.nextElementSibling;
+    if (!validateField(firstNameEl, firstNameError, 'First Name')) isValid = false;
 
-    // Last Name validation
     const lastNameEl = document.getElementById('lastName');
-    if (!lastNameEl.value.trim()) {
-        lastNameEl.classList.add('is-invalid');
-        isValid = false;
-    } else if (!validateName(lastNameEl.value.trim())) {
-        lastNameEl.classList.add('is-invalid');
-        const feedback = lastNameEl.nextElementSibling;
-        if (feedback && feedback.classList.contains('invalid-feedback')) {
-            feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
-        }
-        isValid = false;
-    } else {
-        lastNameEl.classList.add('is-valid');
-    }
+    const lastNameError = lastNameEl.nextElementSibling;
+    if (!validateField(lastNameEl, lastNameError, 'Last Name')) isValid = false;
 
-    // Email validation
     const emailEl = document.getElementById('email');
-    if (!emailEl.value.trim()) {
+    const emailError = emailEl.nextElementSibling;
+    const emailValue = emailEl.value.trim();
+    
+    if (!emailValue) {
         emailEl.classList.add('is-invalid');
-        const feedback = emailEl.nextElementSibling;
-        if (feedback && feedback.classList.contains('invalid-feedback')) {
-            feedback.textContent = 'Email is required.';
-        }
+        emailError.textContent = 'Email is required.';
         isValid = false;
-    } else if (!validateEmail(emailEl.value.trim())) {
+    } else if (!emailRegex.test(emailValue)) {
         emailEl.classList.add('is-invalid');
-        const feedback = emailEl.nextElementSibling;
-        if (feedback && feedback.classList.contains('invalid-feedback')) {
-            feedback.textContent = 'Please enter a valid email address.';
-        }
+        emailError.textContent = 'Please enter a valid email address.';
         isValid = false;
     } else {
-        emailEl.classList.add('is-valid');
+        emailEl.classList.remove('is-invalid');
+        emailError.textContent = '';
     }
 
-    // Role validation
     const selectedRoles = document.querySelectorAll('#roleCheckboxes input[type="checkbox"]:checked');
     if (selectedRoles.length === 0) {
         roleCheckboxes.classList.add('is-invalid');
@@ -757,82 +710,53 @@ function validateForm() {
 
     if (!isValid) {
         toast('warning', 'Please fill in all required fields correctly.');
-        const first = document.querySelector('#userForm .is-invalid');
-        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     return isValid;
 }
 
 // ─────────────────────────────────────────
-// Setup Real-Time Form Validation
+// Setup Form Validation
 // ─────────────────────────────────────────
 function setupFormValidation() {
-    // First Name real-time validation
     const firstNameEl = document.getElementById('firstName');
-    firstNameEl.addEventListener('input', () => {
-        firstNameEl.classList.remove('is-invalid', 'is-valid');
-        const value = firstNameEl.value.trim();
-        if (value) {
-            if (validateName(value)) {
-                firstNameEl.classList.add('is-valid');
-            } else {
-                firstNameEl.classList.add('is-invalid');
-                const feedback = firstNameEl.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
-                }
-            }
+    const firstNameError = firstNameEl.nextElementSibling;
+    
+    firstNameEl.addEventListener('input', function () {
+        if (firstNameEl.value.trim()) {
+            firstNameEl.classList.remove('is-invalid');
+            firstNameError.textContent = '';
         }
     });
 
-    // Last Name real-time validation
     const lastNameEl = document.getElementById('lastName');
-    lastNameEl.addEventListener('input', () => {
-        lastNameEl.classList.remove('is-invalid', 'is-valid');
-        const value = lastNameEl.value.trim();
-        if (value) {
-            if (validateName(value)) {
-                lastNameEl.classList.add('is-valid');
-            } else {
-                lastNameEl.classList.add('is-invalid');
-                const feedback = lastNameEl.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
-                }
-            }
+    const lastNameError = lastNameEl.nextElementSibling;
+    
+    lastNameEl.addEventListener('input', function () {
+        if (lastNameEl.value.trim()) {
+            lastNameEl.classList.remove('is-invalid');
+            lastNameError.textContent = '';
         }
     });
 
-    // Email real-time validation
     const emailEl = document.getElementById('email');
-    emailEl.addEventListener('input', () => {
-        emailEl.classList.remove('is-invalid', 'is-valid');
+    const emailError = emailEl.nextElementSibling;
+    
+    emailEl.addEventListener('input', function () {
         const value = emailEl.value.trim();
-        if (value) {
-            if (validateEmail(value)) {
-                emailEl.classList.add('is-valid');
-            } else {
-                emailEl.classList.add('is-invalid');
-                const feedback = emailEl.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Please enter a valid email address.';
-                }
-            }
+        
+        if (!value) {
+            emailEl.classList.add('is-invalid');
+            emailError.textContent = 'Email is required.';
+        } else if (!emailRegex.test(value)) {
+            emailEl.classList.add('is-invalid');
+            emailError.textContent = 'Please enter a valid email address.';
+        } else {
+            emailEl.classList.remove('is-invalid');
+            emailError.textContent = '';
         }
     });
 
-    // Phone validation (optional but add visual feedback)
-    const phoneEl = document.getElementById('phone');
-    phoneEl.addEventListener('input', () => {
-        phoneEl.classList.remove('is-invalid', 'is-valid');
-        const value = phoneEl.value.trim();
-        if (value) {
-            phoneEl.classList.add('is-valid');
-        }
-    });
-
-    // Role checkbox validation
     document.querySelectorAll('#roleCheckboxes input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', () => {
             const anyChecked = document.querySelectorAll('#roleCheckboxes input[type="checkbox"]:checked').length > 0;
