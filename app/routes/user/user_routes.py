@@ -122,7 +122,6 @@ def set_password_route(
 ):
     return auth_service.set_password(db, token, request)
 
-
 # Users list with pagination and search
 @router.post("/list")
 def list_users(

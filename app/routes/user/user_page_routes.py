@@ -156,6 +156,19 @@ def reset_password_form(request: Request, token: str = Query(...)):
         }
     )
 
+@router.get("/user/set-password", response_class=HTMLResponse)
+def set_password_form(request: Request, token: str = Query(...)):
+    return templates.TemplateResponse(
+        "user/set_password.html",
+        {
+            "request": request,
+            "token": token,
+            "hide_navbar": True,
+            "hide_footer": True,
+            "fullscreen": True,
+            "hide_sidebar": True
+        }
+    )
 
 # ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
 
