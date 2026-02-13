@@ -1,5 +1,5 @@
 # app\services\user\user_service.py
-from operator import or_
+from sqlalchemy.orm import joinedload
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -175,7 +175,11 @@ def get_user_by_email(db:Session, email:str) -> User | None:
 # List users with pagination and search
 def list_users(db: Session, search: str, skip: int, limit: int):
 
-    query = db.query(User).filter(User.IsDeleted == False)
+    query = (
+        db.query(User)
+        .options(joinedload(User.Roles))
+        .filter(User.IsDeleted == False)
+    )
 
     if search:
         search_filter = f"%{search}%"
@@ -198,17 +202,18 @@ def list_users(db: Session, search: str, skip: int, limit: int):
     )
 
     paginated_response = PaginatedResponseSchema(
-                totalCount=total_count,
-                skipCount=skip,
-                maxCount=limit,
-                item=users,
-                status="success"
-            )
+        totalCount=total_count,
+        skipCount=skip,
+        maxCount=limit,
+        item=users,
+        status="success"
+    )
+
     return ResponseSchema(
         status=True,
         message="Users fetched successfully",
         data=paginated_response
-        )
+    )
 
 # Activate or Deactivate user
 def toggle_user_activation(db: Session, user_id: int):

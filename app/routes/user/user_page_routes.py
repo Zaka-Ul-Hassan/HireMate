@@ -170,6 +170,36 @@ def set_password_form(request: Request, token: str = Query(...)):
         }
     )
 
+# ========== USER MANAGEMENT ROUTE ==========
+
+@router.get("/user/manage", response_class=HTMLResponse)
+async def user_management_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    User Management Page - For SuperAdmin only
+    Shows list of all users with create, update, delete, activate/deactivate functionality
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "user/user_management.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
 # ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
 
 @router.get("/resume/list", response_class=HTMLResponse)

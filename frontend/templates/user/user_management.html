@@ -1,0 +1,152 @@
+<!-- frontend/templates/user/user_management.html -->
+{% extends "shared/base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user/user_management.css">
+{% endblock %}
+
+{% block content %}
+<div class="user-management-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">User Management</h1>
+            <p class="page-subtitle">Manage users, roles, and permissions</p>
+        </div>
+        <button id="createUserBtn" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Create New User
+        </button>
+    </div>
+
+    <!-- ── Loading State ── -->
+    <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading users...</p>
+    </div>
+
+    <!-- ── User List State ── -->
+    <div id="userListState" class="user-list-state" style="display: none;">
+        
+        <!-- Search and Filter Bar -->
+        <div class="filter-bar">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or role...">
+            </div>
+            
+            <div class="filter-controls">
+                <select id="roleFilter" class="form-control">
+                    <option value="">All Roles</option>
+                    <option value="User">User</option>
+                    <option value="Employer">Employer</option>
+                    <option value="SuperAdmin">Super Admin</option>
+                </select>
+                
+                <select id="statusFilter" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+
+                <button id="applyFiltersBtn" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Apply Filters
+                </button>
+
+                <button id="resetFiltersBtn" class="btn btn-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- User Cards Grid -->
+        <div id="userCardsContainer" class="user-cards-grid">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationContainer" class="pagination-container" style="display: none;">
+            <button id="prevPageBtn" class="btn btn-secondary" disabled>
+                <i class="bi bi-chevron-left"></i> Previous
+            </button>
+            <span id="pageInfo" class="page-info">Page 1 of 1</span>
+            <button id="nextPageBtn" class="btn btn-secondary" disabled>
+                Next <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── User Form State (Create/Update) ── -->
+    <div id="userFormState" class="user-form-state" style="display: none;">
+        <div class="form-container">
+            
+            <div class="form-header">
+                <h2 id="formTitle">Create New User</h2>
+                <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
+            </div>
+
+            <form id="userForm" novalidate>
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h3><i class="bi bi-person me-2"></i>Personal Information</h3>
+                    <div class="form-grid">
+                        
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="text-danger">*</span></label>
+                            <input type="text" id="firstName" name="FirstName" class="form-control" placeholder="John">
+                            <div class="invalid-feedback">First Name is required.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" id="lastName" name="LastName" class="form-control" placeholder="Doe">
+                            <div class="invalid-feedback">Last Name is required.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email <span class="text-danger">*</span></label>
+                            <input type="email" id="email" name="Email" class="form-control" placeholder="john.doe@example.com">
+                            <div class="invalid-feedback">A valid email is required.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="Phone" class="form-control" placeholder="+92 300 1234567">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-section">
+                    <h3><i class="bi bi-shield-check me-2"></i>Role Assignment</h3>
+                    <div class="form-group">
+                        <label>Select Roles <span class="text-danger">*</span></label>
+                        <div id="roleCheckboxes" class="role-checkboxes">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        <div class="invalid-feedback">At least one role must be selected.</div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">
+                        <i class="bi bi-x-lg me-2"></i>Cancel
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <i class="bi bi-floppy me-2"></i>Save User
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div><!-- /.user-management-container -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/user/user_management.js"></script>
+{% endblock %}
