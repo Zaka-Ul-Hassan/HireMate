@@ -198,7 +198,7 @@ async function loadUsers() {
             body: JSON.stringify({
                 search: '',
                 skipCount: 0,
-                maxCount: 1000 // Get all users for client-side filtering
+                maxCount: 1000
             })
         });
 
@@ -211,7 +211,6 @@ async function loadUsers() {
         const result = await response.json();
 
         if (result.status && result.data) {
-            // API returns 'item' not 'users', and roles are already included
             allUsers = result.data.item || [];
             
             filteredUsers = [...allUsers];
@@ -231,7 +230,7 @@ async function loadUsers() {
 }
 
 // ─────────────────────────────────────────
-// Handle Filters
+// Handle Filters - FIXED
 // ─────────────────────────────────────────
 function handleFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
@@ -251,10 +250,13 @@ function handleFilters() {
         const matchesRole = !roleFilterValue || 
             (user.Roles && user.Roles.some(role => role.Name === roleFilterValue));
 
-        // Status filter
-        const matchesStatus = !statusFilterValue || 
-            (statusFilterValue === 'active' && user.IsActive) ||
-            (statusFilterValue === 'inactive' && !user.IsActive);
+        // Status filter - FIXED: Check boolean directly
+        let matchesStatus = true;
+        if (statusFilterValue === 'active') {
+            matchesStatus = user.IsActive === true;
+        } else if (statusFilterValue === 'inactive') {
+            matchesStatus = user.IsActive === false;
+        }
 
         return matchesSearch && matchesRole && matchesStatus;
     });
@@ -262,7 +264,6 @@ function handleFilters() {
     currentPage = 1;
     renderUsers();
     
-    // Show feedback
     toast('success', `Found ${filteredUsers.length} user(s)`, '');
 }
 
@@ -320,26 +321,41 @@ function renderUsers() {
 }
 
 // ─────────────────────────────────────────
-// Create User Card
+// Format Date
+// ─────────────────────────────────────────
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+// ─────────────────────────────────────────
+// Create User Card - ENHANCED
 // ─────────────────────────────────────────
 function createUserCard(user) {
     const card = document.createElement('div');
     const isSuperAdminUser = isSuperAdmin(user);
     
-    // No blur class, just regular card
     card.className = 'user-card';
     
     const initials = getInitials(user.FirstName, user.LastName);
     const statusClass = user.IsActive ? 'active' : 'inactive';
     const statusText = user.IsActive ? 'Active' : 'Inactive';
     const roles = user.Roles ? user.Roles.map(r => r.Name).join(', ') : 'No roles';
+    
+    // Get avatar color based on first letter
+    const avatarColor = getAvatarColor(user.FirstName);
 
     card.innerHTML = `
         <div class="user-card-header">
             <div class="user-avatar">
                 ${user.Image ? 
                     `<img src="${user.Image.startsWith('/') ? user.Image : '/' + user.Image.replace(/\\/g, '/')}" alt="${user.FirstName}">` :
-                    `<div class="user-initials">${initials}</div>`
+                    `<div class="user-initials" style="background: ${avatarColor};">${initials}</div>`
                 }
             </div>
             <div class="user-info">
@@ -352,12 +368,12 @@ function createUserCard(user) {
         <div class="user-card-body">
             <div class="user-details">
                 <div class="detail-item">
-                    <i class="bi bi-envelope"></i>
+                    <i class="bi bi-envelope-fill"></i>
                     <span>${user.Email}</span>
                 </div>
                 ${user.PhoneNumber ? `
                     <div class="detail-item">
-                        <i class="bi bi-telephone"></i>
+                        <i class="bi bi-telephone-fill"></i>
                         <span>${user.PhoneNumber}</span>
                     </div>
                 ` : ''}
@@ -365,22 +381,32 @@ function createUserCard(user) {
                     <i class="bi bi-shield-check"></i>
                     <span>${roles}</span>
                 </div>
+                <div class="detail-item">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Joined: ${formatDate(user.CreatedAt)}</span>
+                </div>
+                ${user.CreatedBy ? `
+                    <div class="detail-item">
+                        <i class="bi bi-person-badge"></i>
+                        <span>By: ${user.CreatedBy}</span>
+                    </div>
+                ` : ''}
             </div>
         </div>
         
         ${!isSuperAdminUser ? `
             <div class="user-card-actions">
                 ${!user.IsActive ? `
-                    <button class="btn btn-sm btn-info" onclick="resendConfirmation(${user.Id})">
+                    <button class="btn btn-sm btn-info" onclick="resendConfirmation(${user.Id})" title="Resend confirmation email">
                         <i class="bi bi-envelope-check"></i>
-                        <span>Resend Email</span>
+                        <span>Resend</span>
                     </button>
                 ` : ''}
-                <button class="btn btn-sm btn-${user.IsActive ? 'warning' : 'success'}" onclick="toggleUserStatus(${user.Id}, ${user.IsActive})">
+                <button class="btn btn-sm btn-${user.IsActive ? 'warning' : 'success'}" onclick="toggleUserStatus(${user.Id}, ${user.IsActive})" title="${user.IsActive ? 'Deactivate user' : 'Activate user'}">
                     <i class="bi bi-${user.IsActive ? 'pause-circle' : 'play-circle'}"></i>
                     <span>${user.IsActive ? 'Deactivate' : 'Activate'}</span>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.Id})">
+                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.Id})" title="Delete user permanently">
                     <i class="bi bi-trash"></i>
                     <span>Delete</span>
                 </button>
@@ -392,12 +418,34 @@ function createUserCard(user) {
 }
 
 // ─────────────────────────────────────────
-// Get Initials
+// Get Initials - IMPROVED
 // ─────────────────────────────────────────
 function getInitials(firstName, lastName) {
-    const first = firstName ? firstName.charAt(0).toUpperCase() : '';
-    const last = lastName ? lastName.charAt(0).toUpperCase() : '';
-    return first + last || '??';
+    const first = firstName ? firstName.trim().charAt(0).toUpperCase() : '';
+    const last = lastName ? lastName.trim().charAt(0).toUpperCase() : '';
+    return (first + last) || '??';
+}
+
+// ─────────────────────────────────────────
+// Get Avatar Color - NEW
+// ─────────────────────────────────────────
+function getAvatarColor(name) {
+    const colors = [
+        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+        'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+        'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+        'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+        'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
+    ];
+    
+    const firstChar = name ? name.trim().charAt(0).toUpperCase() : 'A';
+    const index = firstChar.charCodeAt(0) % colors.length;
+    return colors[index];
 }
 
 // ─────────────────────────────────────────
@@ -427,7 +475,6 @@ function showForm(updateMode, userId = null) {
     } else {
         userForm.reset();
         clearValidation();
-        // Uncheck all role checkboxes
         document.querySelectorAll('#roleCheckboxes input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
         });
@@ -457,7 +504,6 @@ function populateFormWithUserData(userId) {
     document.getElementById('email').value = user.Email || '';
     document.getElementById('phone').value = user.PhoneNumber || '';
 
-    // Check appropriate role checkboxes
     document.querySelectorAll('#roleCheckboxes input[type="checkbox"]').forEach(cb => {
         const roleId = parseInt(cb.value);
         cb.checked = user.Roles && user.Roles.some(role => role.Id === roleId);
@@ -480,7 +526,6 @@ async function handleSubmit(e) {
         RoleIds: []
     };
 
-    // Get selected role IDs
     document.querySelectorAll('#roleCheckboxes input[type="checkbox"]:checked').forEach(cb => {
         data.RoleIds.push(parseInt(cb.value));
     });
@@ -522,7 +567,7 @@ async function toggleUserStatus(userId, currentStatus) {
         text: `Are you sure you want to ${action} this user?`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: currentStatus ? '#ffc107' : '#28a745',
+        confirmButtonColor: currentStatus ? '#f59e0b' : '#10b981',
         cancelButtonColor: '#6c757d',
         confirmButtonText: `Yes, ${action}!`,
         cancelButtonText: 'Cancel'
@@ -558,7 +603,7 @@ async function deleteUser(userId) {
         text: 'This action cannot be undone.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#dc3545',
+        confirmButtonColor: '#ef4444',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
@@ -590,7 +635,6 @@ async function deleteUser(userId) {
 // ─────────────────────────────────────────
 async function resendConfirmation(userId) {
     try {
-        // API expects user_id as query parameter, not in body
         const response = await fetch(`${API_BASE_URL}/resend-confirmation-email?user_id=${userId}`, {
             method: 'POST',
             headers: authHeaders()
@@ -625,40 +669,81 @@ function showState(state) {
 }
 
 // ─────────────────────────────────────────
-// Validation
+// Validation - ENHANCED WITH REAL-TIME
 // ─────────────────────────────────────────
 function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // Comprehensive email regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+}
+
+function validateName(name) {
+    // Name should only contain letters, spaces, and hyphens
+    const nameRegex = /^[a-zA-Z\s-]+$/;
+    return nameRegex.test(name) && name.trim().length >= 2;
 }
 
 function clearValidation() {
     document.querySelectorAll('#userForm .is-invalid')
         .forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('#userForm .is-valid')
+        .forEach(el => el.classList.remove('is-valid'));
 }
 
 function validateForm() {
     clearValidation();
     let isValid = true;
 
-    const required = [
-        { id: 'firstName' },
-        { id: 'lastName' },
-        { id: 'email' }
-    ];
-
-    required.forEach(({ id }) => {
-        const el = document.getElementById(id);
-        if (!el || !el.value.trim()) {
-            if (el) el.classList.add('is-invalid');
-            isValid = false;
-        }
-    });
-
-    // Email format
-    const emailEl = document.getElementById('email');
-    if (emailEl && emailEl.value.trim() && !validateEmail(emailEl.value.trim())) {
-        emailEl.classList.add('is-invalid');
+    // First Name validation
+    const firstNameEl = document.getElementById('firstName');
+    if (!firstNameEl.value.trim()) {
+        firstNameEl.classList.add('is-invalid');
         isValid = false;
+    } else if (!validateName(firstNameEl.value.trim())) {
+        firstNameEl.classList.add('is-invalid');
+        const feedback = firstNameEl.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
+        }
+        isValid = false;
+    } else {
+        firstNameEl.classList.add('is-valid');
+    }
+
+    // Last Name validation
+    const lastNameEl = document.getElementById('lastName');
+    if (!lastNameEl.value.trim()) {
+        lastNameEl.classList.add('is-invalid');
+        isValid = false;
+    } else if (!validateName(lastNameEl.value.trim())) {
+        lastNameEl.classList.add('is-invalid');
+        const feedback = lastNameEl.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
+        }
+        isValid = false;
+    } else {
+        lastNameEl.classList.add('is-valid');
+    }
+
+    // Email validation
+    const emailEl = document.getElementById('email');
+    if (!emailEl.value.trim()) {
+        emailEl.classList.add('is-invalid');
+        const feedback = emailEl.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = 'Email is required.';
+        }
+        isValid = false;
+    } else if (!validateEmail(emailEl.value.trim())) {
+        emailEl.classList.add('is-invalid');
+        const feedback = emailEl.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = 'Please enter a valid email address.';
+        }
+        isValid = false;
+    } else {
+        emailEl.classList.add('is-valid');
     }
 
     // Role validation
@@ -679,10 +764,72 @@ function validateForm() {
     return isValid;
 }
 
+// ─────────────────────────────────────────
+// Setup Real-Time Form Validation
+// ─────────────────────────────────────────
 function setupFormValidation() {
-    document.querySelectorAll('#userForm .form-control').forEach(el => {
-        el.addEventListener('input', () => el.classList.remove('is-invalid'));
-        el.addEventListener('change', () => el.classList.remove('is-invalid'));
+    // First Name real-time validation
+    const firstNameEl = document.getElementById('firstName');
+    firstNameEl.addEventListener('input', () => {
+        firstNameEl.classList.remove('is-invalid', 'is-valid');
+        const value = firstNameEl.value.trim();
+        if (value) {
+            if (validateName(value)) {
+                firstNameEl.classList.add('is-valid');
+            } else {
+                firstNameEl.classList.add('is-invalid');
+                const feedback = firstNameEl.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
+                }
+            }
+        }
+    });
+
+    // Last Name real-time validation
+    const lastNameEl = document.getElementById('lastName');
+    lastNameEl.addEventListener('input', () => {
+        lastNameEl.classList.remove('is-invalid', 'is-valid');
+        const value = lastNameEl.value.trim();
+        if (value) {
+            if (validateName(value)) {
+                lastNameEl.classList.add('is-valid');
+            } else {
+                lastNameEl.classList.add('is-invalid');
+                const feedback = lastNameEl.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Name should only contain letters and be at least 2 characters.';
+                }
+            }
+        }
+    });
+
+    // Email real-time validation
+    const emailEl = document.getElementById('email');
+    emailEl.addEventListener('input', () => {
+        emailEl.classList.remove('is-invalid', 'is-valid');
+        const value = emailEl.value.trim();
+        if (value) {
+            if (validateEmail(value)) {
+                emailEl.classList.add('is-valid');
+            } else {
+                emailEl.classList.add('is-invalid');
+                const feedback = emailEl.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Please enter a valid email address.';
+                }
+            }
+        }
+    });
+
+    // Phone validation (optional but add visual feedback)
+    const phoneEl = document.getElementById('phone');
+    phoneEl.addEventListener('input', () => {
+        phoneEl.classList.remove('is-invalid', 'is-valid');
+        const value = phoneEl.value.trim();
+        if (value) {
+            phoneEl.classList.add('is-valid');
+        }
     });
 
     // Role checkbox validation
