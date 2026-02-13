@@ -1,7 +1,12 @@
 // frontend/static/js/resume/resume_rag.js
 
-const STORAGE_KEY = 'candidate_chat_history';
-const SESSION_KEY = 'candidate_chat_session_id';
+// Get user-specific storage keys
+function getUserId() {
+    return localStorage.getItem('user_id') || 'default';
+}
+
+const STORAGE_KEY = `candidate_chat_history_${getUserId()}`;
+const SESSION_KEY = `candidate_chat_session_id_${getUserId()}`;
 const API_BASE_URL = 'http://127.0.0.1:8000/api/ai-rag';
 
 // DOM Elements
@@ -46,16 +51,17 @@ function generateSessionId() {
     // Use user login timestamp or current timestamp
     const userData = localStorage.getItem('user_data');
     const accessToken = localStorage.getItem('access_token');
+    const userId = getUserId();
     
     if (userData && accessToken) {
         // Create session ID from user data and current date
         const user = JSON.parse(userData);
         const today = new Date().toDateString();
-        return `${user.UserID || user.Email}_${today}_${accessToken.substring(0, 10)}`;
+        return `${userId}_${today}_${accessToken.substring(0, 10)}`;
     }
     
     // Fallback to date-based session
-    return `session_${new Date().toDateString()}`;
+    return `session_${userId}_${new Date().toDateString()}`;
 }
 
 function initializeChat() {
@@ -485,8 +491,9 @@ function exportChat() {
 window.addEventListener('storage', (e) => {
     // If user_data or access_token is removed (logout), clear chat
     if ((e.key === 'user_data' || e.key === 'access_token') && e.newValue === null) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(SESSION_KEY);
+        const userId = getUserId();
+        localStorage.removeItem(`candidate_chat_history_${userId}`);
+        localStorage.removeItem(`candidate_chat_session_id_${userId}`);
     }
 });
 

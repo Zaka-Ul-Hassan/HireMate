@@ -2,6 +2,8 @@
 
 // Protect dashboard - ensure user is authenticated
 document.addEventListener("DOMContentLoaded", function () {
+    console.log('Dashboard loading...');
+    
     // Check authentication
     protectPage();
     
@@ -10,9 +12,52 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('Current user:', user);
     console.log('User roles:', getUserRoles());
 
+    // Update welcome message with user's name
+    updateWelcomeMessage();
+
     // Initialize charts after DOM is loaded
     initializeCharts();
+    
+    console.log('Dashboard loaded successfully!');
 });
+
+function updateWelcomeMessage() {
+    const welcomeTitle = document.querySelector('.dashboard-title');
+    if (!welcomeTitle) {
+        console.error('Welcome title element not found!');
+        return;
+    }
+
+    try {
+        const userDataStr = localStorage.getItem('user_data');
+        const userName = localStorage.getItem('user_name');
+
+        const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+        let displayName = '';
+
+        // Priority 1: Full name from user_data.Name
+        if (userData && userData.Name) {
+            displayName = userData.Name.trim();
+        }
+        // Priority 2: Full name from user_name
+        else if (userName) {
+            displayName = userName.trim();
+        }
+
+        // Update UI
+        if (displayName) {
+            welcomeTitle.textContent = `Welcome ${displayName} 😍`;
+        } else {
+            welcomeTitle.textContent = 'Welcome 😍';
+        }
+
+    } catch (error) {
+        console.error('Error updating welcome message:', error);
+        welcomeTitle.textContent = 'Welcome 😍';
+    }
+}
+
 
 function initializeCharts() {
     // Modern color palette

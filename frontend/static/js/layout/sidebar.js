@@ -10,11 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const nameEl    = document.getElementById('sidebarName');
         const addressEl = document.getElementById('sidebarAddress');
 
+        console.log('=== POPULATING PROFILE ===');
+
         // Prefer the full user_data object stored at login
         let userData = null;
         try {
-            userData = JSON.parse(localStorage.getItem('user_data'));
-        } catch (_) {}
+            const userDataStr = localStorage.getItem('user_data');
+            console.log('Raw user_data from localStorage:', userDataStr);
+            userData = userDataStr ? JSON.parse(userDataStr) : null;
+            console.log('Parsed user_data:', userData);
+        } catch (e) {
+            console.error('Error parsing user_data:', e);
+        }
 
         // ── Name ──────────────────────────────
         let firstName = '';
@@ -26,6 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
             firstName = nameParts[0] || '';
             lastName  = nameParts.slice(1).join(' ') || '';
 
+            console.log('Name from userData.Name:', userData.Name);
+            console.log('Extracted firstName:', firstName, 'lastName:', lastName);
+
             // Fallback: some APIs return separate fields
             if (!firstName) firstName = userData.FirstName || '';
             if (!lastName)  lastName  = userData.LastName  || '';
@@ -33,23 +43,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Last resort: user_name key set explicitly in login.js
         if (!firstName && !lastName) {
-            const rawName = (localStorage.getItem('user_name') || '').trim().split(/\s+/);
+            const userName = localStorage.getItem('user_name');
+            console.log('Trying user_name from localStorage:', userName);
+            const rawName = (userName || '').trim().split(/\s+/);
             firstName = rawName[0] || '';
             lastName  = rawName.slice(1).join(' ') || '';
+            console.log('Extracted from user_name - firstName:', firstName, 'lastName:', lastName);
         }
 
         const fullName = [firstName, lastName].filter(Boolean).join(' ');
-        if (nameEl) nameEl.textContent = fullName || 'Guest';
+        console.log('Final fullName:', fullName);
+        
+        if (nameEl) {
+            nameEl.textContent = fullName || 'Guest';
+            console.log('Set nameEl.textContent to:', nameEl.textContent);
+        } else {
+            console.error('nameEl element not found!');
+        }
 
         // ── Avatar: image or initials ─────────
         if (avatarEl) {
             const image = userData && userData.Image;
             if (image) {
                 avatarEl.innerHTML = `<img src="/${image.replace(/\\/g, '/')}" alt="Profile" class="img-fluid" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                console.log('Set avatar image:', image);
             } else {
-                // First letter of first name + first letter of last name
+                // Generate initials from first and last name
                 let initials = '';
                 
+                // Try to get initials from firstName and lastName
                 if (firstName && firstName.length > 0) {
                     initials += firstName.charAt(0).toUpperCase();
                 }
@@ -61,14 +83,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 // If still no initials, try to extract from full name
                 if (!initials && fullName) {
                     const parts = fullName.trim().split(/\s+/);
-                    initials = parts[0] ? parts[0].charAt(0).toUpperCase() : '';
+                    if (parts.length > 0 && parts[0]) {
+                        initials = parts[0].charAt(0).toUpperCase();
+                    }
                     if (parts.length > 1 && parts[parts.length - 1]) {
                         initials += parts[parts.length - 1].charAt(0).toUpperCase();
                     }
                 }
                 
-                avatarEl.textContent = initials || '?';
+                // Final fallback
+                if (!initials) {
+                    initials = '?';
+                }
+                
+                avatarEl.textContent = initials;
+                console.log('Generated initials:', initials, 'from firstName:', firstName, 'lastName:', lastName);
             }
+        } else {
+            console.error('avatarEl element not found!');
         }
 
         // ── Address (optional) ────────────────
@@ -77,8 +109,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (address) {
                 addressEl.textContent = address;
                 addressEl.style.display = '';
+                console.log('Set address:', address);
             }
         }
+
+        console.log('=== PROFILE POPULATION COMPLETE ===');
     }
 
     /* ─────────────────────────────────────────
@@ -145,9 +180,12 @@ document.addEventListener("DOMContentLoaded", function () {
        4. Persist collapse state in localStorage
     ───────────────────────────────────────── */
     function initCollapseState() {
+        // Get current user ID to namespace the storage keys
+        const userId = localStorage.getItem('user_id') || 'default';
+        
         document.querySelectorAll('.collapse').forEach(collapse => {
             const collapseId  = collapse.id;
-            const storageKey  = `sidebar_${collapseId}`;
+            const storageKey  = `sidebar_${collapseId}_${userId}`;
             const savedState  = localStorage.getItem(storageKey);
 
             if (savedState === 'show') {
@@ -221,6 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ─────────────────────────────────────────
        Init — order matters
     ───────────────────────────────────────── */
+    console.log('Sidebar initialization starting...');
     populateProfile();       // 1. Show name + avatar first
     filterMenuByRole();      // 2. Hide items user can't access
     highlightActiveLink();   // 3. Mark current page
@@ -228,6 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initArrowAnimation();    // 5. Sync arrow icons
     initHoverEffects();      // 6. Hover animations
     initButtonHandlers();    // 7. Click handlers
+    console.log('Sidebar initialization complete!');
 
     // Smooth scroll
     const sidebarMenu = document.querySelector('.sidebar-menu');

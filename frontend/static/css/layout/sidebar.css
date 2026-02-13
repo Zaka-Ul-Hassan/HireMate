@@ -31,6 +31,9 @@
 
 .side-inner {
     padding: 2rem 0;
+    min-height: calc(100vh - 4rem); /* Prevent layout collapse when menu items are hidden */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Profile Section */
@@ -39,6 +42,7 @@
     padding: 0 1.5rem 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 1.5rem;
+    flex-shrink: 0; /* Prevent profile section from shrinking */
 }
 
 .profile img {
@@ -96,6 +100,8 @@
 /* Navigation Menu */
 .nav-menu {
     padding: 0 0.5rem;
+    flex: 1; /* Take remaining space */
+    min-height: 300px; /* Minimum height to prevent collapse */
 }
 
 .sidebar-menu {
@@ -235,6 +241,10 @@
         height: auto;
     }
     
+    .side-inner {
+        min-height: auto;
+    }
+    
     .profile img,
     .avatar-placeholder {
         width: 70px;
@@ -247,6 +257,10 @@
     
     .profile .name {
         font-size: 1rem;
+    }
+    
+    .nav-menu {
+        min-height: auto;
     }
 }
 

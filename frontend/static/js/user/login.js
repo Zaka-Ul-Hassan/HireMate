@@ -15,17 +15,43 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
         if (xhr.status === 200) {
             try {
                 const response = JSON.parse(xhr.responseText);
+                console.log('Login response:', response);
 
                 if (response.status && response.data) {
+                    // Clear any old user data first
+                    const oldUserId = localStorage.getItem('user_id');
+                    if (oldUserId && oldUserId !== String(response.data.Id)) {
+                        // New user logging in - clear all old data
+                        console.log('Different user detected, clearing old data...');
+                        clearUserSpecificData(oldUserId);
+                    }
+                    
                     // Store user data
+                    console.log('Storing user data in localStorage...');
                     localStorage.setItem('user_data', JSON.stringify(response.data));
                     localStorage.setItem('user_id', response.data.Id);
                     localStorage.setItem('user_email', response.data.Email);
-                    localStorage.setItem('user_name', response.data.Name);
+                    
+                    // Store name - ensure it's stored correctly
+                    const fullName = response.data.Name || '';
+                    localStorage.setItem('user_name', fullName);
+                    
+                    // Store roles
                     localStorage.setItem('user_roles', JSON.stringify(response.data.Roles));
 
                     // Set token and expiry (60 minutes)
                     setAccessToken(response.data.AccessToken, 60);
+
+                    // Debug logging
+                    console.log('=== LOGIN DATA STORED ===');
+                    console.log('User ID:', response.data.Id);
+                    console.log('User Name:', fullName);
+                    console.log('User Email:', response.data.Email);
+                    console.log('User Roles:', response.data.Roles);
+                    console.log('Full user data:', response.data);
+                    console.log('localStorage user_data:', localStorage.getItem('user_data'));
+                    console.log('localStorage user_name:', localStorage.getItem('user_name'));
+                    console.log('=========================');
 
                     // Show success message
                     Swal.fire({
@@ -92,3 +118,19 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
         Password: password
     }));
 });
+
+// Function to clear user-specific data when switching users
+function clearUserSpecificData(userId) {
+    console.log('Clearing data for old user:', userId);
+    
+    // Clear chat history
+    localStorage.removeItem(`candidate_chat_history_${userId}`);
+    localStorage.removeItem(`candidate_chat_session_id_${userId}`);
+    
+    // Clear sidebar collapse states
+    ['userMenu', 'resumeMenu', 'emailMenu'].forEach(menuId => {
+        localStorage.removeItem(`sidebar_${menuId}_${userId}`);
+    });
+    
+    console.log('Old user data cleared');
+}

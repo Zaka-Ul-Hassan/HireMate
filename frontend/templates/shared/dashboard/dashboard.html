@@ -3,13 +3,12 @@
 {% block title %}Dashboard | Job Finder{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', path='css/dashboard/dashboard.css') }}">
+<link rel="stylesheet" href="/static/css/dashboard/dashboard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
-{% include 'shared/sidebar.html' %}
 
 <main id="main" class="container-fluid px-4 py-4">
 
