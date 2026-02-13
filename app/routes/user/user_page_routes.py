@@ -3,6 +3,7 @@
 from io import BytesIO
 import os
 from fastapi import APIRouter, Form, HTTPException, Request, Depends
+from fastapi.params import Query
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 import pdfkit
@@ -141,8 +142,8 @@ def reset_request_sent(request: Request, email: str):
         "hide_sidebar": True
     })
 
-@router.get("/reset-password", response_class=HTMLResponse)
-def reset_password_form(request: Request, token: str):
+@router.get("/user/reset-password", response_class=HTMLResponse)
+def reset_password_form(request: Request, token: str = Query(...)):
     return templates.TemplateResponse(
         "user/reset_password.html",
         {
