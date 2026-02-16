@@ -277,12 +277,22 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        // Inbox link
+        // Sent Emails link
+        const sentEmailLink = document.querySelector('a[href="/email/sent"]');
+        if (sentEmailLink) {
+            sentEmailLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Sent Emails clicked, navigating...');
+                window.location.href = '/email/sent';
+            });
+        }
+
+        // Inbox/Replied Emails link
         const inboxLink = document.querySelector('a[href="/email/inbox"]');
         if (inboxLink) {
             inboxLink.addEventListener('click', function (e) {
                 e.preventDefault();
-                console.log('Inbox clicked, navigating...');
+                console.log('Replied Emails clicked, navigating...');
                 window.location.href = '/email/inbox';
             });
         }

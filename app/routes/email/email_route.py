@@ -66,4 +66,7 @@ def generate_email_content(
     current_user = Depends(auth_service.get_current_user),
     db: Session = Depends(get_db)
 ):
+    if not current_user.status or not current_user.data:
+        return ResponseSchema(status=False, message="Unauthorized access")
+    
     return email_service.generate_email_content(db, current_user, email)

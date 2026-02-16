@@ -1,0 +1,146 @@
+<!-- frontend\templates\email\sent_email.html -->
+{% extends "shared/base.html" %}
+
+{% block title %}Sent Emails{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/email/sent_email.css">
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="sent-email-container">
+    <!-- Header -->
+    <div class="sent-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-send-check-fill"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Sent Emails</h1>
+                <p class="page-subtitle">View and manage your sent emails</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-refresh" id="refreshBtn">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Refresh</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input 
+                type="text" 
+                class="form-control search-input" 
+                id="searchInput"
+                placeholder="Search by recipient, subject, or content..."
+                autocomplete="off">
+            <button class="btn-clear-search" id="clearSearchBtn" style="display: none;">
+                <i class="bi bi-x-circle-fill"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <i class="bi bi-envelope-fill"></i>
+            <span id="totalCount">0</span> total emails
+        </div>
+        <div class="stat-item">
+            <i class="bi bi-eye-fill"></i>
+            <span id="displayCount">0</span> showing
+        </div>
+        <div class="stat-item">
+            <i class="bi bi-funnel-fill"></i>
+            <span id="filterStatus">No filters applied</span>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading emails...</p>
+    </div>
+
+    <!-- Email List -->
+    <div class="email-list" id="emailList">
+        <!-- Emails will be dynamically inserted here -->
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" id="noResults" style="display: none;">
+        <div class="empty-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <h3>No Emails Found</h3>
+        <p>Try adjusting your search or send your first email</p>
+        <button class="btn btn-primary" onclick="window.location.href='/email/compose-email'">
+            <i class="bi bi-plus-lg"></i> Compose Email
+        </button>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info">
+            Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalEmails">0</span> emails
+        </div>
+        <div class="pagination-controls">
+            <button class="btn btn-pagination" id="firstPageBtn" disabled>
+                <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="btn btn-pagination" id="prevPageBtn" disabled>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="page-numbers" id="pageNumbers"></span>
+            <button class="btn btn-pagination" id="nextPageBtn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="btn btn-pagination" id="lastPageBtn">
+                <i class="bi bi-chevron-double-right"></i>
+            </button>
+        </div>
+        <div class="page-size-selector">
+            <label for="pageSizeSelect">Show:</label>
+            <select id="pageSizeSelect" class="form-select">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Email Detail Modal -->
+<div class="modal fade" id="emailDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Email Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="emailDetailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="/static/js/email/sent_email.js"></script>
+{% endblock %}

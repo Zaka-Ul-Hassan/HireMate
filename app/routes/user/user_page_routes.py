@@ -258,13 +258,41 @@ async def compose_email_page(
     )
 
 
+@router.get("/email/sent", response_class=HTMLResponse)
+async def sent_email_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Sent Emails Page - View sent emails with pagination and search
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "email/sent_email.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
+
 @router.get("/email/inbox", response_class=HTMLResponse)
 async def inbox_page(
     request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    Email Inbox Page - View received emails
+    Email Inbox Page - View received/replied emails
     Authentication checked client-side
     """
     minimal_user = {
