@@ -1,8 +1,10 @@
 # app/services/email/email_service.py
 
+from datetime import datetime
 import smtplib
 import re
 import uuid
+from app.models.email.email_settings import EmailSettings
 from app.models.user.user import User
 from typing import List
 from email.mime.text import MIMEText
@@ -21,47 +23,99 @@ from app.schemas.response_schema import ResponseSchema
 from app.services.ai.cohere_chat_service import cohere_chat
 from app.services.email import email_settings_service
 from app.services.resume.resume_crud_service import get_resume_by_email
+from app.utils.security import decrypt
 from load_env import SMTP_SERVER, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD
 
 
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
-def send_email(to_email: List[str], subject: str, body: str):
-    # Validation — let ValueError pass up to the route
-    if not to_email:
-        raise ValueError("Recipient email list is empty.")
+# Send Email Using Client Email Settings
+def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
+    # Validate recipients
+    if not payload.Recipient:
+        return ResponseSchema(status=False, message="Recipient email list is empty")
 
-    invalid_emails = [email for email in to_email if not re.match(EMAIL_REGEX, email)]
+    invalid_emails = [email for email in payload.Recipient if not re.match(EMAIL_REGEX, email)]
     if invalid_emails:
-        raise ValueError(f"Invalid email(s): {', '.join(invalid_emails)}")
+        return ResponseSchema(status=False, message=f"Invalid email(s): {', '.join(invalid_emails)}")
 
-    if not subject.strip():
-        raise ValueError("Email subject cannot be empty.")
+    if not payload.Subject.strip():
+        return ResponseSchema(status=False, message="Email subject cannot be empty")
 
-    if not body.strip():
-        raise ValueError("Email body cannot be empty.")
+    if not payload.Body.strip():
+        return ResponseSchema(status=False, message="Email body cannot be empty")
+
+    # Fetch user
+    user = db.query(User).filter(User.Id == payload.UserId).first()
+    if not user:
+        return ResponseSchema(status=False, message="User not found")
+
+    # Fetch user's email settings
+    settings = db.query(EmailSettings).filter(
+        EmailSettings.UserId == payload.UserId,
+        EmailSettings.IsDeleted == False
+    ).first()
+    if not settings:
+        return ResponseSchema(status=False, message="Email settings not found for this user")
+
+    # Decrypt password
+    smtp_email = settings.EmailAddress
+    smtp_password = decrypt(settings.Password)
+    smtp_server = settings.SmtpServer
+    smtp_port = settings.SmtpPort
 
     try:
         # Compose message
         message = MIMEMultipart()
-        message['From'] = SMTP_EMAIL
-        message['To'] = ", ".join(to_email)
-        message['Subject'] = subject
-        message.attach(MIMEText(body, "plain"))
+        message['From'] = smtp_email
+        message['To'] = ", ".join(payload.Recipient)
+        message['Subject'] = payload.Subject
+        message.attach(MIMEText(payload.Body, "html"))
 
-        # Connect and send
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        # Send email
+        server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.sendmail(SMTP_EMAIL, to_email, message.as_string())
+        server.login(smtp_email, smtp_password)
+        server.sendmail(smtp_email, payload.Recipient, message.as_string())
         server.quit()
 
-        return {"message": "Email sent successfully"}
-    
-    except Exception as e:
-        # Let ValueErrors bubble up, only catch actual runtime errors here
-        raise Exception(f"Failed to send email: {str(e)}")
+        # Generate ThreadId and MessageId
+        thread_id = str(uuid.uuid4())
+        message_id = str(uuid.uuid4())
 
+        # Save sent email in DB
+        sent_email = SentEmail(
+            FromEmail=smtp_email,
+            ToEmail=", ".join(payload.Recipient),
+            Subject=payload.Subject,
+            Body=payload.Body,
+            MessageId=message_id,
+            ParentMessageId=payload.ParentMessageId,
+            ThreadId=thread_id,
+            Status="Sent",
+            SentAt=datetime.utcnow(),
+            UserId=payload.UserId
+        )
+        db.add(sent_email)
+        db.commit()
+        db.refresh(sent_email)
+
+        return ResponseSchema(
+            status=True,
+            message="Email sent and saved successfully",
+            data={
+                "Id": sent_email.Id,
+                "ThreadId": sent_email.ThreadId,
+                "ToEmail": sent_email.ToEmail,
+                "Subject": sent_email.Subject,
+                "SentAt": sent_email.SentAt
+            }
+        )
+
+    except Exception as e:
+        return ResponseSchema(status=False, message=f"Failed to send email: {str(e)}")
+    
+# All Emails
 def fetch_all_emails():
     messages = []
 
@@ -119,52 +173,89 @@ def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
 
 # Send Email using Client's Email Settings
 def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
-    settings = email_settings_service.get_email_settings_by_user_id(
-        db, payload.UserId
-    )
-    if not settings.status or not settings.data:
-        return ResponseSchema(status=False, message="Email settings not found")
+    # Validate recipients
+    if not payload.Recipient:
+        return ResponseSchema(status=False, message="Recipient email list is empty")
 
-    email = settings.data.EmailAddress
-    smtp_server = settings.data.SmtpServer
-    smtp_password = settings.data.Password
-    smtp_port = settings.data.SmtpPort
+    invalid_emails = [email for email in payload.Recipient if not re.match(EMAIL_REGEX, email)]
+    if invalid_emails:
+        return ResponseSchema(status=False, message=f"Invalid email(s): {', '.join(invalid_emails)}")
 
-    message_id = f"<{uuid.uuid4()}@hiremate>"
+    if not payload.Subject.strip():
+        return ResponseSchema(status=False, message="Email subject cannot be empty")
 
-    recipients = (
-        [payload.Recipient]
-        if isinstance(payload.Recipient, str)
-        else payload.Recipient
-    )
+    if not payload.Body.strip():
+        return ResponseSchema(status=False, message="Email body cannot be empty")
 
-    message = MIMEMultipart()
-    message["From"] = email
-    message["To"] = ", ".join(recipients)
-    message["Subject"] = payload.Subject
-    message["Message-ID"] = message_id
+    # Fetch user
+    user = db.query(User).filter(User.Id == payload.UserId).first()
+    if not user:
+        return ResponseSchema(status=False, message="User not found")
 
-    if payload.ParentMessageId:
-        message["In-Reply-To"] = payload.ParentMessageId
-        message["References"] = payload.ParentMessageId
+    # Fetch user's email settings
+    settings = db.query(EmailSettings).filter(
+        EmailSettings.UserId == payload.UserId,
+        EmailSettings.IsDeleted == False
+    ).first()
+    if not settings:
+        return ResponseSchema(status=False, message="Email settings not found for this user")
 
-    message.attach(MIMEText(payload.Body, "html"))
+    # Decrypt password
+    smtp_email = settings.EmailAddress
+    smtp_password = decrypt(settings.Password)
+    smtp_server = settings.SmtpServer
+    smtp_port = settings.SmtpPort
 
     try:
+        # Compose message
+        message = MIMEMultipart()
+        message['From'] = smtp_email
+        message['To'] = ", ".join(payload.Recipient)
+        message['Subject'] = payload.Subject
+        message.attach(MIMEText(payload.Body, "plain"))
+
+        # Send email
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
-        server.login(email, smtp_password)
-        server.sendmail(email, recipients, message.as_string())
+        server.login(smtp_email, smtp_password)
+        server.sendmail(smtp_email, payload.Recipient, message.as_string())
         server.quit()
+
+        # Generate ThreadId and MessageId
+        thread_id = str(uuid.uuid4())
+        message_id = str(uuid.uuid4())
+
+        # Save sent email in DB
+        sent_email = SentEmail(
+            FromEmail=smtp_email,
+            ToEmail=", ".join(payload.Recipient),
+            Subject=payload.Subject,
+            Body=payload.Body,
+            MessageId=message_id,
+            ParentMessageId=payload.ParentMessageId,
+            ThreadId=thread_id,
+            Status="Sent",
+            SentAt=datetime.utcnow(),
+            UserId=payload.UserId
+        )
+        db.add(sent_email)
+        db.commit()
+        db.refresh(sent_email)
 
         return ResponseSchema(
             status=True,
-            message="Email sent successfully",
-            data={"message_id": message_id},
+            message="Email sent and saved successfully",
+            data={
+                "Id": sent_email.Id,
+                "ThreadId": sent_email.ThreadId,
+                "ToEmail": sent_email.ToEmail,
+                "Subject": sent_email.Subject,
+                "SentAt": sent_email.SentAt
+            }
         )
 
-    except Exception as ex:
-        return ResponseSchema(status=False, message=str(ex))
+    except Exception as e:
+        return ResponseSchema(status=False, message=f"Failed to send email: {str(e)}")
     
 # Save Emails
 def save_email(db: Session, payload: SaveSentEmailSchema) -> ResponseSchema:
