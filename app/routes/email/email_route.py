@@ -21,6 +21,7 @@ payload: SendSystemEmailSchema
 ):
     return email_service.send_system_email(payload)
 
+
 # Send Email
 @router.post("/client", response_model=ResponseSchema)
 def send_email(
@@ -49,6 +50,7 @@ def save_fetch_emails(
 
     return email_service.save_fetch_replied_emails(db,user_id)
 
+
 # Fetch Replied Emails with Sent Email From DB
 @router.get("/get/replied-emails", response_model=ResponseSchema)
 def fetch_replied_emails(
@@ -58,6 +60,7 @@ def fetch_replied_emails(
 ):
 
     return email_service.get_replied_emails_with_sent(db, user_id, pagination)
+
 
 # Genetate Email Content using AI
 @router.post("/generate-content", response_model=ResponseSchema)
