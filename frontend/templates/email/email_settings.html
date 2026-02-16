@@ -51,10 +51,10 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button id="testEmailBtn" class="btn btn-success">
+                    <a id="testEmailBtn" class="btn btn-success" href="/email/compose-email">
                         <i class="bi bi-send-check"></i>
                         <span>Test Email</span>
-                    </button>
+                    </a>
                     <button id="updateSettingsBtn" class="btn btn-secondary">
                         <i class="bi bi-pencil"></i>
                         <span>Update</span>
@@ -140,16 +140,11 @@
                 <!-- Email Configuration -->
                 <div class="form-section">
                     <h3>Email Configuration</h3>
-                    
+
                     <div class="form-group">
                         <label for="emailAddress">Email Address <span class="text-danger">*</span></label>
-                        <input 
-                            type="email" 
-                            id="emailAddress" 
-                            name="EmailAddress" 
-                            class="form-control" 
-                            placeholder="your-email@gmail.com"
-                            autocomplete="email">
+                        <input type="email" id="emailAddress" name="EmailAddress" class="form-control"
+                            placeholder="your-email@gmail.com" autocomplete="email">
                         <div class="invalid-feedback">A valid email address is required.</div>
                     </div>
 
@@ -159,20 +154,15 @@
                             <span class="label-info">(Not your Gmail password)</span>
                         </label>
                         <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="Password" 
-                                class="form-control" 
-                                placeholder="16-character app password"
-                                autocomplete="new-password">
+                            <input type="password" id="password" name="Password" class="form-control"
+                                placeholder="16-character app password" autocomplete="new-password">
                             <button type="button" class="toggle-password" id="togglePassword">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                         <div class="invalid-feedback">App password is required.</div>
                         <small class="form-text text-muted">
-                            <i class="bi bi-info-circle"></i> 
+                            <i class="bi bi-info-circle"></i>
                             Use a Gmail App Password, not your regular password
                         </small>
                     </div>
@@ -186,23 +176,13 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="smtpServer">SMTP Server</label>
-                            <input 
-                                type="text" 
-                                id="smtpServer" 
-                                name="SmtpServer" 
-                                class="form-control" 
-                                value="smtp.gmail.com"
-                                readonly>
+                            <input type="text" id="smtpServer" name="SmtpServer" class="form-control"
+                                value="smtp.gmail.com" readonly>
                         </div>
 
                         <div class="form-group">
                             <label for="smtpPort">SMTP Port</label>
-                            <input 
-                                type="number" 
-                                id="smtpPort" 
-                                name="SmtpPort" 
-                                class="form-control" 
-                                value="587"
+                            <input type="number" id="smtpPort" name="SmtpPort" class="form-control" value="587"
                                 readonly>
                         </div>
                     </div>
@@ -210,7 +190,7 @@
                     <div class="alert-info">
                         <i class="bi bi-info-circle"></i>
                         <div>
-                            <strong>Note:</strong> This system is configured for Gmail. 
+                            <strong>Note:</strong> This system is configured for Gmail.
                             Port 587 uses STARTTLS encryption for secure email transmission.
                         </div>
                     </div>
