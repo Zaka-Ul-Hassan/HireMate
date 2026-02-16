@@ -6,7 +6,7 @@ let filteredResumes = [];
 const API_BASE_URL = 'http://127.0.0.1:8000/api/resumes';
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeResumeList();
     attachEventListeners();
     setupDelegatedEventListeners();
@@ -17,22 +17,22 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize resume list
 function initializeResumeList() {
     console.log('Resume List initialized');
-    
+
     // Get all resume cards from the page
     const cards = document.querySelectorAll('.resume-card');
     allResumes = Array.from(cards);
     filteredResumes = [...allResumes];
-    
+
     updateStats();
 }
 
 // Setup delegated event listeners for dynamically created buttons
 function setupDelegatedEventListeners() {
     const resumeGrid = document.getElementById('resumeGrid');
-    
+
     if (resumeGrid) {
         // View resume buttons
-        resumeGrid.addEventListener('click', function(e) {
+        resumeGrid.addEventListener('click', function (e) {
             const viewBtn = e.target.closest('.btn-view-resume');
             if (viewBtn) {
                 const resumeId = viewBtn.getAttribute('data-resume-id');
@@ -40,7 +40,7 @@ function setupDelegatedEventListeners() {
                     viewResume(parseInt(resumeId));
                 }
             }
-            
+
             // Download resume buttons
             const downloadBtn = e.target.closest('.btn-download-resume');
             if (downloadBtn) {
@@ -59,7 +59,7 @@ function attachEventListeners() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(handleSearch, 300));
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 handleSearch();
             }
@@ -105,7 +105,7 @@ function attachEventListeners() {
 async function loadResumesFromAPI(searchQuery = '') {
     const loadingIndicator = document.getElementById('loadingIndicator');
     const resumeGrid = document.getElementById('resumeGrid');
-    
+
     try {
         // Show loading
         if (loadingIndicator) loadingIndicator.style.display = 'block';
@@ -141,7 +141,7 @@ async function loadResumesFromAPI(searchQuery = '') {
         if (result.status && result.data && result.data.length > 0) {
             renderResumes(result.data);
             updateStats(result.data.length, result.data.length);
-            
+
             showToast('success', `${result.data.length} resume(s) loaded successfully`);
         } else {
             showNoResults();
@@ -151,11 +151,11 @@ async function loadResumesFromAPI(searchQuery = '') {
 
     } catch (error) {
         console.error('Error loading resumes:', error);
-        
+
         // Hide loading
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         if (resumeGrid) resumeGrid.style.display = 'grid';
-        
+
         showToast('error', 'Failed to load resumes from API: ' + error.message);
     }
 }
@@ -184,6 +184,15 @@ function renderResumes(resumes) {
     filteredResumes = [...allResumes];
 }
 
+// Utility function to normalize URLs
+function normalizeUrl(url) {
+    if (!url) return '';
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return 'https://' + url;
+    }
+    return url;
+}
+
 // Create a resume card element
 function createResumeCard(resume) {
     const card = document.createElement('div');
@@ -210,14 +219,10 @@ function createResumeCard(resume) {
     // Skills
     let skillsHTML = '';
     if (resume.Skills) {
-        const skillsList = resume.Skills.split(',').slice(0, 6);
-        const skillTags = skillsList.map(skill => 
+        const skillsList = resume.Skills.split(',');
+        const skillTags = skillsList.map(skill =>
             `<span class="skill-tag">${skill.trim()}</span>`
         ).join('');
-        
-        const remainingSkills = resume.Skills.split(',').length - 6;
-        const moreSkillsTag = remainingSkills > 0 ? 
-            `<span class="skill-tag more-skills">+${remainingSkills} more</span>` : '';
 
         skillsHTML = `
             <div class="skills-section">
@@ -226,7 +231,6 @@ function createResumeCard(resume) {
                 </div>
                 <div class="skills-tags">
                     ${skillTags}
-                    ${moreSkillsTag}
                 </div>
             </div>
         `;
@@ -235,14 +239,12 @@ function createResumeCard(resume) {
     // Summary
     let summaryHTML = '';
     if (resume.Summary) {
-        const shortSummary = resume.Summary.length > 150 ? 
-            resume.Summary.substring(0, 150) + '...' : resume.Summary;
         summaryHTML = `
             <div class="card-summary">
                 <div class="section-title">
                     <i class="bi bi-file-text"></i> Professional Summary
                 </div>
-                <p class="summary-text">${shortSummary}</p>
+                <p class="summary-text">${resume.Summary}</p>
             </div>
         `;
     }
@@ -250,21 +252,122 @@ function createResumeCard(resume) {
     // Objective
     let objectiveHTML = '';
     if (resume.Objective) {
-        const shortObjective = resume.Objective.length > 150 ? 
-            resume.Objective.substring(0, 150) + '...' : resume.Objective;
         objectiveHTML = `
             <div class="card-summary">
                 <div class="section-title">
                     <i class="bi bi-bullseye"></i> Objective
                 </div>
-                <p class="summary-text">${shortObjective}</p>
+                <p class="summary-text">${resume.Objective}</p>
+            </div>
+        `;
+    }
+
+    // Experience
+    let experienceHTML = '';
+    if (resume.ExperienceDescription || resume.TotalExperience) {
+        experienceHTML = `
+            <div class="experience-section">
+                <div class="section-title">
+                    <i class="bi bi-briefcase-fill"></i> Experience
+                </div>
+                ${resume.TotalExperience ? `<p class="info-line"><strong>Total Experience:</strong> ${resume.TotalExperience}</p>` : ''}
+                ${resume.ExperienceTitle ? `<p class="info-line"><strong>Title:</strong> ${resume.ExperienceTitle}</p>` : ''}
+                ${resume.ExperienceCompany ? `<p class="info-line"><strong>Company:</strong> ${resume.ExperienceCompany}</p>` : ''}
+                ${resume.ExperienceDuration ? `<p class="info-line"><strong>Duration:</strong> ${resume.ExperienceDuration}</p>` : ''}
+                ${resume.ExperienceDescription ? `<p class="description-text">${resume.ExperienceDescription}</p>` : ''}
+            </div>
+        `;
+    }
+
+    // Education
+    let educationHTML = '';
+    if (resume.Education1 || resume.Education2 || resume.Education3) {
+        educationHTML = `
+            <div class="education-section">
+                <div class="section-title">
+                    <i class="bi bi-mortarboard-fill"></i> Education
+                </div>
+                ${resume.Education1 ? `<p class="education-item">• ${resume.Education1}</p>` : ''}
+                ${resume.Education2 ? `<p class="education-item">• ${resume.Education2}</p>` : ''}
+                ${resume.Education3 ? `<p class="education-item">• ${resume.Education3}</p>` : ''}
+            </div>
+        `;
+    }
+
+    // Projects
+    let projectsHTML = '';
+    if (resume.Project1 || resume.Project2) {
+        projectsHTML = `
+            <div class="projects-section">
+                <div class="section-title">
+                    <i class="bi bi-kanban-fill"></i> Projects
+                </div>
+                ${resume.Project1 ? `<p class="project-item">• ${resume.Project1}</p>` : ''}
+                ${resume.Project2 ? `<p class="project-item">• ${resume.Project2}</p>` : ''}
+            </div>
+        `;
+    }
+
+    // Personal Info
+    let personalInfoHTML = '';
+    if (resume.DateOfBirth || resume.Gender || resume.Nationality) {
+        personalInfoHTML = `
+            <div class="info-section">
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i> Personal Information
+                </div>
+                <div class="info-grid">
+                    ${resume.DateOfBirth ? `
+                        <div class="info-item">
+                            <i class="bi bi-calendar-event"></i>
+                            <span><strong>DOB:</strong> ${resume.DateOfBirth}</span>
+                        </div>
+                    ` : ''}
+                    ${resume.Gender ? `
+                        <div class="info-item">
+                            <i class="bi bi-person"></i>
+                            <span><strong>Gender:</strong> ${resume.Gender}</span>
+                        </div>
+                    ` : ''}
+                    ${resume.Nationality ? `
+                        <div class="info-item">
+                            <i class="bi bi-flag"></i>
+                            <span><strong>Nationality:</strong> ${resume.Nationality}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // Languages & Certifications
+    let additionalInfoHTML = '';
+    if (resume.Languages || resume.Certifications) {
+        additionalInfoHTML = `
+            <div class="additional-info">
+                ${resume.Languages ? `
+                    <div class="info-block">
+                        <div class="section-title">
+                            <i class="bi bi-translate"></i> Languages
+                        </div>
+                        <p>${resume.Languages}</p>
+                    </div>
+                ` : ''}
+                ${resume.Certifications ? `
+                    <div class="info-block">
+                        <div class="section-title">
+                            <i class="bi bi-award-fill"></i> Certifications
+                        </div>
+                        <p>${resume.Certifications}</p>
+                    </div>
+                ` : ''}
             </div>
         `;
     }
 
     // Format date
-    const createdDate = resume.CreatedAt ? 
-        new Date(resume.CreatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 
+    const createdDate = resume.CreatedAt ?
+        new Date(resume.CreatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) :
         'N/A';
 
     card.innerHTML = `
@@ -289,6 +392,11 @@ function createResumeCard(resume) {
         ${summaryHTML}
         ${objectiveHTML}
         ${skillsHTML}
+        ${experienceHTML}
+        ${educationHTML}
+        ${projectsHTML}
+        ${personalInfoHTML}
+        ${additionalInfoHTML}
 
         <div class="contact-section">
             <div class="section-title">
@@ -308,13 +416,13 @@ function createResumeCard(resume) {
                 ${resume.LinkedIn ? `
                     <div class="contact-item">
                         <i class="bi bi-linkedin"></i>
-                        <a href="${resume.LinkedIn}" target="_blank" class="contact-link">LinkedIn Profile</a>
+                        <a href="${normalizeUrl(resume.LinkedIn)}" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn Profile</a>
                     </div>
                 ` : ''}
                 ${resume.GitHub ? `
                     <div class="contact-item">
                         <i class="bi bi-github"></i>
-                        <a href="${resume.GitHub}" target="_blank" class="contact-link">GitHub Profile</a>
+                        <a href="${normalizeUrl(resume.GitHub)}" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub Profile</a>
                     </div>
                 ` : ''}
             </div>
@@ -369,13 +477,13 @@ function clearSearch() {
 // Apply filters (experience, etc.)
 function applyFilters() {
     const experienceFilter = document.getElementById('experienceFilter').value;
-    
+
     filteredResumes = allResumes.filter(card => {
         // Experience filter
         if (experienceFilter) {
             const experience = card.getAttribute('data-experience') || '';
             const years = parseExperience(experience);
-            
+
             if (!matchesExperienceRange(years, experienceFilter)) {
                 return false;
             }
@@ -391,14 +499,14 @@ function applyFilters() {
 // Parse experience string to years
 function parseExperience(expString) {
     if (!expString) return 0;
-    
+
     const match = expString.match(/(\d+)\s*year/i);
     return match ? parseInt(match[1]) : 0;
 }
 
 // Check if years match experience range
 function matchesExperienceRange(years, range) {
-    switch(range) {
+    switch (range) {
         case '0-2':
             return years >= 0 && years <= 2;
         case '2-5':
@@ -416,7 +524,7 @@ function matchesExperienceRange(years, range) {
 function handleSort() {
     const sortValue = document.getElementById('sortFilter').value;
 
-    switch(sortValue) {
+    switch (sortValue) {
         case 'newest':
             filteredResumes.sort((a, b) => {
                 const dateA = new Date(a.getAttribute('data-created'));
@@ -498,7 +606,7 @@ function updateStats(total = null, display = null) {
     // Update filter status
     const searchInput = document.getElementById('searchInput');
     const experienceFilter = document.getElementById('experienceFilter');
-    
+
     let filters = [];
     if (searchInput && searchInput.value) {
         filters.push('Search active');
@@ -574,7 +682,7 @@ async function viewResume(resumeId) {
 // Display resume in modal
 function displayResumeModal(resume) {
     const modalContent = document.getElementById('resumeDetailContent');
-    
+
     if (!modalContent) return;
 
     // Build detailed HTML
@@ -582,10 +690,10 @@ function displayResumeModal(resume) {
         <div class="resume-detail-view">
             <div class="row">
                 <div class="col-md-4 text-center mb-4">
-                    ${resume.ProfileImage ? 
-                        `<img src="/${resume.ProfileImage.replace(/\\/g, '/')}" class="img-fluid rounded mb-3" style="max-width: 200px;">` :
-                        `<div class="profile-placeholder mx-auto mb-3" style="width: 150px; height: 150px; font-size: 60px;">${resume.FullName.charAt(0)}</div>`
-                    }
+                    ${resume.ProfileImage ?
+            `<img src="/${resume.ProfileImage.replace(/\\/g, '/')}" class="img-fluid rounded mb-3" style="max-width: 200px;">` :
+            `<div class="profile-placeholder mx-auto mb-3" style="width: 150px; height: 150px; font-size: 60px;">${resume.FullName.charAt(0)}</div>`
+        }
                     <h4>${resume.FullName}</h4>
                     <p class="text-muted">${resume.DeveloperType || 'Developer'}</p>
                 </div>
@@ -594,8 +702,24 @@ function displayResumeModal(resume) {
                     <p><strong>Email:</strong> ${resume.Email}</p>
                     <p><strong>Phone:</strong> ${resume.PhoneNumber || 'N/A'}</p>
                     <p><strong>Address:</strong> ${resume.Address || resume.Country || 'N/A'}</p>
-                    ${resume.LinkedIn ? `<p><strong>LinkedIn:</strong> <a href="${resume.LinkedIn}" target="_blank">${resume.LinkedIn}</a></p>` : ''}
-                    ${resume.GitHub ? `<p><strong>GitHub:</strong> <a href="${resume.GitHub}" target="_blank">${resume.GitHub}</a></p>` : ''}
+                    ${resume.LinkedIn ? `
+                        <p><strong>LinkedIn:</strong> 
+                            <a href="${normalizeUrl(resume.LinkedIn)}" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                               LinkedIn Profile
+                            </a>
+                        </p>
+                    ` : ''}
+                    ${resume.GitHub ? `
+                        <p><strong>GitHub:</strong> 
+                            <a href="${normalizeUrl(resume.GitHub)}" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                               GitHub Profile
+                            </a>
+                        </p>
+                    ` : ''}
                 </div>
             </div>
 
@@ -681,7 +805,7 @@ function displayResumeModal(resume) {
     // Add event listener for download button in modal
     const downloadBtnModal = modalContent.querySelector('.btn-download-resume-modal');
     if (downloadBtnModal) {
-        downloadBtnModal.addEventListener('click', function() {
+        downloadBtnModal.addEventListener('click', function () {
             const resumeFile = this.getAttribute('data-resume-file');
             if (resumeFile) {
                 downloadResume(resumeFile);
