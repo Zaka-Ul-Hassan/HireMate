@@ -5,50 +5,80 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/job/list.css">
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="container py-5 mt-5">
-    <h2 class="text-center mb-5">Recommended Jobs</h2>
+<div class="job-container">
+    <div class="job-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Recommended Jobs</h1>
+                <p class="page-subtitle">
+                    <span id="jobCount">0</span> jobs matched to your profile
+                </p>
+            </div>
+        </div>
+    </div>
 
-    <!-- Placeholder for error alerts -->
-    <div id="jobAlert" class="mb-3 text-center"></div>
-
-    <!-- Template (hidden) -->
-    <div id="jobTemplate" class="card flex-row align-items-center p-3 shadow-sm rounded border-0 hover-effect"
-        style="display: none;">
-        <div class="flex-grow-1">
-            <h5 class="mb-1 job-title"></h5>
-            <p class="mb-1 text-muted company-name"></p>
-
-            <div class="d-flex flex-wrap gap-2 mb-2 tag-list"></div>
-
-            <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
-                <span class="job-location"></span><br>
-                <span class="posted-date"></span>
+    <div class="job-card">
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button class="btn btn-primary" id="refreshBtn">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Refresh Jobs</span>
+            </button>
+            <div class="job-stats">
+                <span class="stat-badge">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Multiple Locations
+                </span>
+                <span class="stat-badge">
+                    <i class="bi bi-clock-fill"></i>
+                    Updated Daily
+                </span>
             </div>
         </div>
 
-        <div class="ms-auto text-end">
-            <a class="btn btn-primary job-view-btn" target="_blank">View</a>
-            <br>
-            <a class="small d-block mt-1 text-decoration-none text-muted job-company-link" target="_blank">Company ↗</a>
+        <!-- Job List Section -->
+        <div class="job-list-section">
+            <div class="section-title">
+                <i class="bi bi-list-check"></i>
+                Available Positions
+            </div>
+            
+            <!-- Job List -->
+            <div class="job-list" id="jobContainer">
+                <!-- Jobs will be loaded here dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">
+                    <i class="bi bi-briefcase"></i>
+                </div>
+                <h3>No Jobs Found</h3>
+                <p>We couldn't find any jobs matching your profile. Check back later!</p>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Finding the best jobs for you...</p>
+            </div>
         </div>
     </div>
-
-    <!-- Jobs go here -->
-    <div id="jobContainer" class="d-flex flex-column gap-3 ms-1"></div>
-
-    <!-- Spinner -->
-    <div id="loadingSpinner" class="text-center my-5" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="/static/js/job/list.js"></script>
 {% endblock %}
