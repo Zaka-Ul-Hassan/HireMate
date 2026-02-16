@@ -17,7 +17,7 @@ class User(Base, AuditMixin):
     Address = Column(String(255), nullable=True)
     Country = Column(String(100), nullable=True)
     PhoneNumber = Column(String(20), nullable=True)
-    Email = Column(String(100), nullable=False, unique=True)
+    Email = Column(String(100), nullable=False)
     Password = Column(String(255), nullable=True)
     Image = Column(String(255), nullable=True)
 

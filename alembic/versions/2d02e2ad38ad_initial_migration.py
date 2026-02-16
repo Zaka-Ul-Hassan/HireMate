@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 0ca408e8ad57
+Revision ID: 2d02e2ad38ad
 Revises: 
-Create Date: 2026-02-10 19:03:06.917567
+Create Date: 2026-02-16 19:01:22.350091
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0ca408e8ad57'
+revision: str = '2d02e2ad38ad'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,6 +26,7 @@ def upgrade() -> None:
     sa.Column('Name', sa.String(length=100), nullable=False),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),
@@ -35,7 +36,6 @@ def upgrade() -> None:
     op.create_table('Users',
     sa.Column('Id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('FirstName', sa.String(length=100), nullable=False),
-    sa.Column('MiddleName', sa.String(length=100), nullable=True),
     sa.Column('LastName', sa.String(length=100), nullable=True),
     sa.Column('Age', sa.Integer(), nullable=True),
     sa.Column('Gender', sa.String(length=10), nullable=True),
@@ -44,16 +44,16 @@ def upgrade() -> None:
     sa.Column('Country', sa.String(length=100), nullable=True),
     sa.Column('PhoneNumber', sa.String(length=20), nullable=True),
     sa.Column('Email', sa.String(length=100), nullable=False),
-    sa.Column('Password', sa.String(length=255), nullable=False),
+    sa.Column('Password', sa.String(length=255), nullable=True),
     sa.Column('Image', sa.String(length=255), nullable=True),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),
     sa.Column('IsActive', sa.Boolean(), nullable=True),
-    sa.PrimaryKeyConstraint('Id'),
-    sa.UniqueConstraint('Email')
+    sa.PrimaryKeyConstraint('Id')
     )
     op.create_table('EmailSettings',
     sa.Column('Id', sa.Integer(), autoincrement=True, nullable=False),
@@ -64,6 +64,7 @@ def upgrade() -> None:
     sa.Column('UserId', sa.Integer(), nullable=False),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),
@@ -104,6 +105,7 @@ def upgrade() -> None:
     sa.Column('Certifications', sa.Text(), nullable=True),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),
@@ -126,6 +128,7 @@ def upgrade() -> None:
     sa.Column('UserId', sa.Integer(), nullable=False),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),
@@ -154,6 +157,7 @@ def upgrade() -> None:
     sa.Column('SentEmailId', sa.Integer(), nullable=False),
     sa.Column('CreatedAt', sa.DateTime(), nullable=True),
     sa.Column('ModifiedAt', sa.DateTime(), nullable=True),
+    sa.Column('CreatedByUserId', sa.Integer(), nullable=True),
     sa.Column('CreatedBy', sa.String(length=100), nullable=True),
     sa.Column('ModifiedBy', sa.String(length=100), nullable=True),
     sa.Column('IsDeleted', sa.Boolean(), nullable=True),

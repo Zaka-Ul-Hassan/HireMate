@@ -26,11 +26,19 @@ const roleFilter = document.getElementById('roleFilter');
 const statusFilter = document.getElementById('statusFilter');
 const applyFiltersBtn = document.getElementById('applyFiltersBtn');
 const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-const prevPageBtn = document.getElementById('prevPageBtn');
-const nextPageBtn = document.getElementById('nextPageBtn');
-const pageInfo = document.getElementById('pageInfo');
 const paginationContainer = document.getElementById('paginationContainer');
 const roleCheckboxes = document.getElementById('roleCheckboxes');
+
+// Pagination elements
+const firstPageBtn = document.getElementById('firstPageBtn');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+const lastPageBtn = document.getElementById('lastPageBtn');
+const pageNumbers = document.getElementById('pageNumbers');
+const showingFrom = document.getElementById('showingFrom');
+const showingTo = document.getElementById('showingTo');
+const totalUsers = document.getElementById('totalUsers');
+const pageSizeSelect = document.getElementById('pageSizeSelect');
 
 // ─────────────────────────────────────────
 // Toastr global config
@@ -109,8 +117,20 @@ function setupEventListeners() {
         }
     });
     
+    // Pagination
+    firstPageBtn.addEventListener('click', () => goToPage(1));
     prevPageBtn.addEventListener('click', () => changePage(-1));
     nextPageBtn.addEventListener('click', () => changePage(1));
+    lastPageBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+        goToPage(totalPages);
+    });
+    
+    pageSizeSelect.addEventListener('change', (e) => {
+        usersPerPage = parseInt(e.target.value);
+        currentPage = 1;
+        renderUsers();
+    });
 }
 
 // ─────────────────────────────────────────
@@ -286,8 +306,9 @@ function renderUsers() {
     if (usersToShow.length === 0) {
         userCardsContainer.innerHTML = `
             <div class="no-users-found">
-                <i class="bi bi-inbox"></i>
-                <p>No users found</p>
+                <i class="bi bi-person-x"></i>
+                <h3>No Users Found</h3>
+                <p>Try adjusting your search or filters</p>
             </div>
         `;
         paginationContainer.style.display = 'none';
@@ -301,11 +322,52 @@ function renderUsers() {
 
     if (totalPages > 1) {
         paginationContainer.style.display = 'flex';
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-        prevPageBtn.disabled = currentPage === 1;
-        nextPageBtn.disabled = currentPage === totalPages;
+        updatePaginationInfo(startIndex, endIndex);
+        renderPageNumbers(totalPages);
     } else {
         paginationContainer.style.display = 'none';
+    }
+}
+
+// ─────────────────────────────────────────
+// Update Pagination Info
+// ─────────────────────────────────────────
+function updatePaginationInfo(startIndex, endIndex) {
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const actualEndIndex = Math.min(endIndex, filteredUsers.length);
+    
+    showingFrom.textContent = filteredUsers.length > 0 ? startIndex + 1 : 0;
+    showingTo.textContent = actualEndIndex;
+    totalUsers.textContent = filteredUsers.length;
+    
+    // Update button states
+    firstPageBtn.disabled = currentPage === 1;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+    lastPageBtn.disabled = currentPage === totalPages;
+}
+
+// ─────────────────────────────────────────
+// Render Page Numbers
+// ─────────────────────────────────────────
+function renderPageNumbers(totalPages) {
+    pageNumbers.innerHTML = '';
+    
+    // Show max 5 page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `page-number ${i === currentPage ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => goToPage(i);
+        pageNumbers.appendChild(pageBtn);
     }
 }
 
@@ -323,7 +385,7 @@ function formatDate(dateString) {
 }
 
 // ─────────────────────────────────────────
-// Create User Card
+// Create User Card (NEW VERSION WITHOUT AVATAR)
 // ─────────────────────────────────────────
 function createUserCard(user) {
     const card = document.createElement('div');
@@ -331,101 +393,83 @@ function createUserCard(user) {
     
     card.className = 'user-card';
     
-    const initials = getInitials(user.FirstName, user.LastName);
     const statusClass = user.IsActive ? 'active' : 'inactive';
     const statusText = user.IsActive ? 'Active' : 'Inactive';
     const roles = user.Roles ? user.Roles.map(r => r.Name).join(', ') : 'No roles';
-    const avatarColor = getAvatarColor(user.FirstName);
 
     card.innerHTML = `
+        <!-- Card Header -->
         <div class="user-card-header">
-            <div class="user-avatar">
-                ${user.Image ? 
-                    `<img src="${user.Image.startsWith('/') ? user.Image : '/' + user.Image.replace(/\\/g, '/')}" alt="${user.FirstName}">` :
-                    `<div class="user-initials" style="background: ${avatarColor};">${initials}</div>`
-                }
-            </div>
             <div class="user-info">
                 <h3 class="user-name">${user.FirstName} ${user.LastName}</h3>
-                ${isSuperAdminUser ? '<div class="superadmin-badge"><i class="bi bi-shield-fill-check"></i> Super Admin</div>' : ''}
-            </div>
-            <div class="user-status-badge status-${statusClass}">${statusText}</div>
-        </div>
-        
-        <div class="user-card-body">
-            <div class="user-details">
-                <div class="detail-item">
-                    <i class="bi bi-envelope-fill"></i>
+                <div class="user-email">
+                    <i class="bi bi-envelope"></i>
                     <span>${user.Email}</span>
                 </div>
+                ${isSuperAdminUser ? '<span class="superadmin-badge"><i class="bi bi-star-fill"></i> Super Admin</span>' : ''}
+            </div>
+            <span class="user-status-badge status-${statusClass}">
+                ${statusText}
+            </span>
+        </div>
+        
+        <!-- Card Body -->
+        <div class="user-card-body">
+            <div class="user-details">
                 ${user.PhoneNumber ? `
                     <div class="detail-item">
-                        <i class="bi bi-telephone-fill"></i>
+                        <i class="bi bi-telephone"></i>
                         <span>${user.PhoneNumber}</span>
                     </div>
                 ` : ''}
+                
                 <div class="detail-item">
-                    <i class="bi bi-shield-check"></i>
+                    <i class="bi bi-briefcase"></i>
                     <span>${roles}</span>
                 </div>
+                
                 <div class="detail-item">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Joined: ${formatDate(user.CreatedAt)}</span>
+                    <i class="bi bi-calendar"></i>
+                    <span>Joined ${formatDate(user.CreatedAt)}</span>
                 </div>
+                
                 ${user.CreatedBy ? `
                     <div class="detail-item">
                         <i class="bi bi-person-badge"></i>
-                        <span>By: ${user.CreatedBy}</span>
+                        <span>Created by ${user.CreatedBy}</span>
                     </div>
                 ` : ''}
             </div>
         </div>
         
+        <!-- Card Footer with Actions -->
         ${!isSuperAdminUser ? `
-            <div class="user-card-actions">
+            <div class="user-card-footer">
                 ${!user.IsActive ? `
-                    <button class="btn btn-sm btn-info" onclick="resendConfirmation(${user.Id})" title="Resend confirmation email">
+                    <button class="btn btn-info" onclick="resendConfirmation(${user.Id})" title="Resend confirmation email">
                         <i class="bi bi-envelope-check"></i>
-                        <span>Resend</span>
+                        <span>Resend Email</span>
                     </button>
                 ` : ''}
-                <button class="btn btn-sm btn-${user.IsActive ? 'warning' : 'success'}" onclick="toggleUserStatus(${user.Id}, ${user.IsActive})" title="${user.IsActive ? 'Deactivate user' : 'Activate user'}">
+                <button class="btn btn-${user.IsActive ? 'warning' : 'success'}" onclick="toggleUserStatus(${user.Id}, ${user.IsActive})" title="${user.IsActive ? 'Deactivate user' : 'Activate user'}">
                     <i class="bi bi-${user.IsActive ? 'pause-circle' : 'play-circle'}"></i>
                     <span>${user.IsActive ? 'Deactivate' : 'Activate'}</span>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.Id})" title="Delete user permanently">
+                <button class="btn btn-danger" onclick="deleteUser(${user.Id})" title="Delete user permanently">
                     <i class="bi bi-trash"></i>
                     <span>Delete</span>
                 </button>
             </div>
-        ` : ''}
+        ` : `
+            <div class="user-card-footer">
+                <span style="color: #667eea; font-weight: 600; font-size: 0.9rem;">
+                    <i class="bi bi-shield-fill-check"></i> Protected Account
+                </span>
+            </div>
+        `}
     `;
 
     return card;
-}
-
-// ─────────────────────────────────────────
-// Get Initials
-// ─────────────────────────────────────────
-function getInitials(firstName, lastName) {
-    const first = firstName ? firstName.trim().charAt(0).toUpperCase() : '';
-    const last = lastName ? lastName.trim().charAt(0).toUpperCase() : '';
-    return (first + last) || '??';
-}
-
-// ─────────────────────────────────────────
-// Get Avatar Color
-// ─────────────────────────────────────────
-function getAvatarColor(name) {
-    const colors = [
-        '#5B8DEE', '#E57373', '#64B5F6', '#81C784',
-        '#FFB74D', '#BA68C8', '#4DB6AC', '#FF8A65',
-        '#A1887F', '#90A4AE'
-    ];
-    
-    const firstChar = name ? name.trim().charAt(0).toUpperCase() : 'A';
-    const index = firstChar.charCodeAt(0) % colors.length;
-    return colors[index];
 }
 
 // ─────────────────────────────────────────
@@ -437,6 +481,19 @@ function changePage(direction) {
     
     if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
+        renderUsers();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// ─────────────────────────────────────────
+// Go to Specific Page
+// ─────────────────────────────────────────
+function goToPage(page) {
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
         renderUsers();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
