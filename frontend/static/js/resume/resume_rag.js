@@ -67,13 +67,11 @@ function generateSessionId() {
 function initializeChat() {
     loadChatHistory();
     
-    // Send initial "hi" message if chat is empty
+    // REMOVED: No longer sending automatic "hi" message
+    // Just show welcome banner if chat is empty
     const chatHistory = getChatHistory();
     if (chatHistory.length === 0) {
-        showToast('Welcome! Let me help you find candidates.', 'success');
-        setTimeout(() => {
-            sendMessage('hi', true);
-        }, 800);
+        showToast('Welcome! Ask me anything to find the perfect candidates.', 'success');
     } else {
         updateStats();
         hideWelcomeBanner();
@@ -116,16 +114,6 @@ function setupEventListeners() {
     
     chatInput.addEventListener('blur', () => {
         chatInput.parentElement.classList.remove('input-focused');
-    });
-
-    // Voice button (placeholder)
-    document.getElementById('voiceBtn')?.addEventListener('click', () => {
-        showToast('Voice input coming soon!', 'info');
-    });
-
-    // Attach button (placeholder)
-    document.getElementById('attachBtn')?.addEventListener('click', () => {
-        showToast('File attachment coming soon!', 'info');
     });
 }
 
@@ -175,7 +163,6 @@ function loadChatHistory() {
     const history = getChatHistory();
     
     if (history.length > 0) {
-        // Clear welcome banner first
         hideWelcomeBanner();
     }
     
@@ -195,7 +182,7 @@ function hideWelcomeBanner() {
 }
 
 // Send message
-async function sendMessage(messageText = null, isInitial = false) {
+async function sendMessage(messageText = null) {
     const message = messageText || chatInput.value.trim();
     
     if (!message) {
@@ -211,12 +198,10 @@ async function sendMessage(messageText = null, isInitial = false) {
         chatInput.value = '';
     }
     
-    // Add user message to UI and storage (unless it's the initial "hi")
-    if (!isInitial) {
-        appendMessage(message, true, true);
-        messageCount++;
-        updateMessageCount();
-    }
+    // Add user message to UI and storage
+    appendMessage(message, true, true);
+    messageCount++;
+    updateMessageCount();
     
     // Show typing indicator
     showTypingIndicator(true);
@@ -241,7 +226,7 @@ async function sendMessage(messageText = null, isInitial = false) {
         
         if (data.status && data.data) {
             // Count candidates in response
-            const candidatesFound = (data.data.match(/-/g) || []).length;
+            const candidatesFound = (data.data.match(/Candidate Name:/g) || []).length;
             if (candidatesFound > 0) {
                 candidateCount += candidatesFound;
                 updateCandidateCount();
@@ -258,7 +243,6 @@ async function sendMessage(messageText = null, isInitial = false) {
             }
         } else {
             appendMessage('Sorry, I could not process your request. Please try again.', false, true);
-            // Show error message from API if available
             const errorMsg = data.message || 'Failed to process request';
             showToast(errorMsg, 'error');
         }
@@ -270,6 +254,27 @@ async function sendMessage(messageText = null, isInitial = false) {
     } finally {
         showTypingIndicator(false);
     }
+}
+
+// Extract candidate name from line
+function extractCandidateName(line) {
+    // Match "Candidate Name: John Doe"
+    const match = line.match(/Candidate Name:\s*(.+)/i);
+    return match ? match[1].trim() : null;
+}
+
+// Handle candidate name click
+function handleCandidateNameClick(candidateName) {
+    // Store the search query in sessionStorage
+    sessionStorage.setItem('resumeSearchQuery', candidateName);
+    
+    // Show toast notification
+    showToast(`Navigating to resume list for: ${candidateName}`, 'info');
+    
+    // Navigate to resume list page
+    setTimeout(() => {
+        window.location.href = '/resume/list';
+    }, 500);
 }
 
 // Append message to chat
@@ -288,29 +293,62 @@ function appendMessage(text, isUser, saveToHistory = true) {
         minute: '2-digit' 
     });
     
-    // Format bot messages (handle lists)
-    if (!isUser && text.includes('\n-')) {
+    // Format bot messages (handle candidate format)
+    if (!isUser) {
         const lines = text.split('\n');
         let formattedText = '';
         let candidatesList = [];
+        let currentCandidate = null;
+        let candidateCount = 0;
         
         lines.forEach(line => {
-            if (line.trim().startsWith('-')) {
-                const candidateName = line.trim().substring(1).trim();
+            const trimmedLine = line.trim();
+            
+            // Check if this is a candidate name line
+            const candidateName = extractCandidateName(trimmedLine);
+            
+            if (candidateName) {
+                // If we have a previous candidate, close it with divider
+                if (currentCandidate) {
+                    formattedText += `</div><div class="resume-divider"></div>`;
+                }
+                
+                candidateCount++;
                 candidatesList.push(candidateName);
+                currentCandidate = candidateName;
+                
+                // Start new candidate section
                 formattedText += `
-                    <div class="candidate-item">
-                        <i class="bi bi-person-badge"></i>
-                        <span>${candidateName}</span>
-                    </div>`;
-            } else if (line.trim()) {
+                    <div class="candidate-section">
+                        <div class="candidate-item">
+                            <i class="bi bi-person-badge"></i>
+                            <a href="#" class="candidate-name-link" data-candidate-name="${candidateName}">
+                                ${candidateName}
+                            </a>
+                        </div>`;
+            } else if (trimmedLine) {
+                // Regular line - add to current candidate or as standalone text
                 formattedText += `<div class="message-text">${line}</div>`;
             }
         });
         
+        // Close the last candidate section if exists
+        if (currentCandidate) {
+            formattedText += `</div>`;
+        }
+        
         messageContent.innerHTML = formattedText;
         
-        // Add copy button for candidates
+        // Add click handlers to candidate name links
+        messageContent.querySelectorAll('.candidate-name-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const name = this.getAttribute('data-candidate-name');
+                handleCandidateNameClick(name);
+            });
+        });
+        
+        // Add copy button for candidates if we have any
         if (candidatesList.length > 0) {
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-candidates-btn';
@@ -384,8 +422,8 @@ function updateStats() {
     // Count candidates from history
     candidateCount = 0;
     history.forEach(msg => {
-        if (!msg.isUser && msg.text.includes('\n-')) {
-            candidateCount += (msg.text.match(/-/g) || []).length;
+        if (!msg.isUser) {
+            candidateCount += (msg.text.match(/Candidate Name:/g) || []).length;
         }
     });
     
@@ -398,7 +436,7 @@ function startSessionTimer() {
     setInterval(() => {
         const minutes = Math.floor((Date.now() - sessionStartTime) / 60000);
         sessionTimeEl.textContent = minutes > 0 ? `${minutes}m` : 'Just now';
-    }, 10000); // Update every 10 seconds
+    }, 10000);
 }
 
 // Clear chat history with SweetAlert2 confirmation
@@ -420,14 +458,12 @@ function clearChat() {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Clear chat history
             localStorage.removeItem(STORAGE_KEY);
             chatMessages.innerHTML = '';
             messageCount = 0;
             candidateCount = 0;
             updateStats();
             
-            // Show success notification
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -441,15 +477,12 @@ function clearChat() {
                 }
             });
             
-            // Also show toastify notification
             showToast('Chat history cleared successfully!', 'success');
             
-            // Reload page to show welcome banner again
             setTimeout(() => {
                 location.reload();
             }, 1500);
         } else if (result.dismiss === Swal.DismissReason.cancel) {
-            // Show cancellation message
             showToast('Clear chat cancelled', 'info');
         }
     });
@@ -487,9 +520,8 @@ function exportChat() {
     showToast('Chat exported successfully!', 'success');
 }
 
-// Clear chat on logout (listen for storage changes)
+// Clear chat on logout
 window.addEventListener('storage', (e) => {
-    // If user_data or access_token is removed (logout), clear chat
     if ((e.key === 'user_data' || e.key === 'access_token') && e.newValue === null) {
         const userId = getUserId();
         localStorage.removeItem(`candidate_chat_history_${userId}`);
@@ -497,7 +529,7 @@ window.addEventListener('storage', (e) => {
     }
 });
 
-// Clear chat when user navigates away and comes back (page visibility)
+// Clear chat when user navigates away and comes back
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         checkAndClearOldSession();

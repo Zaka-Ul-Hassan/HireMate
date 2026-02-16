@@ -6,13 +6,32 @@ let filteredResumes = [];
 const API_BASE_URL = 'http://127.0.0.1:8000/api/resumes';
 const EMAIL_GENERATE_API = 'http://127.0.0.1:8000/api/email/generate-content';
 
-// Initialize on page load
+// Initialize on page load - SINGLE DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', function () {
     initializeResumeList();
     attachEventListeners();
     setupDelegatedEventListeners();
-    // Don't load from API on initial page load - use server-rendered resumes
-    // loadResumesFromAPI();
+    
+    // Check if there's a search query from the RAG page
+    const searchQuery = sessionStorage.getItem('resumeSearchQuery');
+    if (searchQuery) {
+        // Clear the session storage
+        sessionStorage.removeItem('resumeSearchQuery');
+        
+        // Set the search input
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = searchQuery;
+            
+            // Trigger search
+            setTimeout(() => {
+                handleSearch();
+                
+                // Show toast
+                showToast('success', `Showing results for: ${searchQuery}`);
+            }, 300);
+        }
+    }
 });
 
 // Initialize resume list

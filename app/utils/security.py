@@ -21,3 +21,11 @@ def encrypt(text: str) -> str:
 # decrypt text
 def decrypt(token: str) -> str:
     return cipher.decrypt(token.encode()).decode()
+
+# Normalize Message-ID / In-Reply-To for comparison
+def normalize_msgid(value):
+    if not value:
+        return None
+    if isinstance(value, tuple):
+        value = value[0]
+    return value.strip().lstrip("<").rstrip(">")

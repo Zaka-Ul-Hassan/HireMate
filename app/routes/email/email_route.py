@@ -62,6 +62,16 @@ def fetch_replied_emails(
     return email_service.get_replied_emails_with_sent(db, user_id, pagination)
 
 
+# Fetch Inbox Emails
+@router.get("/Inbox-emails")
+def fetch_inbox__emails(
+    db: Session = Depends(get_db),
+    user_id : int = Query(...)
+    ):
+
+    return email_service.fetch_inbox_emails(db,user_id)
+
+
 # Genetate Email Content using AI
 @router.post("/generate-content", response_model=ResponseSchema)
 def generate_email_content(
