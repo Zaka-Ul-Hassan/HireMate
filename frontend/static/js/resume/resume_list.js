@@ -111,11 +111,13 @@ async function loadResumesFromAPI(searchQuery = '') {
         if (loadingIndicator) loadingIndicator.style.display = 'block';
         if (resumeGrid) resumeGrid.style.display = 'none';
 
-        // Build API URL with search parameter
-        let apiUrl = `${API_BASE_URL}/resumes/`;
+        // Build API URL with search parameter - use /all endpoint
+        let apiUrl = `${API_BASE_URL}/all`;
         if (searchQuery) {
             apiUrl += `?name=${encodeURIComponent(searchQuery)}`;
         }
+
+        console.log('Fetching from:', apiUrl);
 
         // Fetch data
         const response = await fetch(apiUrl, {
@@ -130,18 +132,20 @@ async function loadResumesFromAPI(searchQuery = '') {
         }
 
         const result = await response.json();
+        console.log('API Response:', result);
 
         // Hide loading
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         if (resumeGrid) resumeGrid.style.display = 'grid';
 
-        if (result.status && result.data) {
+        if (result.status && result.data && result.data.length > 0) {
             renderResumes(result.data);
-            updateStats(result.data.length);
+            updateStats(result.data.length, result.data.length);
             
             showToast('success', `${result.data.length} resume(s) loaded successfully`);
         } else {
             showNoResults();
+            updateStats(0, 0);
             showToast('info', 'No resumes found');
         }
 
@@ -152,7 +156,7 @@ async function loadResumesFromAPI(searchQuery = '') {
         if (loadingIndicator) loadingIndicator.style.display = 'none';
         if (resumeGrid) resumeGrid.style.display = 'grid';
         
-        showToast('error', 'Failed to load resumes from API');
+        showToast('error', 'Failed to load resumes from API: ' + error.message);
     }
 }
 
@@ -217,7 +221,7 @@ function createResumeCard(resume) {
 
         skillsHTML = `
             <div class="skills-section">
-                <div class="skills-label">
+                <div class="section-title">
                     <i class="bi bi-code-square"></i> Skills
                 </div>
                 <div class="skills-tags">
@@ -235,7 +239,25 @@ function createResumeCard(resume) {
             resume.Summary.substring(0, 150) + '...' : resume.Summary;
         summaryHTML = `
             <div class="card-summary">
+                <div class="section-title">
+                    <i class="bi bi-file-text"></i> Professional Summary
+                </div>
                 <p class="summary-text">${shortSummary}</p>
+            </div>
+        `;
+    }
+
+    // Objective
+    let objectiveHTML = '';
+    if (resume.Objective) {
+        const shortObjective = resume.Objective.length > 150 ? 
+            resume.Objective.substring(0, 150) + '...' : resume.Objective;
+        objectiveHTML = `
+            <div class="card-summary">
+                <div class="section-title">
+                    <i class="bi bi-bullseye"></i> Objective
+                </div>
+                <p class="summary-text">${shortObjective}</p>
             </div>
         `;
     }
@@ -265,19 +287,37 @@ function createResumeCard(resume) {
         </div>
 
         ${summaryHTML}
+        ${objectiveHTML}
         ${skillsHTML}
 
         <div class="contact-section">
-            <div class="contact-item">
-                <i class="bi bi-envelope"></i>
-                <a href="mailto:${resume.Email}" class="contact-link">${resume.Email}</a>
+            <div class="section-title">
+                <i class="bi bi-envelope-fill"></i> Contact Information
             </div>
-            ${resume.PhoneNumber ? `
+            <div class="contact-grid">
                 <div class="contact-item">
-                    <i class="bi bi-telephone"></i>
-                    <span>${resume.PhoneNumber}</span>
+                    <i class="bi bi-envelope"></i>
+                    <a href="mailto:${resume.Email}" class="contact-link">${resume.Email}</a>
                 </div>
-            ` : ''}
+                ${resume.PhoneNumber ? `
+                    <div class="contact-item">
+                        <i class="bi bi-telephone"></i>
+                        <span>${resume.PhoneNumber}</span>
+                    </div>
+                ` : ''}
+                ${resume.LinkedIn ? `
+                    <div class="contact-item">
+                        <i class="bi bi-linkedin"></i>
+                        <a href="${resume.LinkedIn}" target="_blank" class="contact-link">LinkedIn Profile</a>
+                    </div>
+                ` : ''}
+                ${resume.GitHub ? `
+                    <div class="contact-item">
+                        <i class="bi bi-github"></i>
+                        <a href="${resume.GitHub}" target="_blank" class="contact-link">GitHub Profile</a>
+                    </div>
+                ` : ''}
+            </div>
         </div>
 
         <div class="card-footer-section">
@@ -505,8 +545,8 @@ function clearAllFilters() {
 // View resume details
 async function viewResume(resumeId) {
     try {
-        // Fetch resume details from API
-        const response = await fetch(`${API_BASE_URL}/resumes/${resumeId}`, {
+        // Fetch resume details from API - use /{id} endpoint
+        const response = await fetch(`${API_BASE_URL}/${resumeId}`, {
             method: 'GET',
             headers: {
                 'accept': 'application/json'
@@ -568,6 +608,13 @@ function displayResumeModal(resume) {
                 </div>
             ` : ''}
 
+            ${resume.Objective ? `
+                <div class="mb-4">
+                    <h5>Objective</h5>
+                    <p>${resume.Objective}</p>
+                </div>
+            ` : ''}
+
             ${resume.Skills ? `
                 <div class="mb-4">
                     <h5>Skills</h5>
@@ -577,25 +624,45 @@ function displayResumeModal(resume) {
                 </div>
             ` : ''}
 
-            ${resume.TotalExperience ? `
+            ${resume.TotalExperience || resume.ExperienceDescription ? `
                 <div class="mb-4">
                     <h5>Experience</h5>
-                    <p><strong>Total Experience:</strong> ${resume.TotalExperience}</p>
+                    ${resume.TotalExperience ? `<p><strong>Total Experience:</strong> ${resume.TotalExperience}</p>` : ''}
+                    ${resume.ExperienceTitle ? `<p><strong>Title:</strong> ${resume.ExperienceTitle}</p>` : ''}
+                    ${resume.ExperienceCompany ? `<p><strong>Company:</strong> ${resume.ExperienceCompany}</p>` : ''}
+                    ${resume.ExperienceDuration ? `<p><strong>Duration:</strong> ${resume.ExperienceDuration}</p>` : ''}
                     ${resume.ExperienceDescription ? `<p>${resume.ExperienceDescription}</p>` : ''}
                 </div>
             ` : ''}
 
-            <div class="mb-4">
-                <h5>Education</h5>
-                ${resume.Education1 ? `<p>• ${resume.Education1}</p>` : ''}
-                ${resume.Education2 ? `<p>• ${resume.Education2}</p>` : ''}
-                ${resume.Education3 ? `<p>• ${resume.Education3}</p>` : ''}
-            </div>
+            ${resume.Education1 || resume.Education2 || resume.Education3 ? `
+                <div class="mb-4">
+                    <h5>Education</h5>
+                    ${resume.Education1 ? `<p>• ${resume.Education1}</p>` : ''}
+                    ${resume.Education2 ? `<p>• ${resume.Education2}</p>` : ''}
+                    ${resume.Education3 ? `<p>• ${resume.Education3}</p>` : ''}
+                </div>
+            ` : ''}
+
+            ${resume.Project1 || resume.Project2 ? `
+                <div class="mb-4">
+                    <h5>Projects</h5>
+                    ${resume.Project1 ? `<p>• ${resume.Project1}</p>` : ''}
+                    ${resume.Project2 ? `<p>• ${resume.Project2}</p>` : ''}
+                </div>
+            ` : ''}
 
             ${resume.Languages ? `
                 <div class="mb-4">
                     <h5>Languages</h5>
                     <p>${resume.Languages}</p>
+                </div>
+            ` : ''}
+
+            ${resume.Certifications ? `
+                <div class="mb-4">
+                    <h5>Certifications</h5>
+                    <p>${resume.Certifications}</p>
                 </div>
             ` : ''}
 
