@@ -352,7 +352,7 @@ def resend_confirmation_email(user_id: int, db: Session) -> ResponseSchema:
 
     # Generate new token
     token = auth_service.create_reset_token(user.Email)
-    confirm_link = f"{FRONTEND_BASE_URL}/user/reset-password?token={token}"
+    confirm_link = f"{FRONTEND_BASE_URL}/user/set-password?token={token}"
 
     # Send email
     email_payload = SendSystemEmailSchema(

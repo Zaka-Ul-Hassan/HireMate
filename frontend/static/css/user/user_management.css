@@ -23,6 +23,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    max-width: 100%;
 }
 
 .header-content {
@@ -42,6 +43,7 @@
     font-size: 2rem;
     color: white;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
 }
 
 .header-text {
@@ -71,8 +73,8 @@
     text-align: center;
     padding: 3rem;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .spinner {
@@ -100,10 +102,10 @@
 ======================================== */
 .filter-bar {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto auto;
     gap: 1rem;
@@ -131,7 +133,7 @@
     font-size: 0.95rem;
     transition: all 0.3s ease;
     width: 100%;
-    height: 44px;
+    height: 50px;
 }
 
 .search-box .form-control:focus {
@@ -150,7 +152,7 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     font-size: 0.95rem;
-    height: 44px;
+    height: 50px;
     color: #6b7280;
 }
 
@@ -180,7 +182,7 @@
     white-space: nowrap;
     transition: all 0.3s ease;
     cursor: pointer;
-    height: 44px;
+    height: 48px;
 }
 
 /* ========================================
@@ -195,8 +197,8 @@
 
 .user-card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     transition: all 0.3s ease;
     border-left: 4px solid #667eea;
@@ -204,7 +206,7 @@
 }
 
 .user-card:hover {
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
     transform: translateX(4px);
 }
 
@@ -437,9 +439,9 @@
 ======================================== */
 .pagination-container {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     margin-top: 2rem;
     display: flex;
     justify-content: space-between;
@@ -552,20 +554,41 @@
 ======================================== */
 .form-container {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    max-width: 900px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
 .form-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 1.5rem 2rem;
+    padding: 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.form-header .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.form-header .header-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
 }
 
 .form-header h2 {
@@ -573,6 +596,7 @@
     margin: 0;
     font-size: 1.75rem;
     font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-close {
