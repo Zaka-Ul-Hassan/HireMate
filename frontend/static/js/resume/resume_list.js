@@ -4,6 +4,7 @@
 let allResumes = [];
 let filteredResumes = [];
 const API_BASE_URL = 'http://127.0.0.1:8000/api/resumes';
+const EMAIL_GENERATE_API = 'http://127.0.0.1:8000/api/email/generate-content';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -49,7 +50,210 @@ function setupDelegatedEventListeners() {
                     downloadResume(resumeFile);
                 }
             }
+
+            // Email link clicked - generate email content
+            const emailLink = e.target.closest('.contact-link[href^="mailto:"]');
+            if (emailLink) {
+                e.preventDefault();
+                const email = emailLink.getAttribute('href').replace('mailto:', '');
+                generateAndComposeEmail(email);
+            }
         });
+    }
+}
+
+// Generate email content and redirect to compose page
+async function generateAndComposeEmail(candidateEmail) {
+    try {
+        // Show full-page loader
+        showFullPageLoader('Generating personalized email content...');
+
+        // Get auth token
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            hideFullPageLoader();
+            showToast('error', 'Please login to send emails');
+            setTimeout(() => window.location.href = '/', 2000);
+            return;
+        }
+
+        // Call the API to generate email content
+        const response = await fetch(`${EMAIL_GENERATE_API}?email=${encodeURIComponent(candidateEmail)}`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            hideFullPageLoader();
+            if (response.status === 401) {
+                showToast('error', 'Session expired. Please login again.');
+                setTimeout(() => window.location.href = '/', 2000);
+                return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status && result.data) {
+            // Store the generated email data in sessionStorage
+            sessionStorage.setItem('composeEmailData', JSON.stringify({
+                to: result.data.to,
+                subject: `Opportunity at ${result.data.employer_name}`,
+                body: result.data.email_content,
+                candidateName: result.data.candidate_name,
+                employerName: result.data.employer_name
+            }));
+
+            // Update loader message
+            updateLoaderMessage('Email content generated! Redirecting...');
+
+            // Redirect to compose email page (loader will be hidden by the compose page)
+            setTimeout(() => {
+                window.location.href = '/email/compose-email';
+            }, 800);
+
+        } else {
+            hideFullPageLoader();
+            showToast('error', result.message || 'Failed to generate email content');
+        }
+
+    } catch (error) {
+        console.error('Error generating email content:', error);
+        hideFullPageLoader();
+        showToast('error', 'Failed to generate email content. Please try again.');
+    }
+}
+
+// Show full-page loader
+function showFullPageLoader(message = 'Loading...') {
+    // Remove existing loader if any
+    hideFullPageLoader();
+
+    const loader = document.createElement('div');
+    loader.id = 'fullPageLoader';
+    loader.innerHTML = `
+        <div class="loader-backdrop">
+            <div class="loader-content">
+                <div class="loader-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <div class="loader-message">${message}</div>
+            </div>
+        </div>
+    `;
+
+    // Add styles
+    const style = document.createElement('style');
+    style.id = 'fullPageLoaderStyles';
+    style.textContent = `
+        #fullPageLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+        }
+
+        .loader-backdrop {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-width: 300px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .loader-spinner {
+            margin-bottom: 1.5rem;
+        }
+
+        .loader-spinner .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            border: 4px solid #f3f4f6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-message {
+            color: #2d3748;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes scaleIn {
+            from { 
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+    document.body.appendChild(loader);
+}
+
+// Update loader message
+function updateLoaderMessage(message) {
+    const loaderMessage = document.querySelector('#fullPageLoader .loader-message');
+    if (loaderMessage) {
+        loaderMessage.textContent = message;
+    }
+}
+
+// Hide full-page loader
+function hideFullPageLoader() {
+    const loader = document.getElementById('fullPageLoader');
+    const styles = document.getElementById('fullPageLoaderStyles');
+    
+    if (loader) {
+        loader.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => loader.remove(), 300);
+    }
+    
+    if (styles) {
+        styles.remove();
     }
 }
 
@@ -405,7 +609,7 @@ function createResumeCard(resume) {
             <div class="contact-grid">
                 <div class="contact-item">
                     <i class="bi bi-envelope"></i>
-                    <a href="mailto:${resume.Email}" class="contact-link">${resume.Email}</a>
+                    <a href="mailto:${resume.Email}" class="contact-link" title="Click to compose personalized email">${resume.Email}</a>
                 </div>
                 ${resume.PhoneNumber ? `
                     <div class="contact-item">

@@ -357,7 +357,7 @@ def resend_confirmation_email(user_id: int, db: Session) -> ResponseSchema:
     # Send email
     email_payload = SendSystemEmailSchema(
         Recipient=[user.Email],
-        Subject="Resend: Confirm Your Email - LeadPulse",
+        Subject="Resend: Confirm Your Email - HireMate",
         Body=f"""
 Hi {user.FirstName} {user.LastName},
 
@@ -370,7 +370,7 @@ Please confirm your email and set your password by clicking the link below:
 If you didn’t request this, you can safely ignore this email.
 <br><br>
 Regards,<br>
-LeadPulse Team
+HireMate Team
 """
     )
 

@@ -60,6 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupEventListeners();
     updateCharacterCount();
+    
+    // Check for pre-filled email data from resume list
+    loadPreFilledData();
 });
 
 // ─────────────────────────────────────────
@@ -67,6 +70,115 @@ document.addEventListener("DOMContentLoaded", function () {
 // ─────────────────────────────────────────
 function loadUserFromLocalStorage() {
     currentUserId = localStorage.getItem('user_id');
+}
+
+// Global variable to store original HTML content
+let originalHtmlContent = null;
+
+// ─────────────────────────────────────────
+// Load pre-filled email data from sessionStorage
+// ─────────────────────────────────────────
+function loadPreFilledData() {
+    const composeData = sessionStorage.getItem('composeEmailData');
+    
+    if (composeData) {
+        try {
+            const data = JSON.parse(composeData);
+            
+            // Fill in the form fields
+            if (data.to && toInput) {
+                toInput.value = data.to;
+            }
+            
+            if (data.subject && subjectInput) {
+                subjectInput.value = data.subject;
+            }
+            
+            if (data.body && bodyInput) {
+                // Store the original HTML content
+                originalHtmlContent = data.body;
+                
+                // Convert HTML to plain text for display in textarea
+                const plainText = htmlToPlainText(data.body);
+                bodyInput.value = plainText;
+                updateCharacterCount();
+            }
+            
+            // Clear the sessionStorage after loading
+            sessionStorage.removeItem('composeEmailData');
+            
+            // Hide the loader (if it exists from resume list page)
+            hideFullPageLoader();
+            
+            // Scroll to top to show the loaded content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } catch (error) {
+            console.error('Error loading pre-filled data:', error);
+            sessionStorage.removeItem('composeEmailData');
+            hideFullPageLoader();
+        }
+    } else {
+        // No pre-filled data, just hide loader if it exists
+        hideFullPageLoader();
+    }
+}
+
+// ─────────────────────────────────────────
+// Convert HTML to plain text
+// ─────────────────────────────────────────
+function htmlToPlainText(html) {
+    // Create a temporary div element
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    
+    // Get text content (automatically strips HTML tags)
+    let text = temp.textContent || temp.innerText || '';
+    
+    // Clean up extra whitespace while preserving intentional line breaks
+    text = text.replace(/\n\s*\n\s*\n/g, '\n\n'); // Multiple blank lines to double
+    text = text.trim();
+    
+    return text;
+}
+
+// ─────────────────────────────────────────
+// Convert plain text back to HTML with formatting
+// ─────────────────────────────────────────
+function plainTextToHtml(text) {
+    // Escape HTML special characters
+    text = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    // Convert line breaks to <br> tags
+    text = text.replace(/\n/g, '<br>');
+    
+    // Convert double line breaks to paragraph breaks
+    text = text.replace(/<br><br>/g, '</p><p>');
+    
+    // Wrap in paragraph tags
+    text = '<p>' + text + '</p>';
+    
+    return text;
+}
+
+// ─────────────────────────────────────────
+// Hide full-page loader (from resume list)
+// ─────────────────────────────────────────
+function hideFullPageLoader() {
+    const loader = document.getElementById('fullPageLoader');
+    const styles = document.getElementById('fullPageLoaderStyles');
+    
+    if (loader) {
+        loader.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => loader.remove(), 300);
+    }
+    
+    if (styles) {
+        styles.remove();
+    }
 }
 
 // ─────────────────────────────────────────
@@ -83,6 +195,12 @@ function setupEventListeners() {
     bodyInput.addEventListener('input', function() {
         validateBodyField();
         updateCharacterCount();
+        
+        // Clear original HTML content if user starts typing
+        // This indicates they're editing the content manually
+        if (originalHtmlContent !== null) {
+            originalHtmlContent = null;
+        }
     });
 
     // Form submit
@@ -192,7 +310,17 @@ async function handleSubmit(e) {
         .filter(e => e);
     
     const subject = subjectInput.value.trim();
-    const body = bodyInput.value.trim();
+    const bodyText = bodyInput.value.trim();
+    
+    // Use original HTML if available (from generated email), otherwise convert plain text to HTML
+    let bodyHtml;
+    if (originalHtmlContent !== null) {
+        // User hasn't edited the generated content, send original HTML
+        bodyHtml = originalHtmlContent;
+    } else {
+        // User typed manually or edited, convert their text to HTML with formatting
+        bodyHtml = plainTextToHtml(bodyText);
+    }
 
     // Disable button and show loading state
     sendBtn.disabled = true;
@@ -204,7 +332,7 @@ async function handleSubmit(e) {
     const payload = {
         Recipient: toEmails,
         Subject: subject,
-        Body: body,
+        Body: bodyHtml,  // Send HTML content
         UserId: Number(currentUserId),
         ParentMessageId: ""  // Empty for new emails
     };
@@ -231,9 +359,10 @@ async function handleSubmit(e) {
             // Success - show only toaster notification with backend message
             toast('success', result.message || 'Email sent successfully!');
             
-            // Clear form
+            // Clear form and original HTML content
             form.reset();
             updateCharacterCount();
+            originalHtmlContent = null;
             
         } else if (result.status === false) {
             // Error from backend - show only toaster notification with backend message
@@ -269,6 +398,7 @@ async function handleDiscard() {
     if (!hasContent) {
         form.reset();
         updateCharacterCount();
+        originalHtmlContent = null;
         toast('info', 'Draft discarded.');
         return;
     }
@@ -288,6 +418,7 @@ async function handleDiscard() {
     if (result.isConfirmed) {
         form.reset();
         updateCharacterCount();
+        originalHtmlContent = null;
         
         // Clear all validation states
         [toInput, subjectInput, bodyInput].forEach(input => {

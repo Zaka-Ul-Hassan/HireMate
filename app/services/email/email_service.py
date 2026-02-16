@@ -130,7 +130,7 @@ def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
     smtp_password = settings.data.Password
     smtp_port = settings.data.SmtpPort
 
-    message_id = f"<{uuid.uuid4()}@leadpulse>"
+    message_id = f"<{uuid.uuid4()}@hiremate>"
 
     recipients = (
         [payload.Recipient]
@@ -507,7 +507,7 @@ Instructions:
 - End email with "Best regards" and employer name
 - Do NOT include subject line
 - Do NOT use markdown
-- Return plain text only
+- Return Html
 """
 
     # Call Cohere
