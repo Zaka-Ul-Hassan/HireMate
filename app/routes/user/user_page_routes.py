@@ -305,7 +305,7 @@ async def inbox_page(
     }
     
     return templates.TemplateResponse(
-        "email/inbox.html",
+        "email/email_inbox.html",
         {
             "request": request,
             "user": minimal_user,
