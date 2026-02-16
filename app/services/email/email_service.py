@@ -94,7 +94,8 @@ def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
             ThreadId=thread_id,
             Status="Sent",
             SentAt=datetime.utcnow(),
-            UserId=payload.UserId
+            UserId=payload.UserId,
+            CreatedByUserId = payload.UserId
         )
         db.add(sent_email)
         db.commit()
@@ -170,93 +171,7 @@ def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
 
     except Exception as ex:
         return ResponseSchema(status=False, message=str(ex), data=None)
-
-# Send Email using Client's Email Settings
-def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
-    # Validate recipients
-    if not payload.Recipient:
-        return ResponseSchema(status=False, message="Recipient email list is empty")
-
-    invalid_emails = [email for email in payload.Recipient if not re.match(EMAIL_REGEX, email)]
-    if invalid_emails:
-        return ResponseSchema(status=False, message=f"Invalid email(s): {', '.join(invalid_emails)}")
-
-    if not payload.Subject.strip():
-        return ResponseSchema(status=False, message="Email subject cannot be empty")
-
-    if not payload.Body.strip():
-        return ResponseSchema(status=False, message="Email body cannot be empty")
-
-    # Fetch user
-    user = db.query(User).filter(User.Id == payload.UserId).first()
-    if not user:
-        return ResponseSchema(status=False, message="User not found")
-
-    # Fetch user's email settings
-    settings = db.query(EmailSettings).filter(
-        EmailSettings.UserId == payload.UserId,
-        EmailSettings.IsDeleted == False
-    ).first()
-    if not settings:
-        return ResponseSchema(status=False, message="Email settings not found for this user")
-
-    # Decrypt password
-    smtp_email = settings.EmailAddress
-    smtp_password = decrypt(settings.Password)
-    smtp_server = settings.SmtpServer
-    smtp_port = settings.SmtpPort
-
-    try:
-        # Compose message
-        message = MIMEMultipart()
-        message['From'] = smtp_email
-        message['To'] = ", ".join(payload.Recipient)
-        message['Subject'] = payload.Subject
-        message.attach(MIMEText(payload.Body, "plain"))
-
-        # Send email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_email, smtp_password)
-        server.sendmail(smtp_email, payload.Recipient, message.as_string())
-        server.quit()
-
-        # Generate ThreadId and MessageId
-        thread_id = str(uuid.uuid4())
-        message_id = str(uuid.uuid4())
-
-        # Save sent email in DB
-        sent_email = SentEmail(
-            FromEmail=smtp_email,
-            ToEmail=", ".join(payload.Recipient),
-            Subject=payload.Subject,
-            Body=payload.Body,
-            MessageId=message_id,
-            ParentMessageId=payload.ParentMessageId,
-            ThreadId=thread_id,
-            Status="Sent",
-            SentAt=datetime.utcnow(),
-            UserId=payload.UserId
-        )
-        db.add(sent_email)
-        db.commit()
-        db.refresh(sent_email)
-
-        return ResponseSchema(
-            status=True,
-            message="Email sent and saved successfully",
-            data={
-                "Id": sent_email.Id,
-                "ThreadId": sent_email.ThreadId,
-                "ToEmail": sent_email.ToEmail,
-                "Subject": sent_email.Subject,
-                "SentAt": sent_email.SentAt
-            }
-        )
-
-    except Exception as e:
-        return ResponseSchema(status=False, message=f"Failed to send email: {str(e)}")
-    
+        
 # Save Emails
 def save_email(db: Session, payload: SaveSentEmailSchema) -> ResponseSchema:
     to_email = payload.ToEmail

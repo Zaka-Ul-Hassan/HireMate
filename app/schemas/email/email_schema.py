@@ -78,7 +78,7 @@ class SentEmailResponseSchema(BaseModel):
     ThreadId: str
     ScheduledTime: Optional[datetime] = None
     SentAt: Optional[datetime] = None
-    CreatedByUserId: int
+    CreatedByUserId: Optional[int] = None
     IsDeleted: bool
     UserId: int
     CreatedAt: datetime
