@@ -6,7 +6,7 @@ from app.schemas.response_schema import ResponseSchema
 from app.services.email import email_settings_service
 from app.db import get_db
 
-router = APIRouter(prefix="/email/settings")
+router = APIRouter()
 
 # Create Email Settings
 @router.post("/settings/create", response_model=ResponseSchema)

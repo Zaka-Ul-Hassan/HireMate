@@ -1,6 +1,6 @@
 # app\services\email\email_settings_service.py
 
-from huggingface_hub import User
+from app.models.user.user import User
 from app.db import get_db
 from app.models.email.email_settings import EmailSettings
 from app.schemas.email.email_settings_schema import EmailSettingsCreateSchema, EmailSettingsResponseSchema, EmailSettingsUpdateSchema
