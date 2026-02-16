@@ -9,7 +9,19 @@
 
 {% block content %}
 <div class="resume-container">
-    <h1 class="page-title">Resume Management</h1>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-file-earmark-person"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Resume Management</h1>
+                <p class="page-subtitle">Create and manage your professional resume</p>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Loading ── -->
     <div id="loadingState" class="loading-state">
@@ -30,7 +42,8 @@
             <h2>No Resume Found</h2>
             <p>Create your professional resume to get started</p>
             <button id="createResumeBtn" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i>Create Resume
+                <i class="bi bi-plus-lg"></i>
+                <span>Create Resume</span>
             </button>
         </div>
     </div>
@@ -38,14 +51,30 @@
     <!-- ── Resume Display ── -->
     <div id="resumeDisplayState" class="resume-display-state" style="display: none;">
         <div class="resume-card">
+            
+            <!-- Card Header -->
             <div class="resume-header">
-                <div class="profile-section">
-                    <div id="profileImageContainer" class="profile-image-container">
-                        <!-- Populated by JS: image or initials -->
+                <div class="resume-info">
+                    <h2 id="displayFullName" class="resume-name"></h2>
+                    <div class="resume-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-envelope"></i>
+                            <span id="displayEmail"></span>
+                        </div>
+                        <div class="meta-item" id="phoneMetaItem" style="display: none;">
+                            <i class="bi bi-telephone"></i>
+                            <span id="displayPhoneNumber"></span>
+                        </div>
+                        <div class="meta-item" id="addressMetaItem" style="display: none;">
+                            <i class="bi bi-geo-alt"></i>
+                            <span id="displayAddress"></span>
+                        </div>
                     </div>
-                    <div class="profile-info">
-                        <h2 id="displayFullName"></h2>
-                        <p id="displayDeveloperType" class="developer-type"></p>
+                    <div id="developerTypeBadge" style="display: none;">
+                        <span class="developer-type-badge">
+                            <i class="bi bi-code-slash"></i>
+                            <span id="displayDeveloperType"></span>
+                        </span>
                     </div>
                 </div>
 
@@ -65,6 +94,7 @@
                 </div>
             </div>
 
+            <!-- Resume Content -->
             <div class="resume-content">
 
                 <!-- Contact Information -->
@@ -72,20 +102,20 @@
                     <h3>Contact Information</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <strong>Email</strong>
-                            <span id="displayEmail"></span>
-                        </div>
-                        <div class="info-item">
-                            <strong>Phone</strong>
-                            <span id="displayPhoneNumber"></span>
-                        </div>
-                        <div class="info-item">
-                            <strong>Address</strong>
-                            <span id="displayAddress"></span>
-                        </div>
-                        <div class="info-item">
                             <strong>Date of Birth</strong>
                             <span id="displayDateOfBirth"></span>
+                        </div>
+                        <div class="info-item" id="countryItem" style="display: none;">
+                            <strong>Country</strong>
+                            <span id="displayCountry"></span>
+                        </div>
+                        <div class="info-item" id="nationalityItem" style="display: none;">
+                            <strong>Nationality</strong>
+                            <span id="displayNationality"></span>
+                        </div>
+                        <div class="info-item" id="genderItem" style="display: none;">
+                            <strong>Gender</strong>
+                            <span id="displayGender"></span>
                         </div>
                     </div>
                 </div>
@@ -145,10 +175,12 @@
                     <h3>Links</h3>
                     <div class="links">
                         <a id="displayLinkedIn" href="#" target="_blank" rel="noopener noreferrer" class="social-link">
-                            <i class="bi bi-linkedin me-1"></i>LinkedIn
+                            <i class="bi bi-linkedin"></i>
+                            <span>LinkedIn</span>
                         </a>
                         <a id="displayGitHub" href="#" target="_blank" rel="noopener noreferrer" class="social-link">
-                            <i class="bi bi-github me-1"></i>GitHub
+                            <i class="bi bi-github"></i>
+                            <span>GitHub</span>
                         </a>
                     </div>
                 </div>
@@ -162,7 +194,12 @@
         <div class="form-container">
 
             <div class="form-header">
-                <h2 id="formTitle">Create Resume</h2>
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h2 id="formTitle">Create Resume</h2>
+                </div>
                 <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
             </div>
 
@@ -170,7 +207,7 @@
 
                 <!-- Personal Information -->
                 <div class="form-section">
-                    <h3>Personal Information</h3>
+                    <h3><i class="bi bi-person me-2"></i>Personal Information</h3>
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -228,7 +265,7 @@
 
                 <!-- Professional Information -->
                 <div class="form-section">
-                    <h3>Professional Information</h3>
+                    <h3><i class="bi bi-briefcase me-2"></i>Professional Information</h3>
 
                     <div class="form-group">
                         <label for="developerType">Developer Type <span class="text-danger">*</span></label>
@@ -255,7 +292,7 @@
 
                 <!-- Experience -->
                 <div class="form-section">
-                    <h3>Experience</h3>
+                    <h3><i class="bi bi-building me-2"></i>Experience</h3>
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -287,7 +324,7 @@
 
                 <!-- Education -->
                 <div class="form-section">
-                    <h3>Education</h3>
+                    <h3><i class="bi bi-mortarboard me-2"></i>Education</h3>
                     <div class="form-group">
                         <label for="education1">Education 1</label>
                         <input type="text" id="education1" name="Education1" class="form-control" placeholder="BSc Computer Science – FAST NUCES, 2020">
@@ -304,7 +341,7 @@
 
                 <!-- Projects -->
                 <div class="form-section">
-                    <h3>Projects</h3>
+                    <h3><i class="bi bi-lightbulb me-2"></i>Projects</h3>
                     <div class="form-group">
                         <label for="project1">Project 1</label>
                         <textarea id="project1" name="Project1" rows="2" class="form-control" placeholder="AI-powered job portal built with FastAPI and React..."></textarea>
@@ -317,7 +354,7 @@
 
                 <!-- Additional Information -->
                 <div class="form-section">
-                    <h3>Additional Information</h3>
+                    <h3><i class="bi bi-info-circle me-2"></i>Additional Information</h3>
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -345,10 +382,12 @@
                 <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="button" id="cancelBtn" class="btn btn-secondary">
-                        <i class="bi bi-x-lg me-1"></i>Cancel
+                        <i class="bi bi-x-lg"></i>
+                        <span>Cancel</span>
                     </button>
                     <button type="submit" id="submitBtn" class="btn btn-primary">
-                        <i class="bi bi-floppy me-1"></i>Save Resume
+                        <i class="bi bi-check-lg"></i>
+                        <span>Save Resume</span>
                     </button>
                 </div>
 

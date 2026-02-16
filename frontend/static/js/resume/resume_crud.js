@@ -71,21 +71,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ─────────────────────────────────────────
-// 1. Read user from localStorage
-//    Keys: user_id, access_token, user_name, user_data
+// 1. Read user from localStorage (SIMPLIFIED - NO PROFILE IMAGE)
+//    Keys: user_id, access_token
 // ─────────────────────────────────────────
 function loadUserFromLocalStorage() {
     currentUserId = localStorage.getItem('user_id');
-
-    const fullName = localStorage.getItem('user_name') || '';
-    let imageUrl   = null;
-
-    try {
-        const userData = JSON.parse(localStorage.getItem('user_data'));
-        if (userData) imageUrl = userData.Image || null;
-    } catch (_) {}
-
-    displayProfileImage(fullName, imageUrl);
 }
 
 // ─────────────────────────────────────────
@@ -121,41 +111,7 @@ function setDownloadButton(userId) {
 }
 
 // ─────────────────────────────────────────
-// 5. Avatar helpers
-// ─────────────────────────────────────────
-function getInitials(fullName) {
-    if (!fullName || !fullName.trim()) return '??';
-    const parts = fullName.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-function displayInitials(fullName, container) {
-    const div       = document.createElement('div');
-    div.className   = 'profile-initials';
-    div.textContent = getInitials(fullName);
-    container.appendChild(div);
-}
-
-function displayProfileImage(fullName, imageUrl = null) {
-    const container = document.getElementById('profileImageContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (imageUrl && imageUrl.trim()) {
-        const img     = document.createElement('img');
-        img.src       = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl.replace(/\\/g, '/');
-        img.alt       = fullName || 'Profile';
-        img.className = 'profile-image';
-        img.onerror   = () => { container.innerHTML = ''; displayInitials(fullName, container); };
-        container.appendChild(img);
-    } else {
-        displayInitials(fullName, container);
-    }
-}
-
-// ─────────────────────────────────────────
-// 6. Load resume
+// 5. Load resume
 //    GET /api/resumes/by-user-id?user_id=X
 // ─────────────────────────────────────────
 async function loadUserResume() {
@@ -193,7 +149,7 @@ async function loadUserResume() {
 }
 
 // ─────────────────────────────────────────
-// 7. Display helpers
+// 6. Display helpers
 // ─────────────────────────────────────────
 function showHideSection(sectionId, hasContent) {
     const el = document.getElementById(sectionId);
@@ -203,6 +159,11 @@ function showHideSection(sectionId, hasContent) {
 function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value || '';
+}
+
+function showHideElement(id, shouldShow) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = shouldShow ? 'flex' : 'none';
 }
 
 function setLink(id, url) {
@@ -219,22 +180,59 @@ function setLink(id, url) {
 }
 
 // ─────────────────────────────────────────
-// 8. Render resume into display view
+// 7. Render resume into display view (UPDATED)
 // ─────────────────────────────────────────
 function displayResume(resume) {
-    displayProfileImage(resume.FullName, resume.ProfileImage || null);
+    // Header info
+    setText('displayFullName', resume.FullName);
+    setText('displayEmail', resume.Email || 'N/A');
+    
+    // Phone
+    if (resume.PhoneNumber) {
+        setText('displayPhoneNumber', resume.PhoneNumber);
+        showHideElement('phoneMetaItem', true);
+    } else {
+        showHideElement('phoneMetaItem', false);
+    }
+    
+    // Address
+    if (resume.Address) {
+        setText('displayAddress', resume.Address);
+        showHideElement('addressMetaItem', true);
+    } else {
+        showHideElement('addressMetaItem', false);
+    }
+    
+    // Developer Type Badge
+    if (resume.DeveloperType) {
+        setText('displayDeveloperType', resume.DeveloperType);
+        showHideElement('developerTypeBadge', true);
+    } else {
+        showHideElement('developerTypeBadge', false);
+    }
 
-    setText('displayFullName',      resume.FullName);
-    setText('displayDeveloperType', resume.DeveloperType);
-
-    // Contact
-    const hasContact = resume.Email || resume.PhoneNumber || resume.Address || resume.DateOfBirth;
-    showHideSection('contactInfoSection', hasContact);
-    if (hasContact) {
-        setText('displayEmail',       resume.Email       || 'N/A');
-        setText('displayPhoneNumber', resume.PhoneNumber || 'N/A');
-        setText('displayAddress',     resume.Address     || 'N/A');
-        setText('displayDateOfBirth', resume.DateOfBirth || 'N/A');
+    // Contact Information Section
+    setText('displayDateOfBirth', resume.DateOfBirth || 'N/A');
+    
+    if (resume.Country) {
+        setText('displayCountry', resume.Country);
+        showHideElement('countryItem', true);
+    } else {
+        showHideElement('countryItem', false);
+    }
+    
+    if (resume.Nationality) {
+        setText('displayNationality', resume.Nationality);
+        showHideElement('nationalityItem', true);
+    } else {
+        showHideElement('nationalityItem', false);
+    }
+    
+    if (resume.Gender) {
+        setText('displayGender', resume.Gender);
+        showHideElement('genderItem', true);
+    } else {
+        showHideElement('genderItem', false);
     }
 
     // Summary / Objective / Skills
@@ -289,7 +287,7 @@ function displayResume(resume) {
 }
 
 // ─────────────────────────────────────────
-// 9. Form visibility
+// 8. Form visibility
 // ─────────────────────────────────────────
 function showForm(updateMode) {
     isUpdateMode          = updateMode;
@@ -311,7 +309,7 @@ function hideForm() {
 }
 
 // ─────────────────────────────────────────
-// 10. Populate form for update
+// 9. Populate form for update
 //     GET /api/resumes/by-id?resume_id=X
 // ─────────────────────────────────────────
 async function populateFormWithResumeData() {
@@ -372,7 +370,7 @@ async function populateFormWithResumeData() {
 }
 
 // ─────────────────────────────────────────
-// 11. Submit — create or update
+// 10. Submit — create or update
 //     POST /api/resumes/create
 //     PUT  /api/resumes/update?resume_id=X
 // ─────────────────────────────────────────
@@ -421,7 +419,7 @@ async function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// 12. Delete
+// 11. Delete
 //     DELETE /api/resumes/delete?resume_id=X
 // ─────────────────────────────────────────
 async function softDeleteResume(resumeId) {
@@ -441,7 +439,7 @@ async function handleDelete() {
         text:               'This action cannot be undone.',
         icon:               'warning',
         showCancelButton:   true,
-        confirmButtonColor: '#dc3545',
+        confirmButtonColor: '#ef4444',
         cancelButtonColor:  '#6c757d',
         confirmButtonText:  'Yes, delete it!',
         cancelButtonText:   'Cancel'
@@ -470,7 +468,7 @@ async function handleDelete() {
 }
 
 // ─────────────────────────────────────────
-// 13. State machine
+// 12. State machine
 // ─────────────────────────────────────────
 function showState(state) {
     [loadingState, noResumeState, resumeDisplayState, resumeFormState]
@@ -487,7 +485,7 @@ function showState(state) {
 }
 
 // ─────────────────────────────────────────
-// 14. Validation
+// 13. Validation
 // ─────────────────────────────────────────
 function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -544,7 +542,7 @@ function setupFormValidation() {
 }
 
 // ─────────────────────────────────────────
-// Set max date for Date of Birth (15 years ago)
+// 14. Set max date for Date of Birth (15 years ago)
 // ─────────────────────────────────────────
 function setupDateOfBirthMax() {
     const dobInput = document.getElementById('dateOfBirth');
