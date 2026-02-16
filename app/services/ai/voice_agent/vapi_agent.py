@@ -3,6 +3,7 @@
 import requests
 from fastapi import HTTPException
 from app.models.resume.resume_model import Resume
+from app.schemas.response_schema import ResponseSchema
 from load_env import (
     vapi_assistant_api_id,
     vapi_assistant_api_name,
@@ -18,7 +19,7 @@ from load_env import (
 
 def start_voice_call(customer_number: str, resume:Resume):
     if not vapi_private_api_key:
-        raise HTTPException(status_code=500, detail="Missing VAPI_PRIVATE_KEY")
+        return ResponseSchema(status=False, message="Failed to initiate call", data=None)
 
     payload = {
         "assistantId": vapi_assistant_api_id,
@@ -77,9 +78,9 @@ def start_voice_call(customer_number: str, resume:Resume):
         session_id = data.get("id")
 
         if not session_id:
-            raise HTTPException(status_code=500, detail="Missing 'id' in VAPI response")
-
-        return {"status": True, "session_id": session_id, "message": "Call initiated successfully"}
+            return ResponseSchema(status=False, message="Failed to initiate call", data=None)
+        
+        return ResponseSchema(status=True, message="Call initiated successfully", data={"session_id": session_id})
 
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Error making call: {str(e)}")
+        return ResponseSchema(status=False, message=f"Failed to initiate call", data=None)

@@ -1,161 +1,448 @@
 // frontend\static\js\email\compose_email.js
 
+const API_SEND_EMAIL = 'http://127.0.0.1:8000/api/email/client';
+let currentUserId = null;
+
+// ─────────────────────────────────────────
+// Toastr global config
+// ─────────────────────────────────────────
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    timeOut: 3500,
+    extendedTimeOut: 1000,
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut',
+    preventDuplicates: true,
+    newestOnTop: true,
+};
+
+// ─────────────────────────────────────────
+// Toast helpers
+// ─────────────────────────────────────────
+function toast(type, message, title) {
+    toastr[type](message, title || '');
+}
+
+// ─────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────
+const toInput = document.getElementById('to');
+const toError = document.getElementById('email_error');
+const subjectInput = document.getElementById('subject');
+const bodyInput = document.getElementById('body');
+const subjectError = document.getElementById("subject_error");
+const bodyError = document.getElementById("body_error");
+const form = document.getElementById('composeForm');
+const sendBtn = document.getElementById('sendBtn');
+const discardBtn = document.getElementById('discardBtn');
+const charCount = document.getElementById('charCount');
+
+// ─────────────────────────────────────────
+// Email regex validation
+// ─────────────────────────────────────────
+const emailRegex = /^(([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?))$/;
+
+// ─────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
-  const toInput = document.getElementById('to');
-  const toError = document.getElementById('email_error');
-  const subjectInput = document.getElementById('subject');
-  const bodyInput = document.getElementById('body');
-  const subjectError = document.getElementById("subject_error");
-  const bodyError = document.getElementById("body_error");
-  const form = document.getElementById('composeForm');
+    loadUserFromLocalStorage();
 
-  // RFC-like email regex
-  const emailRegex = /^(([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?))$/;
+    if (!currentUserId) {
+        toast('error', 'Session expired. Please log in again.');
+        setTimeout(() => window.location.href = '/', 2000);
+        return;
+    }
 
-  // Real-time email validation
-  toInput.addEventListener('input', function () {
+    setupEventListeners();
+    updateCharacterCount();
+    
+    // Check for pre-filled email data from resume list
+    loadPreFilledData();
+});
+
+// ─────────────────────────────────────────
+// Load user from localStorage
+// ─────────────────────────────────────────
+function loadUserFromLocalStorage() {
+    currentUserId = localStorage.getItem('user_id');
+}
+
+// Global variable to store original HTML content
+let originalHtmlContent = null;
+
+// ─────────────────────────────────────────
+// Load pre-filled email data from sessionStorage
+// ─────────────────────────────────────────
+function loadPreFilledData() {
+    const composeData = sessionStorage.getItem('composeEmailData');
+    
+    if (composeData) {
+        try {
+            const data = JSON.parse(composeData);
+            
+            // Fill in the form fields
+            if (data.to && toInput) {
+                toInput.value = data.to;
+            }
+            
+            if (data.subject && subjectInput) {
+                subjectInput.value = data.subject;
+            }
+            
+            if (data.body && bodyInput) {
+                // Store the original HTML content
+                originalHtmlContent = data.body;
+                
+                // Convert HTML to plain text for display in textarea
+                const plainText = htmlToPlainText(data.body);
+                bodyInput.value = plainText;
+                updateCharacterCount();
+            }
+            
+            // Clear the sessionStorage after loading
+            sessionStorage.removeItem('composeEmailData');
+            
+            // Hide the loader (if it exists from resume list page)
+            hideFullPageLoader();
+            
+            // Scroll to top to show the loaded content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } catch (error) {
+            console.error('Error loading pre-filled data:', error);
+            sessionStorage.removeItem('composeEmailData');
+            hideFullPageLoader();
+        }
+    } else {
+        // No pre-filled data, just hide loader if it exists
+        hideFullPageLoader();
+    }
+}
+
+// ─────────────────────────────────────────
+// Convert HTML to plain text
+// ─────────────────────────────────────────
+function htmlToPlainText(html) {
+    // Create a temporary div element
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    
+    // Get text content (automatically strips HTML tags)
+    let text = temp.textContent || temp.innerText || '';
+    
+    // Clean up extra whitespace while preserving intentional line breaks
+    text = text.replace(/\n\s*\n\s*\n/g, '\n\n'); // Multiple blank lines to double
+    text = text.trim();
+    
+    return text;
+}
+
+// ─────────────────────────────────────────
+// Convert plain text back to HTML with formatting
+// ─────────────────────────────────────────
+function plainTextToHtml(text) {
+    // Escape HTML special characters
+    text = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    // Convert line breaks to <br> tags
+    text = text.replace(/\n/g, '<br>');
+    
+    // Convert double line breaks to paragraph breaks
+    text = text.replace(/<br><br>/g, '</p><p>');
+    
+    // Wrap in paragraph tags
+    text = '<p>' + text + '</p>';
+    
+    return text;
+}
+
+// ─────────────────────────────────────────
+// Hide full-page loader (from resume list)
+// ─────────────────────────────────────────
+function hideFullPageLoader() {
+    const loader = document.getElementById('fullPageLoader');
+    const styles = document.getElementById('fullPageLoaderStyles');
+    
+    if (loader) {
+        loader.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => loader.remove(), 300);
+    }
+    
+    if (styles) {
+        styles.remove();
+    }
+}
+
+// ─────────────────────────────────────────
+// Setup event listeners
+// ─────────────────────────────────────────
+function setupEventListeners() {
+    // Real-time email validation
+    toInput.addEventListener('input', validateEmailField);
+    
+    // Real-time subject validation
+    subjectInput.addEventListener('input', validateSubjectField);
+    
+    // Real-time body validation
+    bodyInput.addEventListener('input', function() {
+        validateBodyField();
+        updateCharacterCount();
+        
+        // Clear original HTML content if user starts typing
+        // This indicates they're editing the content manually
+        if (originalHtmlContent !== null) {
+            originalHtmlContent = null;
+        }
+    });
+
+    // Form submit
+    form.addEventListener("submit", handleSubmit);
+
+    // Discard button
+    discardBtn.addEventListener('click', handleDiscard);
+
+    // Remove invalid class on focus
+    [toInput, subjectInput, bodyInput].forEach(input => {
+        input.addEventListener('focus', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+}
+
+// ─────────────────────────────────────────
+// Character count update
+// ─────────────────────────────────────────
+function updateCharacterCount() {
+    const count = bodyInput.value.length;
+    charCount.textContent = count.toLocaleString();
+}
+
+// ─────────────────────────────────────────
+// Validation functions
+// ─────────────────────────────────────────
+function validateEmailField() {
     const emails = toInput.value.split(/[,;]+/).map(e => e.trim()).filter(e => e);
-    const allValid = emails.every(email => emailRegex.test(email));
-
+    
     if (!emails.length) {
-      toInput.classList.add('is-invalid');
-      toError.textContent = 'Email is required.';
-    } else if (!allValid) {
-      toInput.classList.add('is-invalid');
-      toError.textContent = 'One or more email addresses are invalid. Separate them with commas or semicolons.';
-    } else {
-      toInput.classList.remove('is-invalid');
-      toError.textContent = '';
+        toInput.classList.add('is-invalid');
+        toError.textContent = 'At least one email address is required.';
+        return false;
     }
-  });
+    
+    const allValid = emails.every(email => emailRegex.test(email));
+    
+    if (!allValid) {
+        toInput.classList.add('is-invalid');
+        toError.textContent = 'One or more email addresses are invalid. Separate them with commas or semicolons.';
+        return false;
+    }
+    
+    toInput.classList.remove('is-invalid');
+    toError.textContent = '';
+    return true;
+}
 
-  // Real-time subject validation
-  subjectInput.addEventListener('input', validateSubjectBody);
-  // Real-time body validation
-  bodyInput.addEventListener('input', validateSubjectBody);
-
-  function validateSubjectBody() {
+function validateSubjectField() {
     const subject = subjectInput.value.trim();
-    const body = bodyInput.value.trim();
-
+    
     if (!subject) {
-      subjectInput.classList.add('is-invalid');
-      subjectError.textContent = "Subject is required.";
-    } else {
-      subjectInput.classList.remove('is-invalid');
-      subjectError.textContent = "";
+        subjectInput.classList.add('is-invalid');
+        subjectError.textContent = "Subject is required.";
+        return false;
     }
+    
+    subjectInput.classList.remove('is-invalid');
+    subjectError.textContent = "";
+    return true;
+}
 
+function validateBodyField() {
+    const body = bodyInput.value.trim();
+    
     if (!body) {
-      bodyInput.classList.add('is-invalid');
-      bodyError.textContent = "Body is required.";
-    } else {
-      bodyInput.classList.remove('is-invalid');
-      bodyError.textContent = "";
+        bodyInput.classList.add('is-invalid');
+        bodyError.textContent = "Message body is required.";
+        return false;
     }
-  }
+    
+    bodyInput.classList.remove('is-invalid');
+    bodyError.textContent = "";
+    return true;
+}
 
-  // Submit handler
-  form.addEventListener("submit", function (e) {
+function validateForm() {
+    const emailValid = validateEmailField();
+    const subjectValid = validateSubjectField();
+    const bodyValid = validateBodyField();
+    
+    return emailValid && subjectValid && bodyValid;
+}
+
+// ─────────────────────────────────────────
+// Handle form submit
+// ─────────────────────────────────────────
+async function handleSubmit(e) {
     e.preventDefault();
 
-    const toEmails = toInput.value.split(/[,;]+/).map(e => e.trim()).filter(e => e);
-    const allValid = toEmails.every(email => emailRegex.test(email));
+    if (!validateForm()) {
+        toast('warning', 'Please fill in all required fields correctly.');
+        // Scroll to first invalid field
+        const firstInvalid = form.querySelector('.is-invalid');
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+        }
+        return;
+    }
+
+    // Get and parse email addresses
+    const toEmails = toInput.value
+        .split(/[,;]+/)
+        .map(e => e.trim())
+        .filter(e => e);
+    
     const subject = subjectInput.value.trim();
-    const body = bodyInput.value.trim();
-
-    const sendBtn = form.querySelector("button[type='submit']");
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Sending...";
-
-    // Reset subject/body validation
-    subjectInput.classList.remove('is-invalid');
-    bodyInput.classList.remove('is-invalid');
-    subjectError.textContent = "";
-    bodyError.textContent = "";
-
-    // Validate "To" field
-    if (!toEmails.length) {
-      toInput.classList.add('is-invalid');
-      toError.textContent = "Email is required.";
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
-      return;
-    } else if (!allValid) {
-      toInput.classList.add('is-invalid');
-      toError.textContent = "One or more email addresses are invalid.";
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
-      return;
+    const bodyText = bodyInput.value.trim();
+    
+    // Use original HTML if available (from generated email), otherwise convert plain text to HTML
+    let bodyHtml;
+    if (originalHtmlContent !== null) {
+        // User hasn't edited the generated content, send original HTML
+        bodyHtml = originalHtmlContent;
     } else {
-      toInput.classList.remove('is-invalid');
-      toError.textContent = '';
+        // User typed manually or edited, convert their text to HTML with formatting
+        bodyHtml = plainTextToHtml(bodyText);
     }
 
-    // Validate subject and body must both be filled
-    let valid = true;
+    // Disable button and show loading state
+    sendBtn.disabled = true;
+    sendBtn.classList.add('loading');
+    const originalBtnContent = sendBtn.innerHTML;
+    sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i><span>Sending...</span>';
 
-    if (!subject) {
-      subjectInput.classList.add('is-invalid');
-      subjectError.textContent = "Subject is required.";
-      valid = false;
-    }
-
-    if (!body) {
-      bodyInput.classList.add('is-invalid');
-      bodyError.textContent = "Body is required.";
-      valid = false;
-    }
-
-    if (!valid) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
-      return;
-    }
-
-    // Ready to send
+    // Prepare payload according to API spec
     const payload = {
-      to: toEmails,
-      subject: subject,
-      body: body
+        Recipient: toEmails,
+        Subject: subject,
+        Body: bodyHtml,  // Send HTML content
+        UserId: Number(currentUserId),
+        ParentMessageId: ""  // Empty for new emails
     };
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://127.0.0.1:8000/api/email/send-email", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
+    try {
+        const response = await fetch(API_SEND_EMAIL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-    xhr.onload = function () {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
+        const result = await response.json();
 
-      if (xhr.status === 200) {
+        // Reset button state
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('loading');
+        sendBtn.innerHTML = originalBtnContent;
+
+        // Handle response based on status
+        if (result.status === true) {
+            // Success - show only toaster notification with backend message
+            toast('success', result.message || 'Email sent successfully!');
+            
+            // Clear form and original HTML content
+            form.reset();
+            updateCharacterCount();
+            originalHtmlContent = null;
+            
+        } else if (result.status === false) {
+            // Error from backend - show only toaster notification with backend message
+            toast('error', result.message || 'Failed to send email.');
+            
+        } else {
+            // Unexpected response format
+            toast('error', 'Unexpected response from server.');
+            console.error('Unexpected response:', result);
+        }
+
+    } catch (error) {
+        console.error('Send email error:', error);
+        
+        // Reset button state
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('loading');
+        sendBtn.innerHTML = originalBtnContent;
+
+        toast('error', 'Network error. Please check your connection and try again.');
+    }
+}
+
+// ─────────────────────────────────────────
+// Handle discard
+// ─────────────────────────────────────────
+async function handleDiscard() {
+    // Check if form has content
+    const hasContent = toInput.value.trim() || 
+                      subjectInput.value.trim() || 
+                      bodyInput.value.trim();
+
+    if (!hasContent) {
         form.reset();
-        Swal.fire({
-          position: "top",
-          icon: "success",
-          title: "Email sent successfully!",
-          showConfirmButton: false,
-          timer: 1500
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: xhr.responseText || "Sending failed."
-        });
-      }
-    };
+        updateCharacterCount();
+        originalHtmlContent = null;
+        toast('info', 'Draft discarded.');
+        return;
+    }
 
-    xhr.onerror = function () {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
-      Swal.fire({
-        icon: "error",
-        title: "Network Error",
-        text: "Could not reach the email server."
-      });
-    };
+    // Confirm discard
+    const result = await Swal.fire({
+        title: 'Discard Draft?',
+        text: 'Your unsaved email will be lost.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Discard',
+        cancelButtonText: 'Keep Editing'
+    });
 
-    xhr.send(JSON.stringify(payload));
-  });
+    if (result.isConfirmed) {
+        form.reset();
+        updateCharacterCount();
+        originalHtmlContent = null;
+        
+        // Clear all validation states
+        [toInput, subjectInput, bodyInput].forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+        [toError, subjectError, bodyError].forEach(error => {
+            error.textContent = '';
+        });
+
+        toast('info', 'Draft discarded.');
+    }
+}
+
+// ─────────────────────────────────────────
+// Warn user before leaving with unsaved changes
+// ─────────────────────────────────────────
+window.addEventListener('beforeunload', function(e) {
+    const hasContent = toInput.value.trim() || 
+                      subjectInput.value.trim() || 
+                      bodyInput.value.trim();
+    
+    if (hasContent) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
 });

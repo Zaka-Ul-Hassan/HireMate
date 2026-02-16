@@ -7,16 +7,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
 
+from app.db import get_db
 from app.routes.linkedIn import signIn_route
 from app.routes.qdrant import qdrant_route
 from app.routes.user import user_routes
 from app.routes.email import email_route
+from app.routes.email import email_settings_route
 from app.routes.resume import resume_crud_route, resume_processing_route
 from app.routes.job import job_route
 from app.routes.google import google_search_route
 from app.routes.ai import cohere_chat_route, cohere_rag_route, voice_agent_route
 from app.routes.user import user_page_routes
 from app.schemas.response_schema import ResponseSchema
+from app.services.authentication.role_provider import RoleProvider
+from app.services.authentication.superadmin_provider import SuperAdminProvider
 from app.services.scheduler.scheduler import start_email_scheduler
 
 app = FastAPI()
@@ -35,6 +39,14 @@ async def global_exception_handler(request: Request, exc: Exception):
         ).dict()
     )
 
+# Startup Event
+# 1. Seed Superadmin into DB if not exists
+@app.on_event("startup")
+async def startup_tasks():
+    db = next(get_db())
+    SuperAdminProvider.seed_superadmin(db)
+    RoleProvider.seed_roles(db)
+    db.close()
 
 # Mount static folder (for CSS, JS, images, HTML etc.)  
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
@@ -65,6 +77,7 @@ def on_startup():
 # API routes backend
 app.include_router(user_routes.router,prefix="/api/users", tags=["Users"])
 app.include_router(email_route.router, prefix="/api/email", tags=["Email"])
+app.include_router(email_settings_route.router, prefix="/api/email-settings", tags=["Email Settings"])
 app.include_router(resume_processing_route.router, prefix="/api/resume-parser", tags=["Resume"])
 app.include_router(resume_crud_route.router, prefix="/api/resumes", tags=["Resume CRUD"])
 app.include_router(cohere_chat_route.router, prefix="/api/ai-chat", tags=["AI"])

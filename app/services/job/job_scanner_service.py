@@ -3,6 +3,7 @@
 import requests
 from sqlalchemy.orm import Session
 from app.models.resume.resume_model import Resume
+from app.schemas.response_schema import ResponseSchema
 
 def is_relevant_job(job_title: str, developer_type: str, skills: str) -> bool:
     title = job_title.lower()
@@ -82,7 +83,7 @@ def is_relevant_job(job_title: str, developer_type: str, skills: str) -> bool:
 def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
     resume = db.query(Resume).filter(Resume.Id == resume_id).first()
     if not resume:
-        return {"error": "Resume not found"}
+        return ResponseSchema(status=False, message="Resume not found", data=None)
 
     search_terms = str(resume.DeveloperType or "").strip()
     location = str(resume.Country or "Pakistan").strip()
@@ -131,7 +132,7 @@ def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
         ]
 
         if not filtered_jobs:
-            return {"message": "No relevant jobs found after pre-filtering."}
+            return ResponseSchema(status=True, message="No relevant jobs found after pre-filtering.")
         
         normalized_jobs = []
         for job in filtered_jobs:
@@ -148,4 +149,4 @@ def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
         return normalized_jobs
 
     except Exception as e:
-        return {"error": f"Something went wrong: {str(e)}"}
+        return ResponseSchema(status=False, message=f"Something went wrong")

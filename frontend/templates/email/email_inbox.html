@@ -1,51 +1,112 @@
+<!-- frontend\templates\email\email_inbox.html -->
+ 
 {% extends "shared/base.html" %}
 
 {% block title %}Email Inbox{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/email/email_inbox.css">
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="view-email-box mx-auto shadow rounded bg-white p-4">
-        <h3 class="mb-4 text-center">Inbox</h3>
-
-        {% for email in emails %}
-        <div class="border rounded p-3 mb-4">
-            <!-- Sender -->
-            <div class="mb-2">
-                <label class="form-label fw-bold">From</label>
-                <div class="form-control-plaintext">{{ email.Sender }}</div>
+<div class="inbox-container">
+    <div class="inbox-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-inbox-fill"></i>
             </div>
-
-            <!-- Subject -->
-            <div class="mb-2">
-                <label class="form-label fw-bold">Subject</label>
-                <div class="form-control-plaintext">{{ email.Subject }}</div>
+            <div class="header-text">
+                <h1 class="page-title">Email Inbox</h1>
+                <p class="page-subtitle">
+                    <span id="emailCount">0</span> messages in your inbox
+                </p>
             </div>
-
-            <!-- Message -->
-            <div class="mb-2">
-                <label class="form-label fw-bold">Message</label>
-
-                {% if email.Html %}
-                <div class="email-body p-2 bg-light rounded" style="overflow: auto; max-height: 400px;">
-                    <iframe srcdoc="{{ email.Html | replace('"', ' &quot;') | safe }}"
-                        style="border:none; width:100%; height:350px;" sandbox></iframe>
-                </div>
-                {% elif email.Text %}
-                <div class="email-body p-2 bg-light rounded"
-                    style="white-space: pre-wrap; overflow: auto; max-height: 350px;">
-                    {{ email.Text }}
-                </div>
-                {% else %}
-                <p class="text-muted">No message content available.</p>
-                {% endif %}
-            </div>
-
         </div>
-        {% endfor %}
+    </div>
+
+    <div class="inbox-card">
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button class="btn btn-primary" id="composeBtn" onclick="window.location.href='/email/compose-email'">
+                <i class="bi bi-pencil-square"></i>
+                <span>Compose Email</span>
+            </button>
+            <button class="btn btn-secondary" id="refreshBtn">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Refresh</span>
+            </button>
+        </div>
+
+        <!-- Email List Section -->
+        <div class="email-list-section">
+            <div class="section-title">
+                <i class="bi bi-envelope-fill"></i>
+                Your Messages
+            </div>
+            
+            <!-- Email List -->
+            <div class="email-list" id="emailList">
+                <!-- Emails will be loaded here dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3>No Emails Found</h3>
+                <p>Your inbox is empty. Start composing a new message!</p>
+                <button class="btn btn-primary" onclick="window.location.href='/email/compose-email'">
+                    <i class="bi bi-pencil-square"></i> Compose Email
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loadingIndicator">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading your emails...</p>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Email Detail Modal -->
+<div class="modal fade" id="emailDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-envelope-open-fill"></i> Email Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="emailDetailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary" id="replyBtn">
+                    <i class="bi bi-reply-fill"></i> Reply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/email/email_inbox.js"></script>
 {% endblock %}

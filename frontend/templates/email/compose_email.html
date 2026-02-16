@@ -1,49 +1,117 @@
 <!-- frontend\templates\email\compose_email.html -->
-
 {% extends "shared/base.html" %}
 
-{% block title %}Compose Email {% endblock %}
+{% block title %}Compose Email{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/email/compose_email.css">
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 {% endblock %}
 
-
 {% block content %}
-<div class="d-flex justify-content-center align-items-center pt-5">
-    <div class="compose-email-box p-4 shadow rounded bg-white">
-        <h3 class="mb-4 text-center">Compose Email</h3>
-        <form id="composeForm" method="post" action="/email/send" style="min-width: 400px;">
+<div class="compose-email-container">
+    <div class="compose-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-envelope-paper-fill"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Compose Email</h1>
+                <p class="page-subtitle">Send a new email message</p>
+            </div>
+        </div>
+    </div>
 
-            <div class="mb-3">
-                <label for="to" class="form-label">To</label>
-                <input type="text" id="to" class="form-control" name="to"
-                    placeholder="e.g. user@example.com, user1@gmail.com">
-                <span id="email_error" class="text-danger small"></span>
+    <div class="compose-card">
+        <form id="composeForm" novalidate>
+            <!-- Recipients Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="bi bi-people-fill"></i>
+                    Recipients
+                </h3>
+                
+                <div class="form-group">
+                    <label for="to" class="form-label">
+                        To <span class="text-danger">*</span>
+                        <span class="label-info">(Separate multiple emails with commas or semicolons)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="to" 
+                        name="to" 
+                        class="form-control" 
+                        placeholder="recipient@example.com, another@example.com"
+                        autocomplete="off">
+                    <div id="email_error" class="invalid-feedback"></div>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        You can enter multiple email addresses separated by commas or semicolons
+                    </small>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="subject" class="form-label">Subject</label>
-                <input type="text" class="form-control" id="subject" name="subject">
-                <span id="subject_error" class="text-danger small"></span>
+            <!-- Message Details Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="bi bi-envelope-fill"></i>
+                    Message Details
+                </h3>
+                
+                <div class="form-group">
+                    <label for="subject" class="form-label">
+                        Subject <span class="text-danger">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="subject" 
+                        name="subject" 
+                        class="form-control" 
+                        placeholder="Enter email subject"
+                        autocomplete="off">
+                    <div id="subject_error" class="invalid-feedback"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="body" class="form-label">
+                        Message <span class="text-danger">*</span>
+                    </label>
+                    <textarea 
+                        id="body" 
+                        name="body" 
+                        class="form-control message-textarea" 
+                        rows="12"
+                        placeholder="Type your message here..."></textarea>
+                    <div id="body_error" class="invalid-feedback"></div>
+                    <div class="character-count">
+                        <span id="charCount">0</span> characters
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="body" class="form-label">Message</label>
-                <textarea class="form-control" id="body" name="body" rows="6"></textarea>
-                <span id="body_error" class="text-danger small"></span>
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" id="discardBtn" class="btn btn-secondary">
+                    <i class="bi bi-trash"></i>
+                    <span>Discard</span>
+                </button>
+                <button type="submit" id="sendBtn" class="btn btn-primary">
+                    <i class="bi bi-send-fill"></i>
+                    <span>Send Email</span>
+                </button>
             </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-success px-4">Send</button>
-            </div>
-
         </form>
     </div>
 </div>
-{% endblock%}
-
+{% endblock %}
 
 {% block extra_js %}
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/static/js/email/compose_email.js"></script>
 {% endblock %}

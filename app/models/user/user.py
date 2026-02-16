@@ -10,16 +10,21 @@ class User(Base, AuditMixin):
 
     Id = Column(Integer,primary_key=True,autoincrement=True)
     FirstName = Column(String(100), nullable=False)
-    MiddleName = Column(String(100), nullable=True)
     LastName = Column(String(100), nullable=True)
-    Age = Column(Integer, nullable=False)
-    Gender = Column(String(10), nullable=False)
+    Age = Column(Integer, nullable=True)
+    Gender = Column(String(10), nullable=True)
     Dob = Column(Date, nullable=True)
     Address = Column(String(255), nullable=True)
-    Country = Column(String(100), nullable=False)
+    Country = Column(String(100), nullable=True)
     PhoneNumber = Column(String(20), nullable=True)
-    Email = Column(String(100), nullable=False, unique=True)
-    Password = Column(String(255), nullable=False)
+    Email = Column(String(100), nullable=False)
+    Password = Column(String(255), nullable=True)
     Image = Column(String(255), nullable=True)
+
+    # Relationships
+    Roles = relationship("Role", secondary="UserRoles", back_populates="Users")
+    EmailSettings = relationship("EmailSettings", back_populates="User", cascade="all, delete-orphan")
+    SentEmails = relationship("SentEmail", back_populates="User", cascade="all, delete-orphan")
+    Resumes = relationship("Resume", back_populates="User", cascade="all, delete-orphan")
 
     

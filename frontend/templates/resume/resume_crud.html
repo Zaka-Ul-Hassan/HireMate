@@ -1,4 +1,4 @@
-<!-- frontend\templates\resume\resume_crud.html -->
+<!-- frontend/templates/resume/resume_crud.html -->
 {% extends "shared/base.html" %}
 
 {% block title %}Resume Management{% endblock %}
@@ -9,15 +9,27 @@
 
 {% block content %}
 <div class="resume-container">
-    <h1 class="page-title">Resume Management</h1>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-file-earmark-person"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Resume Management</h1>
+                <p class="page-subtitle">Create and manage your professional resume</p>
+            </div>
+        </div>
+    </div>
 
-    <!-- Loading State -->
+    <!-- ── Loading ── -->
     <div id="loadingState" class="loading-state">
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
 
-    <!-- No Resume State -->
+    <!-- ── No Resume ── -->
     <div id="noResumeState" class="no-resume-state" style="display: none;">
         <div class="empty-state">
             <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -29,24 +41,43 @@
             </svg>
             <h2>No Resume Found</h2>
             <p>Create your professional resume to get started</p>
-            <button id="createResumeBtn" class="btn btn-primary">Create Resume</button>
+            <button id="createResumeBtn" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i>
+                <span>Create Resume</span>
+            </button>
         </div>
     </div>
 
-    <!-- Resume Display State -->
+    <!-- ── Resume Display ── -->
     <div id="resumeDisplayState" class="resume-display-state" style="display: none;">
         <div class="resume-card">
+            
+            <!-- Card Header -->
             <div class="resume-header">
-                <div class="profile-section">
-                    <!-- Profile image/initials will be inserted here dynamically -->
-                    <div id="profileImageContainer" class="profile-image-container">
-                        <!-- This will be populated by JavaScript -->
+                <div class="resume-info">
+                    <h2 id="displayFullName" class="resume-name"></h2>
+                    <div class="resume-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-envelope"></i>
+                            <span id="displayEmail"></span>
+                        </div>
+                        <div class="meta-item" id="phoneMetaItem" style="display: none;">
+                            <i class="bi bi-telephone"></i>
+                            <span id="displayPhoneNumber"></span>
+                        </div>
+                        <div class="meta-item" id="addressMetaItem" style="display: none;">
+                            <i class="bi bi-geo-alt"></i>
+                            <span id="displayAddress"></span>
+                        </div>
                     </div>
-                    <div class="profile-info">
-                        <h2 id="displayFullName"></h2>
-                        <p id="displayDeveloperType" class="developer-type"></p>
+                    <div id="developerTypeBadge" style="display: none;">
+                        <span class="developer-type-badge">
+                            <i class="bi bi-code-slash"></i>
+                            <span id="displayDeveloperType"></span>
+                        </span>
                     </div>
                 </div>
+
                 <div class="action-buttons">
                     <a id="downloadResumeBtn" href="#" class="btn btn-success">
                         <i class="bi bi-download"></i>
@@ -63,26 +94,28 @@
                 </div>
             </div>
 
+            <!-- Resume Content -->
             <div class="resume-content">
+
                 <!-- Contact Information -->
                 <div id="contactInfoSection" class="info-section">
                     <h3>Contact Information</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <strong>Email</strong>
-                            <span id="displayEmail"></span>
-                        </div>
-                        <div class="info-item">
-                            <strong>Phone</strong>
-                            <span id="displayPhoneNumber"></span>
-                        </div>
-                        <div class="info-item">
-                            <strong>Address</strong>
-                            <span id="displayAddress"></span>
-                        </div>
-                        <div class="info-item">
                             <strong>Date of Birth</strong>
                             <span id="displayDateOfBirth"></span>
+                        </div>
+                        <div class="info-item" id="countryItem" style="display: none;">
+                            <strong>Country</strong>
+                            <span id="displayCountry"></span>
+                        </div>
+                        <div class="info-item" id="nationalityItem" style="display: none;">
+                            <strong>Nationality</strong>
+                            <span id="displayNationality"></span>
+                        </div>
+                        <div class="info-item" id="genderItem" style="display: none;">
+                            <strong>Gender</strong>
+                            <span id="displayGender"></span>
                         </div>
                     </div>
                 </div>
@@ -111,7 +144,7 @@
                     <div class="experience-details">
                         <h4 id="displayExperienceTitle"></h4>
                         <p class="company-info">
-                            <strong id="displayExperienceCompany"></strong> |
+                            <strong id="displayExperienceCompany"></strong>
                             <span id="displayExperienceDuration"></span>
                         </p>
                         <p id="displayExperienceDescription"></p>
@@ -141,52 +174,68 @@
                 <div id="linksSection" class="info-section">
                     <h3>Links</h3>
                     <div class="links">
-                        <a id="displayLinkedIn" href="" target="_blank" class="social-link">
-                            <i class="bi bi-linkedin me-1"></i>LinkedIn
+                        <a id="displayLinkedIn" href="#" target="_blank" rel="noopener noreferrer" class="social-link">
+                            <i class="bi bi-linkedin"></i>
+                            <span>LinkedIn</span>
                         </a>
-                        <a id="displayGitHub" href="" target="_blank" class="social-link">
-                            <i class="bi bi-github me-1"></i>GitHub
+                        <a id="displayGitHub" href="#" target="_blank" rel="noopener noreferrer" class="social-link">
+                            <i class="bi bi-github"></i>
+                            <span>GitHub</span>
                         </a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Resume Form -->
+            </div><!-- /.resume-content -->
+        </div><!-- /.resume-card -->
+    </div><!-- /#resumeDisplayState -->
+
+    <!-- ── Resume Form ── -->
     <div id="resumeFormState" class="resume-form-state" style="display: none;">
         <div class="form-container">
+
             <div class="form-header">
-                <h2 id="formTitle">Create Resume</h2>
-                <button id="cancelFormBtn" class="btn-close">×</button>
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h2 id="formTitle">Create Resume</h2>
+                </div>
+                <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
             </div>
 
-            <form id="resumeForm">
+            <form id="resumeForm" novalidate>
+
+                <!-- Personal Information -->
                 <div class="form-section">
-                    <h3>Personal Information</h3>
+                    <h3><i class="bi bi-person me-2"></i>Personal Information</h3>
                     <div class="form-grid">
+
                         <div class="form-group">
                             <label for="fullName">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" id="fullName" name="FullName" class="form-control" required>
+                            <input type="text" id="fullName" name="FullName" class="form-control" placeholder="John Doe">
                             <div class="invalid-feedback">Full Name is required.</div>
                         </div>
+
                         <div class="form-group">
                             <label for="email">Email <span class="text-danger">*</span></label>
-                            <input type="email" id="email" name="Email" class="form-control" required>
-                            <div class="invalid-feedback">Valid Email is required.</div>
+                            <input type="email" id="email" name="Email" class="form-control" placeholder="john@example.com">
+                            <div class="invalid-feedback">A valid email is required.</div>
                         </div>
+
                         <div class="form-group">
                             <label for="phoneNumber">Phone Number</label>
-                            <input type="tel" id="phoneNumber" name="PhoneNumber" class="form-control">
+                            <input type="tel" id="phoneNumber" name="PhoneNumber" class="form-control" placeholder="+1 234 567 8900">
                         </div>
+
                         <div class="form-group">
                             <label for="dateOfBirth">Date of Birth <span class="text-danger">*</span></label>
-                            <input type="date" id="dateOfBirth" name="DateOfBirth" class="form-control" required>
+                            <input type="date" id="dateOfBirth" name="DateOfBirth" class="form-control">
                             <div class="invalid-feedback">Date of Birth is required.</div>
                         </div>
+
                         <div class="form-group">
                             <label for="gender">Gender <span class="text-danger">*</span></label>
-                            <select id="gender" name="Gender" class="form-control" required>
+                            <select id="gender" name="Gender" class="form-control">
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -194,80 +243,95 @@
                             </select>
                             <div class="invalid-feedback">Gender is required.</div>
                         </div>
+
                         <div class="form-group">
                             <label for="country">Country</label>
-                            <input type="text" id="country" name="Country" class="form-control">
+                            <input type="text" id="country" name="Country" class="form-control" placeholder="Pakistan">
                         </div>
+
                         <div class="form-group">
                             <label for="nationality">Nationality</label>
-                            <input type="text" id="nationality" name="Nationality" class="form-control">
+                            <input type="text" id="nationality" name="Nationality" class="form-control" placeholder="Pakistani">
                         </div>
+
                         <div class="form-group">
                             <label for="address">Address <span class="text-danger">*</span></label>
-                            <input type="text" id="address" name="Address" class="form-control" required>
+                            <input type="text" id="address" name="Address" class="form-control" placeholder="Lahore, Pakistan">
                             <div class="invalid-feedback">Address is required.</div>
                         </div>
+
                     </div>
                 </div>
 
+                <!-- Professional Information -->
                 <div class="form-section">
-                    <h3>Professional Information</h3>
+                    <h3><i class="bi bi-briefcase me-2"></i>Professional Information</h3>
+
                     <div class="form-group">
                         <label for="developerType">Developer Type <span class="text-danger">*</span></label>
-                        <input type="text" id="developerType" name="DeveloperType" class="form-control" required>
+                        <input type="text" id="developerType" name="DeveloperType" class="form-control" placeholder="Full Stack Developer">
                         <div class="invalid-feedback">Developer Type is required.</div>
                     </div>
+
                     <div class="form-group">
                         <label for="summary">Professional Summary</label>
-                        <textarea id="summary" name="Summary" rows="4" class="form-control"></textarea>
+                        <textarea id="summary" name="Summary" rows="4" class="form-control" placeholder="Brief summary of your professional background..."></textarea>
                     </div>
+
                     <div class="form-group">
                         <label for="objective">Objective</label>
-                        <textarea id="objective" name="Objective" rows="3" class="form-control"></textarea>
+                        <textarea id="objective" name="Objective" rows="3" class="form-control" placeholder="Your career objective..."></textarea>
                     </div>
+
                     <div class="form-group">
                         <label for="skills">Skills <span class="text-danger">*</span></label>
-                        <textarea id="skills" name="Skills" rows="3" class="form-control" required></textarea>
+                        <textarea id="skills" name="Skills" rows="3" class="form-control" placeholder="Python, JavaScript, React, FastAPI..."></textarea>
                         <div class="invalid-feedback">Skills are required.</div>
                     </div>
                 </div>
 
+                <!-- Experience -->
                 <div class="form-section">
-                    <h3>Experience</h3>
+                    <h3><i class="bi bi-building me-2"></i>Experience</h3>
                     <div class="form-grid">
+
                         <div class="form-group">
                             <label for="experienceTitle">Job Title</label>
-                            <input type="text" id="experienceTitle" name="ExperienceTitle" class="form-control">
+                            <input type="text" id="experienceTitle" name="ExperienceTitle" class="form-control" placeholder="Software Engineer">
                         </div>
+
                         <div class="form-group">
                             <label for="experienceCompany">Company</label>
-                            <input type="text" id="experienceCompany" name="ExperienceCompany" class="form-control">
+                            <input type="text" id="experienceCompany" name="ExperienceCompany" class="form-control" placeholder="Company Name">
                         </div>
+
                         <div class="form-group">
                             <label for="experienceDuration">Duration</label>
-                            <input type="text" id="experienceDuration" name="ExperienceDuration" class="form-control">
+                            <input type="text" id="experienceDuration" name="ExperienceDuration" class="form-control" placeholder="Jan 2022 – Present">
                         </div>
+
                         <div class="form-group">
                             <label for="totalExperience">Total Experience</label>
-                            <input type="text" id="totalExperience" name="TotalExperience" class="form-control">
+                            <input type="text" id="totalExperience" name="TotalExperience" class="form-control" placeholder="3 years">
                         </div>
+
                     </div>
                     <div class="form-group">
-                        <label for="experienceDescription">Experience Description</label>
-                        <textarea id="experienceDescription" name="ExperienceDescription" rows="4"
-                            class="form-control"></textarea>
+                        <label for="experienceDescription">Description</label>
+                        <textarea id="experienceDescription" name="ExperienceDescription" rows="4" class="form-control" placeholder="Describe your responsibilities and achievements..."></textarea>
                     </div>
                 </div>
 
+                <!-- Education -->
                 <div class="form-section">
-                    <h3>Education</h3>
+                    <h3><i class="bi bi-mortarboard me-2"></i>Education</h3>
                     <div class="form-group">
                         <label for="education1">Education 1</label>
-                        <input type="text" id="education1" name="Education1" class="form-control">
+                        <input type="text" id="education1" name="Education1" class="form-control" placeholder="BSc Computer Science – FAST NUCES, 2020">
                     </div>
                     <div class="form-group">
                         <label for="education2">Education 2</label>
-                        <input type="text" id="education2" name="Education2" class="form-control">
+                        <input type="text" id="education2" name="Education2" class="form-control" placeholder="FSc Pre-Engineering – Lahore Board, 2016">
                     </div>
                     <div class="form-group">
                         <label for="education3">Education 3</label>
@@ -275,11 +339,12 @@
                     </div>
                 </div>
 
+                <!-- Projects -->
                 <div class="form-section">
-                    <h3>Projects</h3>
+                    <h3><i class="bi bi-lightbulb me-2"></i>Projects</h3>
                     <div class="form-group">
                         <label for="project1">Project 1</label>
-                        <textarea id="project1" name="Project1" rows="2" class="form-control"></textarea>
+                        <textarea id="project1" name="Project1" rows="2" class="form-control" placeholder="AI-powered job portal built with FastAPI and React..."></textarea>
                     </div>
                     <div class="form-group">
                         <label for="project2">Project 2</label>
@@ -287,37 +352,50 @@
                     </div>
                 </div>
 
+                <!-- Additional Information -->
                 <div class="form-section">
-                    <h3>Additional Information</h3>
+                    <h3><i class="bi bi-info-circle me-2"></i>Additional Information</h3>
                     <div class="form-grid">
+
                         <div class="form-group">
                             <label for="languages">Languages</label>
-                            <input type="text" id="languages" name="Languages" class="form-control">
+                            <input type="text" id="languages" name="Languages" class="form-control" placeholder="English, Urdu">
                         </div>
+
                         <div class="form-group">
                             <label for="linkedIn">LinkedIn</label>
-                            <input id="linkedIn" name="LinkedIn" class="form-control">
+                            <input type="url" id="linkedIn" name="LinkedIn" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
                         </div>
+
                         <div class="form-group">
                             <label for="gitHub">GitHub</label>
-                            <input id="gitHub" name="GitHub" class="form-control">
+                            <input type="url" id="gitHub" name="GitHub" class="form-control" placeholder="https://github.com/yourusername">
                         </div>
+
                     </div>
                     <div class="form-group">
                         <label for="certifications">Certifications</label>
-                        <textarea id="certifications" name="Certifications" rows="3" class="form-control"></textarea>
+                        <textarea id="certifications" name="Certifications" rows="3" class="form-control" placeholder="AWS Certified Solutions Architect, 2023..."></textarea>
                     </div>
                 </div>
 
+                <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" id="submitBtn" class="btn btn-primary">Save Resume</button>
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Cancel</span>
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Save Resume</span>
+                    </button>
                 </div>
-            </form>
 
+            </form>
         </div>
-    </div>
-</div>
+    </div><!-- /#resumeFormState -->
+
+</div><!-- /.resume-container -->
 {% endblock %}
 
 {% block extra_js %}

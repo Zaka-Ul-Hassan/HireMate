@@ -1,7 +1,6 @@
 // frontend\static\js\voice_agent\calling_agent.js
 
 document.addEventListener("DOMContentLoaded", () => {
-  debugger
   const startCallBtn = document.getElementById("start-call");
 
   if (!startCallBtn) return;
@@ -11,11 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
     startCallBtn.textContent = "📞 Starting call...";
     startCallBtn.disabled = true;
 
-    // const customerNumber = "+923227834344";
     const customerNumber = "+923230256717";
 
     try {
       console.log("Initiating AI voice call...");
+
+      // Get token from localStorage (or wherever you store it)
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("You are not logged in. Please login first.");
+      }
 
       const response = await fetch(
         `/api/voice-agent/make_call?customer_number=${encodeURIComponent(customerNumber)}`,
@@ -23,29 +27,36 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Accept": "application/json",
+            "Authorization": `Bearer ${token}` // send token here
           },
         }
       );
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
-      }
+      // Parse JSON response even if status is not ok
+      const data = await response.json();
 
-    const data = await response.json();
-
-      if (data.status) {
+      if (response.status === 401 || data.status === false) {
+        // Show error from backend
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "Unauthorized or failed request",
+          confirmButtonColor: "#d33",
+        });
+      } else if (data.status === true) {
+        // Show success from backend
         Swal.fire({
           icon: "success",
           title: "AI Call Started!",
-          text: data.message,
+          text: data.message || "Call started successfully.",
           confirmButtonColor: "#3085d6",
         });
       } else {
+        // Fallback warning
         Swal.fire({
           icon: "warning",
-          title: "Action Required",
-          text: data.error || "Please upload your resume first.",
+          title: "Warning",
+          text: data.message || "Something went wrong.",
           confirmButtonColor: "#d33",
         });
       }
@@ -54,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Something went wrong while starting the call.",
+        text: error.message || "Something went wrong while starting the call.",
         confirmButtonColor: "#d33",
       });
     } finally {

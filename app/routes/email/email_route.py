@@ -1,45 +1,85 @@
 # app\routes\email\email_route.py
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Query
+from requests import Session
 
-from app.schemas.email.email_schema import EmailSchema,InboxEmail
-from app.services.email.email_service import send_email,fetch_all_emails,store_emails_in_db
+from app.schemas.email.email_schema import EmailSchema,InboxEmail, SendClientEmailSchema, SendSystemEmailSchema
+from app.schemas.pagination_schema import PaginationInputSchema
+from app.schemas.response_schema import ResponseSchema
+from app.services.authentication import auth_service
+from app.services.email import email_service
+from app.services.email.email_service import send_email,fetch_all_emails
+from init_db import get_db
 
-
+    
 router = APIRouter()
 
-@router.post("/send-email")
-def send_email_route(email: EmailSchema):
-    try:
-        return send_email(email.to, email.subject, email.body)
+# Send System Email
+@router.post("/system", response_model=ResponseSchema)
+def send_system_email(
+payload: SendSystemEmailSchema
+):
+    return email_service.send_system_email(payload)
 
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# Send Email
+@router.post("/client", response_model=ResponseSchema)
+def send_email(
+    payload: SendClientEmailSchema,
+    db: Session = Depends(get_db)
+):
+    return email_service.send_email(db, payload)
+
+
+# Get Sent Emails by User Id
+@router.get("/get/sent-emails")
+def get_all_sent_emails_by_user(
+    user_id: int = Query(..., description="User Id"),
+    pagination: PaginationInputSchema = Depends(),
+    db: Session = Depends(get_db),
+):
+    return email_service.get_sent_email(db, user_id, pagination)
     
 
-@router.get("/fetch-emails")
-def get_emails():
-    try:
-        emails = fetch_all_emails()
-        return {"success": True, "emails": emails}
+# Fetch Replied Emails From Inbox
+@router.get("/save/fetch-replies")
+def save_fetch_emails(
+    db: Session = Depends(get_db),
+    user_id : int = Query(...)
+    ):
 
-    except Exception as e:
-        return {"success": False, "message": str(e)}
+    return email_service.save_fetch_replied_emails(db,user_id)
 
+
+# Fetch Replied Emails with Sent Email From DB
+@router.get("/get/replied-emails", response_model=ResponseSchema)
+def fetch_replied_emails(
+    user_id: int = Query(...),
+    pagination : PaginationInputSchema = Depends(),
+    db: Session = Depends(get_db)
+):
+
+    return email_service.get_replied_emails_with_sent(db, user_id, pagination)
+
+
+# Fetch Inbox Emails
+@router.get("/Inbox-emails")
+def fetch_inbox__emails(
+    db: Session = Depends(get_db),
+    user_id : int = Query(...)
+    ):
+
+    return email_service.fetch_inbox_emails(db,user_id)
+
+
+# Genetate Email Content using AI
+@router.post("/generate-content", response_model=ResponseSchema)
+def generate_email_content(
+    email: str = Query(..., description="Email content prompt") ,
+    current_user = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user.status or not current_user.data:
+        return ResponseSchema(status=False, message="Unauthorized access")
     
-
-@router.post("/store-fetch-emails")
-def store_emails():
-    try:
-        result = store_emails_in_db()
-
-        if not result.get("success", False):
-            return {"success": False, "message": result.get("error", "Unknown error")}
-
-        return {"success": True, "emails": result.get("emails", [])}
-
-    except Exception as e:
-        return {"success": False, "message": f"An unexpected error occurred: {str(e)}"}
+    return email_service.generate_email_content(db, current_user, email)

@@ -1,123 +1,204 @@
-document.addEventListener("DOMContentLoaded", function () {
+// frontend/static/js/job/list.js
 
-    const jobContainer = document.getElementById("jobContainer");
-    const jobTemplate = document.getElementById("jobTemplate");
-    const jobAlert = document.getElementById("jobAlert");
-    const spinner = document.getElementById("loadingSpinner");
+const API_BASE_URL = 'http://127.0.0.1:8000/api/recommend-jobs';
+let allJobs = [];
 
-    async function fetchJobsAndRender() {
-        spinner.style.display = "block";
-        jobContainer.innerHTML = "";
-        jobAlert.innerHTML = "";
+// ─────────────────────────────────────────
+// Toastr global config
+// ─────────────────────────────────────────
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    timeOut: 3500,
+    extendedTimeOut: 1000,
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut',
+    preventDuplicates: true,
+    newestOnTop: true,
+};
 
-        try {
+function toast(type, message, title) {
+    toastr[type](message, title || '');
+}
 
-            const res = await fetch("http://127.0.0.1:8000/api/recommend-jobs/recommend/jobs?page=2", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                if (data.detail === "Not Found") {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Resume Required',
-                        text: 'Please upload your resume before finding jobs.',
-                        confirmButtonText: 'Upload Resume'
-                    }).then(() => {
-                        window.location.href = "/resume-upload";
-                    });
-                    return;
-                }
-
-                throw new Error(data.detail || "Failed to fetch jobs.");
-            }
-
-            // Handle backend message object
-            if (data.jobs && data.jobs.message) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'No Jobs Found',
-                    text: data.jobs.message,
-                });
-                return;
-            }
-
-            // Ensure jobs is an array
-            const jobs = Array.isArray(data.jobs) ? data.jobs : [];
-
-            if (jobs.length === 0) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'No Jobs Found',
-                    text: 'No jobs available at the moment.',
-                });
-                return;
-            }
-
-            // Show total job count
-            jobAlert.innerHTML = `<span class="badge bg-success fs-6 py-2 px-3">Found ${jobs.length} job(s)</span>`;
-
-            jobs.forEach(job => {
-                const clone = jobTemplate.cloneNode(true);
-                clone.style.display = "flex";
-                clone.removeAttribute("id");
-
-                clone.querySelector(".job-title").textContent = job.job_title || "N/A";
-                clone.querySelector(".company-name").textContent = job.company_name || "N/A";
-                clone.querySelector(".job-location").textContent = `Location: ${job.job_location || "Remote"}`;
-                clone.querySelector(".posted-date").textContent = `Posted Date: ${job.posted_date || "N/A"}`;
-
-                const tagsContainer = clone.querySelector(".tag-list");
-                tagsContainer.innerHTML = "";
-                (job.tags || []).forEach(tag => {
-                    const span = document.createElement("span");
-                    span.className = "badge border rounded-pill px-3 py-1 text-dark bg-white";
-                    span.textContent = tag;
-                    tagsContainer.appendChild(span);
-                });
-
-                // Job URL
-                const jobViewBtn = clone.querySelector(".job-view-btn");
-                if (job.linkedin_job_url_cleaned) {
-                    jobViewBtn.href = job.linkedin_job_url_cleaned;
-                } else {
-                    jobViewBtn.href = "javascript:void(0);";
-                    jobViewBtn.classList.add("disabled");
-                    jobViewBtn.style.pointerEvents = "none";
-                }
-
-                // Company URL
-                const companyLink = clone.querySelector(".job-company-link");
-                if (job.linkedin_company_url_cleaned) {
-                    companyLink.href = job.linkedin_company_url_cleaned;
-                } else {
-                    companyLink.href = "javascript:void(0);";
-                    companyLink.classList.add("disabled");
-                    companyLink.style.pointerEvents = "none";
-                }
-
-                jobContainer.appendChild(clone);
-            });
-
-        } catch (err) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: err.message || "Something went wrong. Please try again.",
-            });
-        } finally {
-            spinner.style.display = "none";
-        }
-    }
-
-    if (window.location.pathname === "/job/list") {
-        fetchJobsAndRender();
-    }
-
-    window.fetchJobsAndRender = fetchJobsAndRender;
+// ─────────────────────────────────────────
+// Initialize
+// ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    attachEventListeners();
+    loadJobs();
 });
+
+function attachEventListeners() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            loadJobs();
+            toast('info', 'Refreshing job listings...');
+        });
+    }
+}
+
+// ─────────────────────────────────────────
+// Access Token Helper
+// ─────────────────────────────────────────
+function getAccessToken() {
+    return localStorage.getItem('access_token'); // stored during login
+}
+
+// ─────────────────────────────────────────
+// Load jobs from API
+// ─────────────────────────────────────────
+async function loadJobs(page = 1) {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const jobContainer = document.getElementById('jobContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    try {
+        if (loadingSpinner) loadingSpinner.style.display = 'block';
+        if (jobContainer) jobContainer.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'none';
+
+        const token = getAccessToken();
+        if (!token) {
+            throw new Error('Access token not found. Please login.');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/recommend/jobs?page=${page}`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+        console.log('API Response:', result);
+
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+
+        // ✅ Check if result is array
+        if (Array.isArray(result) && result.length > 0) {
+            allJobs = result;
+            renderJobs(allJobs);
+            updateJobCount();
+            toast('success', 'Jobs loaded successfully');
+        } else {
+            allJobs = [];
+            showEmptyState();
+            updateJobCount();
+            toast('info', 'No jobs found');
+        }
+
+    } catch (error) {
+        console.error('Error loading jobs:', error);
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        showEmptyState();
+        toast('error', 'Failed to load jobs: ' + error.message);
+    }
+}
+
+
+// ─────────────────────────────────────────
+// Render jobs
+// ─────────────────────────────────────────
+function renderJobs(jobs) {
+    const jobContainer = document.getElementById('jobContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    if (!jobContainer) return;
+
+    if (jobs.length === 0) {
+        jobContainer.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+
+    jobContainer.style.display = 'flex';
+    if (emptyState) emptyState.style.display = 'none';
+    jobContainer.innerHTML = '';
+
+    jobs.forEach(job => {
+        const jobItem = createJobItem(job);
+        jobContainer.appendChild(jobItem);
+    });
+}
+
+// ─────────────────────────────────────────
+// Create job item element
+// ─────────────────────────────────────────
+function createJobItem(job) {
+    const div = document.createElement('div');
+    div.className = 'job-item';
+
+    let tagsHTML = '';
+    if (job.tags && job.tags.length > 0) {
+        tagsHTML = job.tags.map(tag => `<span class="job-tag">${tag}</span>`).join('');
+    }
+
+    const viewBtnDisabled = !job.linkedin_job_url_cleaned ? 'disabled' : '';
+    const companyLinkDisabled = !job.linkedin_company_url_cleaned ? 'disabled' : '';
+
+    div.innerHTML = `
+        <div class="job-header-row">
+            <div class="job-info">
+                <h3 class="job-title">${job.job_title || 'N/A'}</h3>
+                <div class="company-name">
+                    <i class="bi bi-building"></i>
+                    ${job.company_name || 'N/A'}
+                </div>
+                ${tagsHTML ? `<div class="tag-list">${tagsHTML}</div>` : ''}
+                <div class="job-meta">
+                    <div class="job-meta-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>${job.job_location || 'Remote'}</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>${job.posted_date || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="job-actions">
+                <a href="${job.linkedin_job_url_cleaned || '#'}" 
+                   target="_blank" 
+                   class="btn btn-primary job-view-btn ${viewBtnDisabled}">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    View Job
+                </a>
+                <a href="${job.linkedin_company_url_cleaned || '#'}" 
+                   target="_blank" 
+                   class="job-company-link ${companyLinkDisabled}">
+                    Company Website
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+    `;
+    return div;
+}
+
+// ─────────────────────────────────────────
+// Update job count
+// ─────────────────────────────────────────
+function updateJobCount() {
+    const jobCount = document.getElementById('jobCount');
+    if (jobCount) jobCount.textContent = allJobs.length;
+}
+
+// ─────────────────────────────────────────
+// Show empty state
+// ─────────────────────────────────────────
+function showEmptyState() {
+    const jobContainer = document.getElementById('jobContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    if (jobContainer) jobContainer.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'block';
+}

@@ -1,16 +1,19 @@
 /* frontend\static\css\layout\sidebar.css */
+/* Realistic Sidebar Styles */
 
 .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     width: 251px;
-    height: 100vh; /* full height including behind navbar */
-    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-    z-index: 1050; /* slightly under navbar */
+    height: 100vh;
+    background: #1f2937;
+    z-index: 1050;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #374151;
 }
-
 
 .sidebar::-webkit-scrollbar {
     width: 6px;
@@ -21,24 +24,31 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 3px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .side-inner {
     padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
 }
 
-/* Profile Section */
+/* ========================================
+   Profile Section
+======================================== */
 .profile {
     text-align: center;
     padding: 0 1.5rem 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #374151;
     margin-bottom: 1.5rem;
+    flex-shrink: 0;
 }
 
 .profile img {
@@ -46,41 +56,43 @@
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    border: 3px solid #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
     margin-bottom: 1rem;
 }
 
 .profile img:hover {
     transform: scale(1.05);
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: #4b5563;
 }
 
+/* Improved Avatar Placeholder - Realistic Colors */
 .avatar-placeholder {
     width: 90px;
     height: 90px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2B5DA9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.2rem;
+    font-weight: 600;
     color: white;
     margin: 0 auto 1rem;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    border: 3px solid #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    letter-spacing: 2px;
 }
 
 .avatar-placeholder:hover {
     transform: scale(1.05);
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: #4b5563;
 }
 
 .profile .name {
-    color: white;
+    color: #f9fafb;
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0.5rem 0 0.3rem;
@@ -88,18 +100,26 @@
 }
 
 .profile .country {
-    color: rgba(255, 255, 255, 0.6);
+    color: #9ca3af;
     font-size: 0.85rem;
     display: block;
 }
 
-/* Navigation Menu */
+/* ========================================
+   Navigation Menu
+======================================== */
 .nav-menu {
     padding: 0 0.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar-menu {
     gap: 0.3rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar-menu .nav-item {
@@ -107,10 +127,10 @@
 }
 
 .sidebar-menu .nav-link {
-    color: rgba(255, 255, 255, 0.85);
+    color: #d1d5db;
     padding: 0.9rem 1.2rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
+    border-radius: 8px;
+    transition: all 0.2s ease;
     font-size: 0.95rem;
     font-weight: 500;
     display: flex;
@@ -126,15 +146,15 @@
     top: 0;
     height: 100%;
     width: 3px;
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    background: #2B5DA9;
     transform: scaleY(0);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .sidebar-menu .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transform: translateX(5px);
+    background: #374151;
+    color: #f9fafb;
+    transform: translateX(4px);
 }
 
 .sidebar-menu .nav-link:hover::before {
@@ -147,17 +167,17 @@
     text-align: center;
 }
 
-/* Active State */
+/* Active State - More Realistic */
 .sidebar-menu .nav-link.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2B5DA9;
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 4px rgba(43, 93, 169, 0.3);
 }
 
 /* Dropdown Arrow */
 .menu-arrow {
     font-size: 0.7rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
     opacity: 0.7;
     margin-left: auto;
 }
@@ -166,11 +186,13 @@
     transform: rotate(180deg);
 }
 
-/* Submenu */
+/* ========================================
+   Submenu
+======================================== */
 .submenu-link {
     padding: 0.7rem 1.2rem 0.7rem 2.5rem !important;
     font-size: 0.88rem;
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: #9ca3af !important;
     position: relative;
 }
 
@@ -182,19 +204,19 @@
     transform: translateY(-50%);
     width: 4px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.4);
+    background: #6b7280;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .submenu-link:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: white !important;
+    background: #374151 !important;
+    color: #f9fafb !important;
     transform: translateX(3px);
 }
 
 .submenu-link:hover::before {
-    background: #667eea;
+    background: #2B5DA9;
     width: 6px;
     height: 6px;
 }
@@ -205,34 +227,47 @@
 
 /* Collapse Animation */
 .collapse {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .collapsing {
-    transition: height 0.3s ease;
+    transition: height 0.2s ease;
 }
 
-/* Logout Link Styling */
+/* ========================================
+   Logout Link - Push to Bottom
+======================================== */
+.sidebar-menu .nav-item:last-child {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #374151;
+}
+
 .logout-link {
-    color: #ff6b6b !important;
-    margin-top: 0.5rem;
+    color: #ef4444 !important;
 }
 
 .logout-link:hover {
-    background: rgba(255, 107, 107, 0.1) !important;
-    color: #ff5252 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #dc2626 !important;
 }
 
 .logout-link::before {
-    background: #ff6b6b !important;
+    background: #ef4444 !important;
 }
 
-/* Responsive */
+/* ========================================
+   Responsive
+======================================== */
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
         position: relative;
         height: auto;
+    }
+    
+    .side-inner {
+        min-height: auto;
     }
     
     .profile img,
@@ -242,20 +277,28 @@
     }
     
     .avatar-placeholder {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .profile .name {
         font-size: 1rem;
     }
+    
+    .nav-menu {
+        min-height: auto;
+    }
 }
 
-/* Smooth scroll behavior */
+/* ========================================
+   Smooth Scroll
+======================================== */
 .sidebar {
     scroll-behavior: smooth;
 }
 
-/* Add subtle animation on page load */
+/* ========================================
+   Load Animation
+======================================== */
 @keyframes slideInLeft {
     from {
         opacity: 0;

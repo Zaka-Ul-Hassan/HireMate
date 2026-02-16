@@ -28,13 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
             newPasswordError.textContent = "";
         }
 
-        // Also re-check confirm password live if it's filled
-        if (confirmPasswordInput.value.trim()) {
-            validateConfirmPassword();
-        }
+        if (confirmPasswordInput.value.trim()) validateConfirmPassword();
     });
 
-    // Real-time confirm password validation
     confirmPasswordInput.addEventListener("input", validateConfirmPassword);
 
     function validateConfirmPassword() {
@@ -58,37 +54,27 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
 
         let isValid = true;
-
-        // Final check before submit
-        if (!newPasswordInput.value.trim() || newPasswordInput.classList.contains("is-invalid")) {
-            isValid = false;
-        }
-        if (!confirmPasswordInput.value.trim() || confirmPasswordInput.classList.contains("is-invalid")) {
-            isValid = false;
-        }
-
+        if (!newPasswordInput.value.trim() || newPasswordInput.classList.contains("is-invalid")) isValid = false;
+        if (!confirmPasswordInput.value.trim() || confirmPasswordInput.classList.contains("is-invalid")) isValid = false;
         if (!isValid) return;
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/users/reset-password", {
+            const response = await fetch(`http://127.0.0.1:8000/api/users/reset-password?token=${token}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    token: token,
-                    new_password: newPasswordInput.value.trim(),
-                    confirm_password: confirmPasswordInput.value.trim()
+                    NewPassword: newPasswordInput.value.trim(),
+                    ConfirmPassword: confirmPasswordInput.value.trim()
                 })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                toastr.success(data.message || "Password reset successful!", "", { positionClass: "toast-top-full-width" });
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 1500);
+                toastr.success(data.message || "Password reset successful!", "", { positionClass: "toast-top-right" });
+                setTimeout(() => window.location.href = "/", 1500);
             } else {
-                toastr.error(data.detail || data.message || "Failed to reset password.", "", { positionClass: "toast-top-full-width" });
+                toastr.error(data.detail || data.message || "Failed to reset password.", "", { positionClass: "toast-top-right" });
             }
         } catch (error) {
             console.error("Error:", error);

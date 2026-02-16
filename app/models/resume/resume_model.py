@@ -1,6 +1,7 @@
 # app\models\resume\resume_model.py
 
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func
+from sqlalchemy import Column, String, Integer, Text,ForeignKey, func
+from sqlalchemy.orm import relationship
 from app.models.base_user_dto.audit_mixin import AuditMixin
 from app.models.base.model_base import Base
 
@@ -55,3 +56,7 @@ class Resume(Base, AuditMixin):
     LinkedIn = Column(String(255), nullable=True)
     GitHub = Column(String(255), nullable=True)
     Certifications = Column(Text, nullable=True)
+
+
+    # Relationship
+    User = relationship("User", back_populates="Resumes")

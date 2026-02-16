@@ -1,594 +1,564 @@
-// frontend\static\js\resume\resume_crud.js
+// frontend/static/js/resume/resume_crud.js
 
-// API Configuration
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
-let currentUserId = null;
+const API_BASE_URL  = 'http://127.0.0.1:8000/api/resumes';
+let currentUserId   = null;
 let currentResumeId = null;
-let isUpdateMode = false;
+let isUpdateMode    = false;
 
-// DOM Elements
-const loadingState = document.getElementById('loadingState');
-const noResumeState = document.getElementById('noResumeState');
+// ─────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────
+const loadingState       = document.getElementById('loadingState');
+const noResumeState      = document.getElementById('noResumeState');
 const resumeDisplayState = document.getElementById('resumeDisplayState');
-const resumeFormState = document.getElementById('resumeFormState');
+const resumeFormState    = document.getElementById('resumeFormState');
+const createResumeBtn    = document.getElementById('createResumeBtn');
+const updateResumeBtn    = document.getElementById('updateResumeBtn');
+const deleteResumeBtn    = document.getElementById('deleteResumeBtn');
+const downloadResumeBtn  = document.getElementById('downloadResumeBtn');
+const cancelFormBtn      = document.getElementById('cancelFormBtn');
+const cancelBtn          = document.getElementById('cancelBtn');
+const resumeForm         = document.getElementById('resumeForm');
+const formTitle          = document.getElementById('formTitle');
 
-const createResumeBtn = document.getElementById('createResumeBtn');
-const updateResumeBtn = document.getElementById('updateResumeBtn');
-const deleteResumeBtn = document.getElementById('deleteResumeBtn');
-const downloadResumeBtn = document.getElementById('downloadResumeBtn');
-const cancelFormBtn = document.getElementById('cancelFormBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const resumeForm = document.getElementById('resumeForm');
-const formTitle = document.getElementById('formTitle');
+// ─────────────────────────────────────────
+// Toastr global config
+// ─────────────────────────────────────────
+toastr.options = {
+    closeButton:       true,
+    progressBar:       true,
+    positionClass:     'toast-top-right',
+    timeOut:           3500,
+    extendedTimeOut:   1000,
+    showEasing:        'swing',
+    hideEasing:        'linear',
+    showMethod:        'fadeIn',
+    hideMethod:        'fadeOut',
+    preventDuplicates: true,
+    newestOnTop:       true,
+};
 
-// Initialize
+// ─────────────────────────────────────────
+// Toast helpers — always show backend message
+// ─────────────────────────────────────────
+function toast(type, message, title) {
+    toastr[type](message, title || '');
+}
+
+// Reads message from backend ResponseSchema and picks success/error
+function toastFromResponse(result, fallbackSuccess, fallbackError) {
+    const msg  = result?.message || (result?.status ? fallbackSuccess : fallbackError);
+    const type = result?.status  ? 'success' : 'error';
+    toast(type, msg);
+}
+
+// ─────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchCurrentUser();
+    loadUserFromLocalStorage();
+
+    if (!currentUserId) {
+        toast('error', 'Session expired. Please log in again.');
+        setTimeout(() => window.location.href = '/', 2000);
+        return;
+    }
+
     await loadUserResume();
     setupEventListeners();
+    setupFormValidation();
+    setupDateOfBirthMax();
 });
 
-// Event Listeners
+// ─────────────────────────────────────────
+// 1. Read user from localStorage (SIMPLIFIED - NO PROFILE IMAGE)
+//    Keys: user_id, access_token
+// ─────────────────────────────────────────
+function loadUserFromLocalStorage() {
+    currentUserId = localStorage.getItem('user_id');
+}
+
+// ─────────────────────────────────────────
+// 2. Auth headers
+// ─────────────────────────────────────────
+function authHeaders() {
+    const token = localStorage.getItem('access_token');
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+}
+
+// ─────────────────────────────────────────
+// 3. Event listeners
+// ─────────────────────────────────────────
 function setupEventListeners() {
-    createResumeBtn.addEventListener('click', () => showForm(false));
-    updateResumeBtn.addEventListener('click', () => showForm(true));
-    deleteResumeBtn.addEventListener('click', handleDelete);
-    cancelFormBtn.addEventListener('click', hideForm);
-    cancelBtn.addEventListener('click', hideForm);
-    resumeForm.addEventListener('submit', handleSubmit);
+    createResumeBtn.addEventListener('click',  () => showForm(false));
+    updateResumeBtn.addEventListener('click',  () => showForm(true));
+    deleteResumeBtn.addEventListener('click',  handleDelete);
+    cancelFormBtn.addEventListener('click',    hideForm);
+    cancelBtn.addEventListener('click',        hideForm);
+    resumeForm.addEventListener('submit',      handleSubmit);
 }
 
-// Fetch Current User
-async function fetchCurrentUser() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/users/current-user`);
-        if (!response.ok) throw new Error('Failed to fetch user');
-
-        const data = await response.json();
-        currentUserId = data.UserId;
-
-        // Store in localStorage
-        localStorage.setItem('userId', currentUserId);
-
-        console.log('Current User ID:', currentUserId);
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        toastr.error('Failed to fetch user information');
-    }
-}
-
-// Set Download Button URL
+// ─────────────────────────────────────────
+// 4. Download button
+// ─────────────────────────────────────────
 function setDownloadButton(userId) {
     if (downloadResumeBtn && userId) {
         downloadResumeBtn.href = `/resume/download/${userId}`;
     }
 }
 
-/**
- * Function to extract initials from full name
- * @param {string} fullName - The full name
- * @returns {string} - The initials (max 2 characters)
- */
-function getInitials(fullName) {
-    if (!fullName || fullName.trim() === '') {
-        return '??';
-    }
-
-    const nameParts = fullName.trim().split(' ').filter(part => part.length > 0);
-
-    if (nameParts.length === 0) {
-        return '??';
-    } else if (nameParts.length === 1) {
-        // Single name: take first two characters
-        return nameParts[0].substring(0, 2).toUpperCase();
-    } else {
-        // Multiple names: take first letter of first and last name
-        const firstInitial = nameParts[0][0];
-        const lastInitial = nameParts[nameParts.length - 1][0];
-        return (firstInitial + lastInitial).toUpperCase();
-    }
-}
-
-/**
- * Function to display user initials in a container
- * @param {string} fullName - The full name of the user
- * @param {HTMLElement} container - The container element
- */
-function displayInitials(fullName, container) {
-    const initialsDiv = document.createElement('div');
-    initialsDiv.className = 'profile-initials';
-
-    // Extract initials from full name
-    const initials = getInitials(fullName);
-    initialsDiv.textContent = initials;
-
-    container.appendChild(initialsDiv);
-}
-
-/**
- * Function to create and display profile image or initials
- * @param {string} fullName - The full name of the user
- * @param {string} imageUrl - Optional image URL if user has a profile picture
- */
-function displayProfileImage(fullName, imageUrl = null) {
-    const container = document.getElementById('profileImageContainer');
-
-    if (!container) {
-        console.warn('Profile image container not found');
-        return;
-    }
-
-    // Clear existing content
-    container.innerHTML = '';
-
-    if (imageUrl && imageUrl.trim() !== '') {
-        // Display profile image if available
-        const img = document.createElement('img');
-        img.src = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl.replace(/\\/g, '/');
-        img.alt = fullName || 'Profile Picture';
-        img.className = 'profile-image';
-        img.onerror = function () {
-            // Fallback to initials if image fails to load
-            console.warn('Failed to load profile image, falling back to initials');
-            container.innerHTML = '';
-            displayInitials(fullName, container);
-        };
-        container.appendChild(img);
-    } else {
-        // Display initials if no image
-        displayInitials(fullName, container);
-    }
-}
-
-// Load User Resume
+// ─────────────────────────────────────────
+// 5. Load resume
+//    GET /api/resumes/by-user-id?user_id=X
+// ─────────────────────────────────────────
 async function loadUserResume() {
-    if (!currentUserId) {
-        toastr.error('User ID not found');
-        showState('noResume');
-        return;
-    }
+    showState('loading');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/resumes/user/${currentUserId}`);
+        const response = await fetch(
+            `${API_BASE_URL}/by-user-id?user_id=${currentUserId}`,
+            { headers: authHeaders() }
+        );
 
-        if (response.ok) {
-            const result = await response.json();
-            if (result.status && result.data) {
-                currentResumeId = result.data.Id;
-                displayResume(result.data);
-
-                // Set download button URL
-                setDownloadButton(currentUserId);
-
-                showState('display');
-            } else {
-                showState('noResume');
-            }
-        } else if (response.status === 404) {
-            showState('noResume');
-        } else {
-            throw new Error('Failed to fetch resume');
+        if (response.status === 401) {
+            toast('error', 'Session expired. Please log in again.');
+            setTimeout(() => window.location.href = '/', 2000);
+            return;
         }
+
+        const result = await response.json();
+
+        if (result.status && result.data) {
+            currentResumeId = result.data.Id;
+            displayResume(result.data);
+            setDownloadButton(currentUserId);
+            showState('display');
+        } else {
+            // Backend returns status:false when no resume found — normal case
+            showState('noResume');
+        }
+
     } catch (error) {
         console.error('Error loading resume:', error);
+        toast('error', 'Failed to load resume. Please refresh the page.');
         showState('noResume');
     }
 }
 
-// Helper function to show/hide sections
+// ─────────────────────────────────────────
+// 6. Display helpers
+// ─────────────────────────────────────────
 function showHideSection(sectionId, hasContent) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.style.display = hasContent ? 'block' : 'none';
+    const el = document.getElementById(sectionId);
+    if (el) el.style.display = hasContent ? 'block' : 'none';
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || '';
+}
+
+function showHideElement(id, shouldShow) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = shouldShow ? 'flex' : 'none';
+}
+
+function setLink(id, url) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (url && url.trim()) {
+        let href = url.trim();
+        if (!href.startsWith('http://') && !href.startsWith('https://')) href = 'https://' + href;
+        el.href          = href;
+        el.style.display = 'inline-flex';
+    } else {
+        el.style.display = 'none';
     }
 }
 
-// Display Resume Data
+// ─────────────────────────────────────────
+// 7. Render resume into display view (UPDATED)
+// ─────────────────────────────────────────
 function displayResume(resume) {
-    // Profile Section - Use the new displayProfileImage function
-    displayProfileImage(
-        resume.FullName,
-        resume.ProfileImage // This will be null/empty if no image exists
-    );
-
-    // Display name and developer type
-    document.getElementById('displayFullName').textContent = resume.FullName || '';
-    document.getElementById('displayDeveloperType').textContent = resume.DeveloperType || '';
-
-    // Contact Information - Show section only if there's data
-    const hasContactInfo = resume.Email || resume.PhoneNumber || resume.Address || resume.DateOfBirth;
-    showHideSection('contactInfoSection', hasContactInfo);
-
-    if (hasContactInfo) {
-        document.getElementById('displayEmail').textContent = resume.Email || 'N/A';
-        document.getElementById('displayPhoneNumber').textContent = resume.PhoneNumber || 'N/A';
-        document.getElementById('displayAddress').textContent = resume.Address || 'N/A';
-        document.getElementById('displayDateOfBirth').textContent = resume.DateOfBirth || 'N/A';
+    // Header info
+    setText('displayFullName', resume.FullName);
+    setText('displayEmail', resume.Email || 'N/A');
+    
+    // Phone
+    if (resume.PhoneNumber) {
+        setText('displayPhoneNumber', resume.PhoneNumber);
+        showHideElement('phoneMetaItem', true);
+    } else {
+        showHideElement('phoneMetaItem', false);
+    }
+    
+    // Address
+    if (resume.Address) {
+        setText('displayAddress', resume.Address);
+        showHideElement('addressMetaItem', true);
+    } else {
+        showHideElement('addressMetaItem', false);
+    }
+    
+    // Developer Type Badge
+    if (resume.DeveloperType) {
+        setText('displayDeveloperType', resume.DeveloperType);
+        showHideElement('developerTypeBadge', true);
+    } else {
+        showHideElement('developerTypeBadge', false);
     }
 
-    // Professional Summary
-    showHideSection('summarySection', resume.Summary);
-    if (resume.Summary) {
-        document.getElementById('displaySummary').textContent = resume.Summary;
+    // Contact Information Section
+    setText('displayDateOfBirth', resume.DateOfBirth || 'N/A');
+    
+    if (resume.Country) {
+        setText('displayCountry', resume.Country);
+        showHideElement('countryItem', true);
+    } else {
+        showHideElement('countryItem', false);
+    }
+    
+    if (resume.Nationality) {
+        setText('displayNationality', resume.Nationality);
+        showHideElement('nationalityItem', true);
+    } else {
+        showHideElement('nationalityItem', false);
+    }
+    
+    if (resume.Gender) {
+        setText('displayGender', resume.Gender);
+        showHideElement('genderItem', true);
+    } else {
+        showHideElement('genderItem', false);
     }
 
-    // Objective
+    // Summary / Objective / Skills
+    showHideSection('summarySection',   resume.Summary);
+    setText('displaySummary',   resume.Summary);
     showHideSection('objectiveSection', resume.Objective);
-    if (resume.Objective) {
-        document.getElementById('displayObjective').textContent = resume.Objective;
-    }
-
-    // Skills
-    showHideSection('skillsSection', resume.Skills);
-    if (resume.Skills) {
-        document.getElementById('displaySkills').textContent = resume.Skills;
-    }
+    setText('displayObjective', resume.Objective);
+    showHideSection('skillsSection',    resume.Skills);
+    setText('displaySkills',    resume.Skills);
 
     // Experience
-    const hasExperience = resume.ExperienceTitle || resume.ExperienceCompany ||
-        resume.ExperienceDuration || resume.ExperienceDescription;
-    showHideSection('experienceSection', hasExperience);
-
-    if (hasExperience) {
-        document.getElementById('displayExperienceTitle').textContent = resume.ExperienceTitle || '';
-        document.getElementById('displayExperienceCompany').textContent = resume.ExperienceCompany || '';
-        document.getElementById('displayExperienceDuration').textContent = resume.ExperienceDuration || '';
-        document.getElementById('displayExperienceDescription').textContent = resume.ExperienceDescription || '';
+    const hasExp = resume.ExperienceTitle || resume.ExperienceCompany ||
+                   resume.ExperienceDuration || resume.ExperienceDescription;
+    showHideSection('experienceSection', hasExp);
+    if (hasExp) {
+        setText('displayExperienceTitle',       resume.ExperienceTitle);
+        setText('displayExperienceCompany',     resume.ExperienceCompany);
+        setText('displayExperienceDuration',    resume.ExperienceDuration);
+        setText('displayExperienceDescription', resume.ExperienceDescription);
     }
 
     // Education
-    const hasEducation = resume.Education1 || resume.Education2 || resume.Education3;
-    showHideSection('educationSection', hasEducation);
-
-    if (hasEducation) {
-        const edu1 = document.getElementById('displayEducation1');
-        const edu2 = document.getElementById('displayEducation2');
-        const edu3 = document.getElementById('displayEducation3');
-
-        edu1.textContent = resume.Education1 || '';
-        edu2.textContent = resume.Education2 || '';
-        edu3.textContent = resume.Education3 || '';
-
-        edu1.style.display = resume.Education1 ? 'list-item' : 'none';
-        edu2.style.display = resume.Education2 ? 'list-item' : 'none';
-        edu3.style.display = resume.Education3 ? 'list-item' : 'none';
+    const hasEdu = resume.Education1 || resume.Education2 || resume.Education3;
+    showHideSection('educationSection', hasEdu);
+    if (hasEdu) {
+        ['Education1', 'Education2', 'Education3'].forEach((key, i) => {
+            const el = document.getElementById(`displayEducation${i + 1}`);
+            if (el) {
+                el.textContent   = resume[key] || '';
+                el.style.display = resume[key] ? 'list-item' : 'none';
+            }
+        });
     }
 
     // Projects
-    const hasProjects = resume.Project1 || resume.Project2;
-    showHideSection('projectsSection', hasProjects);
-
-    if (hasProjects) {
-        const proj1 = document.getElementById('displayProject1');
-        const proj2 = document.getElementById('displayProject2');
-
-        proj1.textContent = resume.Project1 || '';
-        proj2.textContent = resume.Project2 || '';
-
-        proj1.style.display = resume.Project1 ? 'list-item' : 'none';
-        proj2.style.display = resume.Project2 ? 'list-item' : 'none';
+    const hasProj = resume.Project1 || resume.Project2;
+    showHideSection('projectsSection', hasProj);
+    if (hasProj) {
+        ['Project1', 'Project2'].forEach((key, i) => {
+            const el = document.getElementById(`displayProject${i + 1}`);
+            if (el) {
+                el.textContent   = resume[key] || '';
+                el.style.display = resume[key] ? 'list-item' : 'none';
+            }
+        });
     }
 
     // Links
-    const hasLinks = resume.LinkedIn || resume.GitHub;
-    showHideSection('linksSection', hasLinks);
-
-    if (hasLinks) {
-        const linkedInLink = document.getElementById('displayLinkedIn');
-        const gitHubLink = document.getElementById('displayGitHub');
-
-        if (resume.LinkedIn) {
-            let linkedInUrl = resume.LinkedIn.trim();
-            if (!linkedInUrl.startsWith('http://') && !linkedInUrl.startsWith('https://')) {
-                linkedInUrl = 'https://' + linkedInUrl; // Prepend https
-            }
-            linkedInLink.href = linkedInUrl;
-            linkedInLink.style.display = 'inline-flex';
-        } else {
-            linkedInLink.style.display = 'none';
-        }
-
-        if (resume.GitHub) {
-            let gitHubUrl = resume.GitHub.trim();
-            if (!gitHubUrl.startsWith('http://') && !gitHubUrl.startsWith('https://')) {
-                gitHubUrl = 'https://' + gitHubUrl;
-            }
-            gitHubLink.href = gitHubUrl;
-            gitHubLink.style.display = 'inline-flex';
-        } else {
-            gitHubLink.style.display = 'none';
-        }
-
-    }
+    showHideSection('linksSection', resume.LinkedIn || resume.GitHub);
+    setLink('displayLinkedIn', resume.LinkedIn);
+    setLink('displayGitHub',   resume.GitHub);
 }
 
-// Show Form
+// ─────────────────────────────────────────
+// 8. Form visibility
+// ─────────────────────────────────────────
 function showForm(updateMode) {
-    isUpdateMode = updateMode;
+    isUpdateMode          = updateMode;
     formTitle.textContent = updateMode ? 'Update Resume' : 'Create Resume';
 
     if (updateMode) {
         populateFormWithResumeData();
     } else {
         resumeForm.reset();
+        clearValidation();
     }
 
     showState('form');
     window.scrollTo(0, 0);
 }
 
-// Populate Form with Existing Data
+function hideForm() {
+    showState(currentResumeId ? 'display' : 'noResume');
+}
+
+// ─────────────────────────────────────────
+// 9. Populate form for update
+//     GET /api/resumes/by-id?resume_id=X
+// ─────────────────────────────────────────
 async function populateFormWithResumeData() {
     if (!currentResumeId) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/resumes/${currentResumeId}`);
-        if (!response.ok) throw new Error('Failed to fetch resume');
-
+        const response = await fetch(
+            `${API_BASE_URL}/by-id?resume_id=${currentResumeId}`,
+            { headers: authHeaders() }
+        );
         const result = await response.json();
-        const resume = result.data;
 
-        // Populate all form fields
-        document.getElementById('fullName').value = resume.FullName || '';
-        document.getElementById('email').value = resume.Email || '';
-        document.getElementById('phoneNumber').value = resume.PhoneNumber || '';
-        document.getElementById('dateOfBirth').value = resume.DateOfBirth || '';
-        document.getElementById('gender').value = resume.Gender || '';
-        document.getElementById('country').value = resume.Country || '';
-        document.getElementById('nationality').value = resume.Nationality || '';
-        document.getElementById('address').value = resume.Address || '';
-        document.getElementById('developerType').value = resume.DeveloperType || '';
-        document.getElementById('summary').value = resume.Summary || '';
-        document.getElementById('objective').value = resume.Objective || '';
-        document.getElementById('skills').value = resume.Skills || '';
-        document.getElementById('experienceTitle').value = resume.ExperienceTitle || '';
-        document.getElementById('experienceCompany').value = resume.ExperienceCompany || '';
-        document.getElementById('experienceDuration').value = resume.ExperienceDuration || '';
-        document.getElementById('totalExperience').value = resume.TotalExperience || '';
-        document.getElementById('experienceDescription').value = resume.ExperienceDescription || '';
-        document.getElementById('education1').value = resume.Education1 || '';
-        document.getElementById('education2').value = resume.Education2 || '';
-        document.getElementById('education3').value = resume.Education3 || '';
-        document.getElementById('project1').value = resume.Project1 || '';
-        document.getElementById('project2').value = resume.Project2 || '';
-        document.getElementById('languages').value = resume.Languages || '';
-        document.getElementById('linkedIn').value = resume.LinkedIn || '';
-        document.getElementById('gitHub').value = resume.GitHub || '';
-        document.getElementById('certifications').value = resume.Certifications || '';
+        if (!result.status || !result.data) {
+            toast('error', result.message || 'Failed to load resume for editing.');
+            return;
+        }
+
+        const r = result.data;
+
+        const fieldMap = {
+            fullName:              r.FullName,
+            email:                 r.Email,
+            phoneNumber:           r.PhoneNumber,
+            dateOfBirth:           r.DateOfBirth,
+            gender:                r.Gender,
+            country:               r.Country,
+            nationality:           r.Nationality,
+            address:               r.Address,
+            developerType:         r.DeveloperType,
+            summary:               r.Summary,
+            objective:             r.Objective,
+            skills:                r.Skills,
+            experienceTitle:       r.ExperienceTitle,
+            experienceCompany:     r.ExperienceCompany,
+            experienceDuration:    r.ExperienceDuration,
+            totalExperience:       r.TotalExperience,
+            experienceDescription: r.ExperienceDescription,
+            education1:            r.Education1,
+            education2:            r.Education2,
+            education3:            r.Education3,
+            project1:              r.Project1,
+            project2:              r.Project2,
+            languages:             r.Languages,
+            linkedIn:              r.LinkedIn,
+            gitHub:                r.GitHub,
+            certifications:        r.Certifications
+        };
+
+        Object.entries(fieldMap).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = value || '';
+        });
+
     } catch (error) {
         console.error('Error populating form:', error);
-        toastr.error('Failed to load resume data');
+        toast('error', 'Network error. Could not load resume data.');
     }
 }
 
-// Hide Form
-function hideForm() {
-    if (currentResumeId) {
-        showState('display');
-    } else {
-        showState('noResume');
-    }
-}
-
-// Handle Form Submit
+// ─────────────────────────────────────────
+// 10. Submit — create or update
+//     POST /api/resumes/create
+//     PUT  /api/resumes/update?resume_id=X
+// ─────────────────────────────────────────
 async function handleSubmit(e) {
     e.preventDefault();
+    if (!validateForm()) return;
 
     const formData = new FormData(resumeForm);
-    const data = {};
-
-    // Convert FormData to JSON
-    for (let [key, value] of formData.entries()) {
-        data[key] = value || null;
+    const data     = {};
+    for (const [key, value] of formData.entries()) {
+        data[key] = value.trim() !== '' ? value.trim() : null;
     }
-
-    // Add UserId
-    data.UserId = currentUserId;
-
-    // Remove empty strings, replace with null
-    Object.keys(data).forEach(key => {
-        if (data[key] === '') {
-            data[key] = null;
-        }
-    });
+    data.UserId = Number(currentUserId);
 
     try {
         let response;
 
         if (isUpdateMode) {
-            // Update existing resume
-            response = await fetch(`${API_BASE_URL}/resumes/resumes/${currentResumeId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
+            // PUT /api/resumes/update?resume_id=X
+            response = await fetch(
+                `${API_BASE_URL}/update?resume_id=${currentResumeId}`,
+                { method: 'PUT', headers: authHeaders(), body: JSON.stringify(data) }
+            );
         } else {
-            // Soft delete existing resume if any, then create new one
-            if (currentResumeId) {
-                await softDeleteExistingResume();
-            }
+            // Soft-delete old resume if one somehow exists
+            if (currentResumeId) await softDeleteResume(currentResumeId);
 
-            // Create new resume
-            response = await fetch(`${API_BASE_URL}/resumes/resumes/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-        }
-
-        if (!response.ok) {
-            throw new Error('Failed to save resume');
+            // POST /api/resumes/create
+            response = await fetch(
+                `${API_BASE_URL}/create`,
+                { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) }
+            );
         }
 
         const result = await response.json();
-        toastr.success(isUpdateMode ? 'Resume updated successfully!' : 'Resume created successfully!');
+        toastFromResponse(result, 'Resume saved successfully!', 'Failed to save resume.');
 
-        // Reload resume data
-        await loadUserResume();
-
-    } catch (error) {
-        console.error('Error saving resume:', error);
-        toastr.error('Failed to save resume');
-    }
-}
-
-// Soft Delete Existing Resume
-async function softDeleteExistingResume() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/resumes/resumes/${currentResumeId}`, {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to delete existing resume');
+        if (result.status) {
+            await loadUserResume();
         }
 
-        console.log('Previous resume soft deleted');
     } catch (error) {
-        console.error('Error deleting existing resume:', error);
+        console.error('Submit error:', error);
+        toast('error', 'Network error. Please try again.');
     }
 }
 
-// Handle Delete
+// ─────────────────────────────────────────
+// 11. Delete
+//     DELETE /api/resumes/delete?resume_id=X
+// ─────────────────────────────────────────
+async function softDeleteResume(resumeId) {
+    try {
+        await fetch(
+            `${API_BASE_URL}/delete?resume_id=${resumeId}`,
+            { method: 'DELETE', headers: authHeaders() }
+        );
+    } catch (err) {
+        console.error('Soft delete error:', err);
+    }
+}
+
 async function handleDelete() {
-    // Use SweetAlert2 for confirmation
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'Do you want to delete this resume?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
+    const confirm = await Swal.fire({
+        title:              'Delete Resume?',
+        text:               'This action cannot be undone.',
+        icon:               'warning',
+        showCancelButton:   true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor:  '#6c757d',
+        confirmButtonText:  'Yes, delete it!',
+        cancelButtonText:   'Cancel'
     });
 
-    if (!result.isConfirmed) {
-        return;
-    }
+    if (!confirm.isConfirmed) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/resumes/resumes/${currentResumeId}`, {
-            method: 'DELETE'
-        });
+        const response = await fetch(
+            `${API_BASE_URL}/delete?resume_id=${currentResumeId}`,
+            { method: 'DELETE', headers: authHeaders() }
+        );
 
-        if (!response.ok) {
-            throw new Error('Failed to delete resume');
+        const result = await response.json();
+        toastFromResponse(result, 'Resume deleted successfully!', 'Failed to delete resume.');
+
+        if (result.status) {
+            currentResumeId = null;
+            showState('noResume');
         }
 
-        toastr.success('Resume deleted successfully!');
-        currentResumeId = null;
-        showState('noResume');
     } catch (error) {
-        console.error('Error deleting resume:', error);
-        toastr.error('Failed to delete resume');
+        console.error('Delete error:', error);
+        toast('error', 'Network error. Could not delete resume.');
     }
 }
 
-// Show State
+// ─────────────────────────────────────────
+// 12. State machine
+// ─────────────────────────────────────────
 function showState(state) {
-    loadingState.style.display = 'none';
-    noResumeState.style.display = 'none';
-    resumeDisplayState.style.display = 'none';
-    resumeFormState.style.display = 'none';
+    [loadingState, noResumeState, resumeDisplayState, resumeFormState]
+        .forEach(el => { if (el) el.style.display = 'none'; });
 
-    switch (state) {
-        case 'loading':
-            loadingState.style.display = 'block';
-            break;
-        case 'noResume':
-            noResumeState.style.display = 'block';
-            break;
-        case 'display':
-            resumeDisplayState.style.display = 'block';
-            break;
-        case 'form':
-            resumeFormState.style.display = 'block';
-            break;
-    }
+    const map = {
+        loading:  loadingState,
+        noResume: noResumeState,
+        display:  resumeDisplayState,
+        form:     resumeFormState
+    };
+
+    if (map[state]) map[state].style.display = 'block';
 }
 
-// Resume form runtime validation
-document.addEventListener("DOMContentLoaded", function () {
-    const resumeForm = document.getElementById("resumeForm");
+// ─────────────────────────────────────────
+// 13. Validation
+// ─────────────────────────────────────────
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
-    const fullName = document.getElementById("fullName");
-    const email = document.getElementById("email");
-    const skills = document.getElementById("skills");
-    const developerType = document.getElementById("developerType");
-    const gender = document.getElementById("gender");
-    const dateOfBirth = document.getElementById("dateOfBirth");
-    const address = document.getElementById("address"); // Added Address field
+function clearValidation() {
+    document.querySelectorAll('#resumeForm .is-invalid')
+            .forEach(el => el.classList.remove('is-invalid'));
+}
 
-    resumeForm.addEventListener("submit", function (event) {
-        let isValid = true;
-        let messages = [];
+function validateForm() {
+    clearValidation();
+    let isValid = true;
 
-        // Full Name
-        if (fullName.value.trim() === "") {
+    const required = [
+        { id: 'fullName' },
+        { id: 'email' },
+        { id: 'skills' },
+        { id: 'developerType' },
+        { id: 'gender' },
+        { id: 'dateOfBirth' },
+        { id: 'address' }
+    ];
+
+    required.forEach(({ id }) => {
+        const el = document.getElementById(id);
+        if (!el || !el.value.trim()) {
+            if (el) el.classList.add('is-invalid');
             isValid = false;
-            messages.push("Full Name is required.");
-            fullName.classList.add("is-invalid");
-        } else fullName.classList.remove("is-invalid");
-
-        // Email
-        if (email.value.trim() === "") {
-            isValid = false;
-            messages.push("Email is required.");
-            email.classList.add("is-invalid");
-        } else if (!validateEmail(email.value.trim())) {
-            isValid = false;
-            messages.push("Email is not valid.");
-            email.classList.add("is-invalid");
-        } else email.classList.remove("is-invalid");
-
-        // Skills
-        if (skills.value.trim() === "") {
-            isValid = false;
-            messages.push("Skills are required.");
-            skills.classList.add("is-invalid");
-        } else skills.classList.remove("is-invalid");
-
-        // Developer Type
-        if (developerType.value.trim() === "") {
-            isValid = false;
-            messages.push("Developer Type is required.");
-            developerType.classList.add("is-invalid");
-        } else developerType.classList.remove("is-invalid");
-
-        // Gender
-        if (gender.value.trim() === "") {
-            isValid = false;
-            messages.push("Gender is required.");
-            gender.classList.add("is-invalid");
-        } else gender.classList.remove("is-invalid");
-
-        // Date of Birth
-        if (dateOfBirth.value.trim() === "") {
-            isValid = false;
-            messages.push("Date of Birth is required.");
-            dateOfBirth.classList.add("is-invalid");
-        } else dateOfBirth.classList.remove("is-invalid");
-
-        // Address
-        if (address.value.trim() === "") {
-            isValid = false;
-            messages.push("Address is required.");
-            address.classList.add("is-invalid");
-        } else address.classList.remove("is-invalid");
-
-        if (!isValid) {
-            event.preventDefault();
-            alert(messages.join("\n"));
         }
     });
 
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
+    // Email format
+    const emailEl = document.getElementById('email');
+    if (emailEl && emailEl.value.trim() && !validateEmail(emailEl.value.trim())) {
+        emailEl.classList.add('is-invalid');
+        isValid = false;
     }
-});
+
+    if (!isValid) {
+        toast('warning', 'Please fill in all required fields correctly.');
+        const first = document.querySelector('#resumeForm .is-invalid');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return isValid;
+}
+
+function setupFormValidation() {
+    document.querySelectorAll('#resumeForm .form-control').forEach(el => {
+        el.addEventListener('input',  () => el.classList.remove('is-invalid'));
+        el.addEventListener('change', () => el.classList.remove('is-invalid'));
+    });
+}
+
+// ─────────────────────────────────────────
+// 14. Set max date for Date of Birth (15 years ago)
+// ─────────────────────────────────────────
+function setupDateOfBirthMax() {
+    const dobInput = document.getElementById('dateOfBirth');
+    if (!dobInput) return;
+
+    const today = new Date();
+    const fifteenYearsAgo = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate());
+
+    // Format as yyyy-mm-dd
+    const yyyy = fifteenYearsAgo.getFullYear();
+    const mm   = String(fifteenYearsAgo.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const dd   = String(fifteenYearsAgo.getDate()).padStart(2, '0');
+
+    const maxDate = `${yyyy}-${mm}-${dd}`;
+    dobInput.max = maxDate;
+
+    // Optionally, set default value to 15 years ago
+    dobInput.value = maxDate;
+}

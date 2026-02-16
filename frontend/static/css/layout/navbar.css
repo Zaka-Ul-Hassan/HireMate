@@ -1,4 +1,4 @@
-/* frontend\static\css\layout\navbar.css */
+/* frontend/static/css/layout/navbar.css */
 
 .navbar {
   margin-left: 250px;
@@ -30,7 +30,7 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   position: relative;
   padding: 0.5rem 0;
-  margin-left: 15px;
+  margin-right: 2rem;
 }
 
 .stylish-brand::after {
@@ -55,17 +55,28 @@
   width: 100%;
 }
 
-/* Navbar Content */
+/* Navbar Content - Fixed centering */
+.navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .navbarContent {
-  margin-right: 200px;
+  flex-grow: 0 !important;
+}
+
+.navbar-nav {
+  display: flex;
   gap: 0.5rem;
+  flex-direction: row !important;
+  align-items: center;
 }
 
 /* Nav Links */
 .navbar .nav-link {
   position: relative;
   padding: 0.75rem 1.25rem;
-  margin-left: 15px;
   border-radius: 10px;
   transition: all 0.3s ease;
   font-size: 1rem;
@@ -74,6 +85,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .navbar .nav-link::before {
@@ -144,18 +156,26 @@
     padding: 1rem;
     border-radius: 12px;
     margin-top: 1rem;
-    margin-right: 0;
+  }
+
+  .navbar-nav {
+    flex-direction: column !important;
+    width: 100%;
+  }
+
+  .navbar .nav-item {
+    width: 100%;
   }
 
   .navbar .nav-link {
     margin: 0.25rem 0;
     justify-content: center;
-    margin-left: 0;
+    width: 100%;
   }
 
   .stylish-brand {
     font-size: 1.5rem;
-    margin-left: 0;
+    margin-right: 0;
   }
 }
 
