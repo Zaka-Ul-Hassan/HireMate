@@ -200,6 +200,91 @@ async def user_management_page(
         }
     )
 
+# ========== EMAIL ROUTES ==========
+
+@router.get("/email/settings", response_class=HTMLResponse)
+async def email_settings_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Email Settings Page - Configure SMTP settings for sending emails
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "email/email_settings.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
+
+@router.get("/email/compose-email", response_class=HTMLResponse)
+async def compose_email_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Compose Email Page - Send emails to recipients
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "email/compose_email.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
+
+@router.get("/email/inbox", response_class=HTMLResponse)
+async def inbox_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Email Inbox Page - View received emails
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "email/inbox.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
 # ========== RESUME ROUTES - SPECIFIC ROUTES MUST COME BEFORE PARAMETERIZED ROUTES ==========
 
 @router.get("/resume/list", response_class=HTMLResponse)

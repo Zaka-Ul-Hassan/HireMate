@@ -1,0 +1,259 @@
+<!-- frontend\templates\email\email_settings.html -->
+{% extends "shared/base.html" %}
+
+{% block title %}Email Settings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/email/email_settings.css">
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="email-settings-container">
+    <h1 class="page-title">Email Settings</h1>
+
+    <!-- ── Loading ── -->
+    <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- ── No Settings ── -->
+    <div id="noSettingsState" class="no-settings-state" style="display: none;">
+        <div class="empty-state">
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <h2>No Email Settings Found</h2>
+            <p>Configure your email settings to start sending emails</p>
+            <button id="createSettingsBtn" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Setup Email
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Settings Display ── -->
+    <div id="settingsDisplayState" class="settings-display-state" style="display: none;">
+        <div class="settings-card">
+            <div class="settings-header">
+                <div class="header-info">
+                    <div class="email-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <div class="header-details">
+                        <h2>Email Configuration</h2>
+                        <p id="displayEmailAddress" class="email-address"></p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="testEmailBtn" class="btn btn-success">
+                        <i class="bi bi-send-check"></i>
+                        <span>Test Email</span>
+                    </button>
+                    <button id="updateSettingsBtn" class="btn btn-secondary">
+                        <i class="bi bi-pencil"></i>
+                        <span>Update</span>
+                    </button>
+                    <button id="deleteSettingsBtn" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-content">
+                <!-- SMTP Configuration -->
+                <div class="info-section">
+                    <h3>SMTP Configuration</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>SMTP Server</strong>
+                            <span id="displaySmtpServer"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>SMTP Port</strong>
+                            <span id="displaySmtpPort"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Email Address</strong>
+                            <span id="displayEmailFull"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Password Status</strong>
+                            <span id="displayPasswordStatus" class="badge-success">
+                                <i class="bi bi-check-circle"></i> Configured
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Info -->
+                <div class="info-section">
+                    <h3>Connection Information</h3>
+                    <div class="connection-info">
+                        <div class="connection-item">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>SSL/TLS Encryption Enabled</span>
+                        </div>
+                        <div class="connection-item">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span>Authentication Required</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="info-section help-section">
+                    <h3>Setup Guide</h3>
+                    <div class="help-content">
+                        <h4><i class="bi bi-lightbulb"></i> Gmail App Password Setup:</h4>
+                        <ol>
+                            <li>Go to your Google Account settings</li>
+                            <li>Navigate to <strong>Security → 2-Step Verification</strong></li>
+                            <li>Scroll down to <strong>"App passwords"</strong> and create a new one</li>
+                            <li>Select <strong>"Mail"</strong> and <strong>"Other (Custom name)"</strong></li>
+                            <li>Use the generated 16-character password in the form below</li>
+                        </ol>
+                        <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="help-link">
+                            <i class="bi bi-box-arrow-up-right"></i> Learn more about App Passwords
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Settings Form ── -->
+    <div id="settingsFormState" class="settings-form-state" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="formTitle">Setup Email Settings</h2>
+                <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
+            </div>
+
+            <form id="settingsForm" novalidate>
+                <!-- Email Configuration -->
+                <div class="form-section">
+                    <h3>Email Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label for="emailAddress">Email Address <span class="text-danger">*</span></label>
+                        <input 
+                            type="email" 
+                            id="emailAddress" 
+                            name="EmailAddress" 
+                            class="form-control" 
+                            placeholder="your-email@gmail.com"
+                            autocomplete="email">
+                        <div class="invalid-feedback">A valid email address is required.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            App Password <span class="text-danger">*</span>
+                            <span class="label-info">(Not your Gmail password)</span>
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="Password" 
+                                class="form-control" 
+                                placeholder="16-character app password"
+                                autocomplete="new-password">
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">App password is required.</div>
+                        <small class="form-text text-muted">
+                            <i class="bi bi-info-circle"></i> 
+                            Use a Gmail App Password, not your regular password
+                        </small>
+                    </div>
+                </div>
+
+                <!-- SMTP Configuration -->
+                <div class="form-section">
+                    <h3>SMTP Configuration</h3>
+                    <p class="section-description">Default settings for Gmail. Modify only if needed.</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="smtpServer">SMTP Server</label>
+                            <input 
+                                type="text" 
+                                id="smtpServer" 
+                                name="SmtpServer" 
+                                class="form-control" 
+                                value="smtp.gmail.com"
+                                readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="smtpPort">SMTP Port</label>
+                            <input 
+                                type="number" 
+                                id="smtpPort" 
+                                name="SmtpPort" 
+                                class="form-control" 
+                                value="587"
+                                readonly>
+                        </div>
+                    </div>
+
+                    <div class="alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <div>
+                            <strong>Note:</strong> This system is configured for Gmail. 
+                            Port 587 uses STARTTLS encryption for secure email transmission.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Setup Guide -->
+                <div class="form-section help-section">
+                    <h3>Setup Guide</h3>
+                    <div class="help-content">
+                        <h4><i class="bi bi-lightbulb"></i> Gmail App Password Setup:</h4>
+                        <ol>
+                            <li>Go to your Google Account settings</li>
+                            <li>Navigate to <strong>Security → 2-Step Verification</strong></li>
+                            <li>Scroll down to <strong>"App passwords"</strong> and create a new one</li>
+                            <li>Select <strong>"Mail"</strong> and <strong>"Other (Custom name)"</strong></li>
+                            <li>Use the generated 16-character password in the Password field above</li>
+                        </ol>
+                        <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="help-link">
+                            <i class="bi bi-box-arrow-up-right"></i> Learn more about App Passwords
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">
+                        <i class="bi bi-x-lg me-1"></i>Cancel
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/email/email_settings.js"></script>
+{% endblock %}

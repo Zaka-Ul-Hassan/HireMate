@@ -12,105 +12,57 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     xhr.withCredentials = true;
 
     xhr.onload = function () {
-        if (xhr.status === 200) {
-            try {
-                const response = JSON.parse(xhr.responseText);
-                console.log('Login response:', response);
+        let response;
 
-                if (response.status && response.data) {
-                    // Clear any old user data first
-                    const oldUserId = localStorage.getItem('user_id');
-                    if (oldUserId && oldUserId !== String(response.data.Id)) {
-                        // New user logging in - clear all old data
-                        console.log('Different user detected, clearing old data...');
-                        clearUserSpecificData(oldUserId);
-                    }
-                    
-                    // Store user data
-                    console.log('Storing user data in localStorage...');
-                    localStorage.setItem('user_data', JSON.stringify(response.data));
-                    localStorage.setItem('user_id', response.data.Id);
-                    localStorage.setItem('user_email', response.data.Email);
-                    
-                    // Store name - ensure it's stored correctly
-                    const fullName = response.data.Name || '';
-                    localStorage.setItem('user_name', fullName);
-                    
-                    // Store roles
-                    localStorage.setItem('user_roles', JSON.stringify(response.data.Roles));
+        // Parse response safely
+        try {
+            response = JSON.parse(xhr.responseText);
+            console.log("Login response:", response);
+        } catch (error) {
+            showToast("error", "Invalid server response");
+            return;
+        }
 
-                    // Set token and expiry (60 minutes)
-                    setAccessToken(response.data.AccessToken, 60);
+        // SUCCESS
+        if (xhr.status === 200 && response.status === true) {
 
-                    // Debug logging
-                    console.log('=== LOGIN DATA STORED ===');
-                    console.log('User ID:', response.data.Id);
-                    console.log('User Name:', fullName);
-                    console.log('User Email:', response.data.Email);
-                    console.log('User Roles:', response.data.Roles);
-                    console.log('Full user data:', response.data);
-                    console.log('localStorage user_data:', localStorage.getItem('user_data'));
-                    console.log('localStorage user_name:', localStorage.getItem('user_name'));
-                    console.log('=========================');
-
-                    // Show success message
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Login successful!',
-                        customClass: {
-                            popup: 'me-2'
-                        },
-                        showConfirmButton: false,
-                        timer: 2000
-                    }).then(() => {
-                        window.location.href = "/dashboard";
-                    });
-                } else {
-                    throw new Error('Invalid response format');
-                }
-            } catch (error) {
-                console.error('Error parsing response:', error);
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Login failed. Please try again.',
-                    customClass: {
-                        popup: 'me-2'
-                    },
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+            // Clear previous user data if different user
+            const oldUserId = localStorage.getItem("user_id");
+            if (oldUserId && oldUserId !== String(response.data.Id)) {
+                clearUserSpecificData(oldUserId);
             }
-        } else {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: 'Invalid email or password',
-                customClass: {
-                    popup: 'me-2'
-                },
-                showConfirmButton: false,
-                timer: 3000
-            });
+
+            // Store user data
+            localStorage.setItem("user_data", JSON.stringify(response.data));
+            localStorage.setItem("user_id", response.data.Id);
+            localStorage.setItem("user_email", response.data.Email);
+            localStorage.setItem("user_name", response.data.Name || "");
+            localStorage.setItem("user_roles", JSON.stringify(response.data.Roles));
+
+            // Store token (60 minutes)
+            setAccessToken(response.data.AccessToken, 60);
+
+            // Show backend success message
+            showToast("success", response.message || "Login successful");
+
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 1500);
+        }
+
+        // BACKEND FAILURE (status=false)
+        else if (xhr.status === 200 && response.status === false) {
+            showToast("error", response.message || "Login failed");
+        }
+
+        // HTTP ERROR (401, 403, 404, etc.)
+        else {
+            showToast("error", response.message || "Invalid email or password");
         }
     };
 
-    xhr.onerror = function() {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: 'Network error. Please try again.',
-            customClass: {
-                popup: 'me-2'
-            },
-            showConfirmButton: false,
-            timer: 3000
-        });
+    xhr.onerror = function () {
+        showToast("error", "Network error. Please try again.");
     };
 
     xhr.send(JSON.stringify({
@@ -119,18 +71,37 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     }));
 });
 
-// Function to clear user-specific data when switching users
+
+// ===============================
+// Toast Helper
+// ===============================
+function showToast(type, message) {
+    Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: type,
+        title: message,
+        showConfirmButton: false,
+        timer: 3000,
+        customClass: {
+            popup: "me-2"
+        }
+    });
+}
+
+
+// ===============================
+//  Clear old user data
+// ===============================
 function clearUserSpecificData(userId) {
-    console.log('Clearing data for old user:', userId);
-    
-    // Clear chat history
+    console.log("Clearing data for old user:", userId);
+
     localStorage.removeItem(`candidate_chat_history_${userId}`);
     localStorage.removeItem(`candidate_chat_session_id_${userId}`);
-    
-    // Clear sidebar collapse states
-    ['userMenu', 'resumeMenu', 'emailMenu'].forEach(menuId => {
+
+    ["userMenu", "resumeMenu", "emailMenu"].forEach(menuId => {
         localStorage.removeItem(`sidebar_${menuId}_${userId}`);
     });
-    
-    console.log('Old user data cleared');
+
+    console.log("Old user data cleared");
 }

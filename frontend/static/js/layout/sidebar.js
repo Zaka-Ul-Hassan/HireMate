@@ -239,6 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
        7. Button click handlers
     ───────────────────────────────────────── */
     function initButtonHandlers() {
+        // Find Jobs button
         const findJobBtn = document.getElementById('findJobButton');
         if (findJobBtn) {
             findJobBtn.addEventListener('click', function (e) {
@@ -247,11 +248,72 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        // Find Candidates button
         const findCandidateButton = document.getElementById('findCandidateButton');
         if (findCandidateButton) {
             findCandidateButton.addEventListener('click', function (e) {
                 e.preventDefault();
                 window.location.href = '/resume/rag';
+            });
+        }
+
+        // Email Settings link - ensure it navigates properly
+        const emailSettingsLink = document.querySelector('a[href="/email/settings"]');
+        if (emailSettingsLink) {
+            emailSettingsLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Email Settings clicked, navigating...');
+                window.location.href = '/email/settings';
+            });
+        }
+
+        // Compose Email link
+        const composeEmailLink = document.querySelector('a[href="/email/compose-email"]');
+        if (composeEmailLink) {
+            composeEmailLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Compose Email clicked, navigating...');
+                window.location.href = '/email/compose-email';
+            });
+        }
+
+        // Inbox link
+        const inboxLink = document.querySelector('a[href="/email/inbox"]');
+        if (inboxLink) {
+            inboxLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Inbox clicked, navigating...');
+                window.location.href = '/email/inbox';
+            });
+        }
+
+        // Resume Management link
+        const resumeManageLink = document.querySelector('a[href="/resume/manage"]');
+        if (resumeManageLink) {
+            resumeManageLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Resume Management clicked, navigating...');
+                window.location.href = '/resume/manage';
+            });
+        }
+
+        // Resume List link
+        const resumeListLink = document.querySelector('a[href="/resume/list"]');
+        if (resumeListLink) {
+            resumeListLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Resume List clicked, navigating...');
+                window.location.href = '/resume/list';
+            });
+        }
+
+        // User Management link
+        const userManageLink = document.querySelector('a[href="/user/manage"]');
+        if (userManageLink) {
+            userManageLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('User Management clicked, navigating...');
+                window.location.href = '/user/manage';
             });
         }
     }

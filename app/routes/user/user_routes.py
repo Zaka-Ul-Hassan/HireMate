@@ -44,6 +44,9 @@ def login_user_route(request: LoginUserSchema, db: Session = Depends(get_db)):
 
     user = user_service.get_user_by_email(db, request.Email)
 
+    if not user:
+        return ResponseSchema(status=False, message="User not found")
+    
     if user.IsActive == False:
         return ResponseSchema(status=False, message="Account is not active. Please contact administrator.", data=None)
 

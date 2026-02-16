@@ -299,6 +299,7 @@
     color: #374151;
     font-size: 0.9rem;
     padding: 0.3rem 0;
+    min-width: 0;
 }
 
 .detail-item i {
@@ -310,8 +311,12 @@
 
 .detail-item span {
     font-weight: 500;
-    word-break: break-word;
     line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
 }
 
 /* User Card Actions */
