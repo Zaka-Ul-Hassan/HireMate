@@ -22,5 +22,3 @@ venv/
 *.pdf
 *.docx
 
-# Ignore uploaded resumes
-uploads/resumes/
