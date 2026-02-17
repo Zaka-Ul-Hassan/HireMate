@@ -53,14 +53,6 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--text-p
   overflow: hidden;
 }
 
-/* dot-grid texture */
-.header-bg-grid {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-}
-
 .header-content {
   position: relative;
   display: flex;
