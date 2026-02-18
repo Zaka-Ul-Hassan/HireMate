@@ -261,6 +261,6 @@ async def extract_fields_and_store(
     except Exception as e:
         return ResponseSchema(
             status=False,
-            message=str(e),
+            message="Something went wrong",
             data=None
         )
