@@ -9,6 +9,7 @@
 
 {% block content %}
 <div class="user-management-container">
+
     <!-- Header -->
     <div class="page-header">
         <div class="header-content">
@@ -20,7 +21,7 @@
                 <p class="page-subtitle">Manage and monitor all system users</p>
             </div>
         </div>
-        <button id="createUserBtn" class="btn btn-primary">
+        <button id="createUserBtn" class="btn btn-primary-header">
             <i class="bi bi-plus-lg"></i>
             <span>Create New User</span>
         </button>
@@ -34,34 +35,30 @@
 
     <!-- ── User List State ── -->
     <div id="userListState" class="user-list-state" style="display: none;">
-        
+
         <!-- Search and Filter Bar -->
         <div class="filter-bar">
             <div class="search-box">
                 <i class="bi bi-search search-icon"></i>
                 <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or role..." autocomplete="off">
             </div>
-            
             <div class="filter-controls">
                 <select id="roleFilter" class="form-control">
-                    <option value="" selected>Filter by Role</option>
+                    <option value="">Filter by Role</option>
                     <option value="User">User</option>
                     <option value="Employer">Employer</option>
                     <option value="SuperAdmin">Super Admin</option>
                 </select>
-                
                 <select id="statusFilter" class="form-control">
-                    <option value="" selected>Filter by Status</option>
+                    <option value="">Filter by Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
-
-                <button id="applyFiltersBtn" class="btn btn-primary">
+                <button id="applyFiltersBtn" class="btn btn-filter-apply">
                     <i class="bi bi-funnel"></i>
                     <span>Apply</span>
                 </button>
-
-                <button id="resetFiltersBtn" class="btn btn-secondary">
+                <button id="resetFiltersBtn" class="btn btn-filter-reset">
                     <i class="bi bi-x-circle"></i>
                     <span>Reset</span>
                 </button>
@@ -69,16 +66,7 @@
         </div>
 
         <!-- User Cards Grid -->
-        <div id="userCardsContainer" class="user-cards-grid">
-            <!-- Populated by JavaScript -->
-        </div>
-
-        <!-- No Users Found -->
-        <div class="no-users-found" id="noUsersFound" style="display: none;">
-            <i class="bi bi-person-x"></i>
-            <h3>No Users Found</h3>
-            <p>Try adjusting your search or filters</p>
-        </div>
+        <div id="userCardsContainer" class="user-cards-grid"></div>
 
         <!-- Pagination -->
         <div id="paginationContainer" class="pagination-container" style="display: none;">
@@ -86,19 +74,11 @@
                 Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalUsers">0</span> users
             </div>
             <div class="pagination-controls">
-                <button class="btn-pagination" id="firstPageBtn" disabled>
-                    <i class="bi bi-chevron-double-left"></i>
-                </button>
-                <button class="btn-pagination" id="prevPageBtn" disabled>
-                    <i class="bi bi-chevron-left"></i>
-                </button>
+                <button class="btn-pagination" id="firstPageBtn" disabled><i class="bi bi-chevron-double-left"></i></button>
+                <button class="btn-pagination" id="prevPageBtn" disabled><i class="bi bi-chevron-left"></i></button>
                 <span class="page-numbers" id="pageNumbers"></span>
-                <button class="btn-pagination" id="nextPageBtn">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-                <button class="btn-pagination" id="lastPageBtn">
-                    <i class="bi bi-chevron-double-right"></i>
-                </button>
+                <button class="btn-pagination" id="nextPageBtn"><i class="bi bi-chevron-right"></i></button>
+                <button class="btn-pagination" id="lastPageBtn"><i class="bi bi-chevron-double-right"></i></button>
             </div>
             <div class="page-size-selector">
                 <label for="pageSizeSelect">Show:</label>
@@ -112,10 +92,9 @@
         </div>
     </div>
 
-    <!-- ── User Form State (Create/Update) ── -->
+    <!-- ── User Form State (Create) ── -->
     <div id="userFormState" class="user-form-state" style="display: none;">
         <div class="form-container">
-            
             <div class="form-header">
                 <div class="header-content">
                     <div class="header-icon">
@@ -123,71 +102,144 @@
                     </div>
                     <h2 id="formTitle">Create New User</h2>
                 </div>
-                <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
+                <button type="button" id="cancelFormBtn" class="btn-close-form" aria-label="Close">×</button>
             </div>
-
             <form id="userForm" novalidate>
-                
-                <!-- Personal Information -->
                 <div class="form-section">
                     <h3><i class="bi bi-person"></i>Personal Information</h3>
                     <div class="form-grid">
-                        
                         <div class="form-group">
                             <label for="firstName">First Name <span class="text-danger">*</span></label>
                             <input type="text" id="firstName" name="FirstName" class="form-control" placeholder="John">
                             <div class="invalid-feedback">First Name is required.</div>
                         </div>
-
                         <div class="form-group">
                             <label for="lastName">Last Name <span class="text-danger">*</span></label>
                             <input type="text" id="lastName" name="LastName" class="form-control" placeholder="Doe">
                             <div class="invalid-feedback">Last Name is required.</div>
                         </div>
-
                         <div class="form-group">
                             <label for="email">Email <span class="text-danger">*</span></label>
                             <input type="email" id="email" name="Email" class="form-control" placeholder="john.doe@example.com">
                             <div class="invalid-feedback">A valid email is required.</div>
                         </div>
-
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
                             <input type="tel" id="phone" name="Phone" class="form-control" placeholder="+92 300 1234567">
                         </div>
-
                     </div>
                 </div>
-
-                <!-- Role Selection -->
                 <div class="form-section">
                     <h3><i class="bi bi-shield-check"></i>Role Assignment</h3>
                     <div class="form-group">
                         <label>Select Roles <span class="text-danger">*</span></label>
-                        <div id="roleCheckboxes" class="role-checkboxes">
-                            <!-- Populated by JavaScript -->
-                        </div>
+                        <div id="roleCheckboxes" class="role-checkboxes"></div>
                         <div class="invalid-feedback">At least one role must be selected.</div>
                     </div>
                 </div>
-
-                <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="button" id="cancelBtn" class="btn btn-secondary">
-                        <i class="bi bi-x-lg"></i>
-                        <span>Cancel</span>
+                    <button type="button" id="cancelBtn" class="btn btn-cancel-form">
+                        <i class="bi bi-x-lg"></i><span>Cancel</span>
                     </button>
-                    <button type="submit" id="submitBtn" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i>
-                        <span>Save User</span>
+                    <button type="submit" id="submitBtn" class="btn btn-submit-form">
+                        <i class="bi bi-check-lg"></i><span>Save User</span>
                     </button>
                 </div>
-
             </form>
         </div>
     </div>
 
-</div><!-- /.user-management-container -->
+</div>
+
+<!-- ═══════════════════════════════════════
+     CHANGE PASSWORD MODAL
+═══════════════════════════════════════ -->
+<div id="changePasswordModal" class="cp-modal-overlay" style="display:none;">
+    <div class="cp-modal">
+        <div class="cp-modal-header">
+            <div class="cp-header-left">
+                <div class="cp-header-icon"><i class="bi bi-key-fill"></i></div>
+                <div>
+                    <h3 class="cp-title">Change Password</h3>
+                    <p class="cp-subtitle" id="cpUserName">for User</p>
+                </div>
+            </div>
+            <button class="cp-close-btn" id="closeChangePassword" title="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="cp-modal-body">
+            <!-- Alert -->
+            <div id="cpAlert" class="cp-alert" style="display:none;"></div>
+
+            <!-- Security Notice -->
+            <div class="cp-security-notice">
+                <i class="bi bi-shield-lock-fill"></i>
+                <span>A notification email will be sent to the user after the password is changed.</span>
+            </div>
+
+            <form id="changePasswordForm" novalidate>
+                <input type="hidden" id="cpUserId">
+
+                <!-- New Password -->
+                <div class="cp-form-group">
+                    <label class="cp-label">New Password <span class="cp-required">*</span></label>
+                    <div class="cp-input-wrap">
+                        <span class="cp-input-icon"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="cpNewPassword" class="cp-input" placeholder="Enter new password">
+                        <button type="button" class="cp-toggle-btn" data-target="cpNewPassword">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <div class="cp-error" id="err_cpNewPassword"></div>
+
+                    <!-- Strength Meter -->
+                    <div class="cp-strength-wrap">
+                        <div class="cp-strength-bar"><div class="cp-strength-fill" id="cpStrengthFill"></div></div>
+                        <span class="cp-strength-label" id="cpStrengthLabel"></span>
+                    </div>
+
+                    <!-- Requirements -->
+                    <ul class="cp-req-list">
+                        <li id="cpReq_length"><i class="bi bi-circle-fill"></i><span>At least 8 characters</span></li>
+                        <li id="cpReq_upper"><i class="bi bi-circle-fill"></i><span>One uppercase letter</span></li>
+                        <li id="cpReq_lower"><i class="bi bi-circle-fill"></i><span>One lowercase letter</span></li>
+                        <li id="cpReq_digit"><i class="bi bi-circle-fill"></i><span>One number</span></li>
+                        <li id="cpReq_special"><i class="bi bi-circle-fill"></i><span>One special character</span></li>
+                    </ul>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="cp-form-group">
+                    <label class="cp-label">Confirm Password <span class="cp-required">*</span></label>
+                    <div class="cp-input-wrap">
+                        <span class="cp-input-icon"><i class="bi bi-check-circle"></i></span>
+                        <input type="password" id="cpConfirmPassword" class="cp-input" placeholder="Re-enter new password">
+                        <button type="button" class="cp-toggle-btn" data-target="cpConfirmPassword">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <div class="cp-error" id="err_cpConfirmPassword"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="cp-form-actions">
+                    <button type="button" class="cp-btn-cancel" id="cpCancelBtn">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="submit" class="cp-btn-submit" id="cpSubmitBtn">
+                        <span id="cpBtnText"><i class="bi bi-key"></i> Update Password</span>
+                        <span id="cpBtnSpinner" style="display:none;">
+                            <span class="cp-spinner"></span> Updating...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
