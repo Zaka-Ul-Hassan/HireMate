@@ -1,8 +1,6 @@
 <!-- frontend\templates\email\email_settings.html -->
 {% extends "shared/base.html" %}
-
 {% block title %}Email Settings{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/email/email_settings.css">
 <!-- Toastr CSS -->
@@ -10,17 +8,14 @@
 <!-- SweetAlert2 CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 {% endblock %}
-
 {% block content %}
 <div class="email-settings-container">
     <h1 class="page-title">Email Settings</h1>
-
     <!-- ── Loading ── -->
     <div id="loadingState" class="loading-state">
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
-
     <!-- ── No Settings ── -->
     <div id="noSettingsState" class="no-settings-state" style="display: none;">
         <div class="empty-state">
@@ -35,7 +30,6 @@
             </button>
         </div>
     </div>
-
     <!-- ── Settings Display ── -->
     <div id="settingsDisplayState" class="settings-display-state" style="display: none;">
         <div class="settings-card">
@@ -49,7 +43,6 @@
                         <p id="displayEmailAddress" class="email-address"></p>
                     </div>
                 </div>
-
                 <div class="action-buttons">
                     <a id="testEmailBtn" class="btn btn-success" href="/email/compose-email">
                         <i class="bi bi-send-check"></i>
@@ -65,7 +58,6 @@
                     </button>
                 </div>
             </div>
-
             <div class="settings-content">
                 <!-- SMTP Configuration -->
                 <div class="info-section">
@@ -91,7 +83,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Connection Info -->
                 <div class="info-section">
                     <h3>Connection Information</h3>
@@ -106,7 +97,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Help Section -->
                 <div class="info-section help-section">
                     <h3>Setup Guide</h3>
@@ -127,7 +117,6 @@
             </div>
         </div>
     </div>
-
     <!-- ── Settings Form ── -->
     <div id="settingsFormState" class="settings-form-state" style="display: none;">
         <div class="form-container">
@@ -135,19 +124,16 @@
                 <h2 id="formTitle">Setup Email Settings</h2>
                 <button type="button" id="cancelFormBtn" class="btn-close" aria-label="Close">×</button>
             </div>
-
             <form id="settingsForm" novalidate>
                 <!-- Email Configuration -->
                 <div class="form-section">
                     <h3>Email Configuration</h3>
-
                     <div class="form-group">
                         <label for="emailAddress">Email Address <span class="text-danger">*</span></label>
                         <input type="email" id="emailAddress" name="EmailAddress" class="form-control"
                             placeholder="your-email@gmail.com" autocomplete="email">
                         <div class="invalid-feedback">A valid email address is required.</div>
                     </div>
-
                     <div class="form-group">
                         <label for="password">
                             App Password <span class="text-danger">*</span>
@@ -157,7 +143,7 @@
                             <input type="password" id="password" name="Password" class="form-control"
                                 placeholder="16-character app password" autocomplete="new-password">
                             <button type="button" class="toggle-password" id="togglePassword">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye-slash"></i>
                             </button>
                         </div>
                         <div class="invalid-feedback">App password is required.</div>
@@ -167,26 +153,22 @@
                         </small>
                     </div>
                 </div>
-
                 <!-- SMTP Configuration -->
                 <div class="form-section">
                     <h3>SMTP Configuration</h3>
                     <p class="section-description">Default settings for Gmail. Modify only if needed.</p>
-
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="smtpServer">SMTP Server</label>
                             <input type="text" id="smtpServer" name="SmtpServer" class="form-control"
                                 value="smtp.gmail.com" readonly>
                         </div>
-
                         <div class="form-group">
                             <label for="smtpPort">SMTP Port</label>
                             <input type="number" id="smtpPort" name="SmtpPort" class="form-control" value="587"
                                 readonly>
                         </div>
                     </div>
-
                     <div class="alert-info">
                         <i class="bi bi-info-circle"></i>
                         <div>
@@ -195,7 +177,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Setup Guide -->
                 <div class="form-section help-section">
                     <h3>Setup Guide</h3>
@@ -213,7 +194,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="button" id="cancelBtn" class="btn btn-secondary">
@@ -226,10 +206,8 @@
             </form>
         </div>
     </div>
-
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <!-- Toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
