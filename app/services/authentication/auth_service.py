@@ -245,7 +245,7 @@ def change_user_password(user_id, data, db):
     )
 
 # Change Password By Admin
-def admin_change_user_password(data, db: Session):
+def admin_change_user_password(data, db: Session,current_user):
 
     user = db.query(User).filter(
         User.Id == data.UserId,
@@ -269,6 +269,7 @@ def admin_change_user_password(data, db: Session):
 
     # Update password
     user.Password = hash_password(data.NewPassword)
+    user.ModifiedBy = current_user.data.Name
     db.commit()
 
     # Generate email body using AI

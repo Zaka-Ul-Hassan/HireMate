@@ -553,7 +553,7 @@ function createUserCard(user) {
             </div>
             <div class="user-card-header-right">
                 ${!isSuperAdminUser ? `
-                <div class="header-toggle-wrap" title="${user.IsActive ? 'Click to deactivate' : 'Click to activate'}">
+                <div class="header-toggle-wrap" title="${user.IsActive ? 'Click to Inactive' : 'Click to Active'}">
                     <label class="toggle-switch">
                         <input type="checkbox" ${user.IsActive ? 'checked' : ''} onchange="toggleUserStatus(${user.Id}, ${user.IsActive})">
                         <span class="toggle-track"></span>
@@ -630,7 +630,7 @@ function createUserCard(user) {
 // Toggle User Status
 // ─────────────────────────────────────────
 async function toggleUserStatus(userId, currentStatus) {
-    const action = currentStatus ? 'deactivate' : 'activate';
+    const action = currentStatus ? 'Inactive' : 'Active';
 
     const confirm = await Swal.fire({
         title: `${action.charAt(0).toUpperCase() + action.slice(1)} User?`,
