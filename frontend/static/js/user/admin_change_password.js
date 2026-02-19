@@ -5,16 +5,16 @@ const ACP_API = 'http://127.0.0.1:8000/api/users/admin/users/change-password';
 // ─────────────────────────────────────────
 // DOM refs
 // ─────────────────────────────────────────
-const acpForm           = document.getElementById('acpForm');
-const acpUserId         = document.getElementById('acpUserId');
-const acpNewPassword    = document.getElementById('acpNewPassword');
-const acpConfirmPassword= document.getElementById('acpConfirmPassword');
-const acpAlert          = document.getElementById('acpAlert');
-const acpSubmitBtn      = document.getElementById('acpSubmitBtn');
-const acpBtnText        = document.getElementById('acpBtnText');
-const acpBtnSpinner     = document.getElementById('acpBtnSpinner');
-const acpStrengthFill   = document.getElementById('acpStrengthFill');
-const acpStrengthLabel  = document.getElementById('acpStrengthLabel');
+const acpForm            = document.getElementById('acpForm');
+const acpUserId          = document.getElementById('acpUserId');
+const acpNewPassword     = document.getElementById('acpNewPassword');
+const acpConfirmPassword = document.getElementById('acpConfirmPassword');
+const acpAlert           = document.getElementById('acpAlert');
+const acpSubmitBtn       = document.getElementById('acpSubmitBtn');
+const acpBtnText         = document.getElementById('acpBtnText');
+const acpBtnSpinner      = document.getElementById('acpBtnSpinner');
+const acpStrengthFill    = document.getElementById('acpStrengthFill');
+const acpStrengthLabel   = document.getElementById('acpStrengthLabel');
 
 // ─────────────────────────────────────────
 // Auth
@@ -33,12 +33,12 @@ function authHeaders() {
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        showAlert('error', '<i class="bi bi-exclamation-circle-fill"></i> Session expired. Redirecting to login...');
+        showAlert('error', 'Session expired. Redirecting to login...');
         setTimeout(() => window.location.href = '/', 2000);
         return;
     }
 
-    // Check if userId was passed via URL query param
+    // Pre-fill User ID if passed via URL ?userId=X
     const params = new URLSearchParams(window.location.search);
     const uid    = params.get('userId');
     if (uid) acpUserId.value = uid;
@@ -50,32 +50,31 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup
 // ─────────────────────────────────────────
 function setupListeners() {
-    // Toggle password visibility
-    document.querySelectorAll('.acp-toggle').forEach(btn => {
+    // Toggle password visibility (matches .toggle-password buttons)
+    document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function () {
-            const targetId = this.dataset.target;
-            const input    = document.getElementById(targetId);
-            const icon     = this.querySelector('i');
+            const input = document.getElementById(this.dataset.target);
+            const icon  = this.querySelector('i');
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.replace('bi-eye-slash', 'bi-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             } else {
                 input.type = 'password';
-                icon.classList.replace('bi-eye', 'bi-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             }
         });
     });
 
-    // Password strength
+    // Strength meter
     acpNewPassword.addEventListener('input', () => {
         updateStrength(acpNewPassword.value);
         clearError('err_acpNewPassword');
     });
 
     acpConfirmPassword.addEventListener('input', () => clearError('err_acpConfirmPassword'));
-    acpUserId.addEventListener('input', () => clearError('err_acpUserId'));
+    acpUserId.addEventListener('input',          () => clearError('err_acpUserId'));
 
-    // Form submit
+    // Submit
     acpForm.addEventListener('submit', handleSubmit);
 }
 
@@ -84,14 +83,12 @@ function setupListeners() {
 // ─────────────────────────────────────────
 async function handleSubmit(e) {
     e.preventDefault();
-
     if (!validateForm()) return;
 
-    const userId     = parseInt(acpUserId.value);
-    const newPw      = acpNewPassword.value;
-    const confirmPw  = acpConfirmPassword.value;
+    const userId    = parseInt(acpUserId.value);
+    const newPw     = acpNewPassword.value;
+    const confirmPw = acpConfirmPassword.value;
 
-    // Loading state
     setLoading(true);
     acpAlert.style.display = 'none';
 
@@ -107,7 +104,7 @@ async function handleSubmit(e) {
         });
 
         if (response.status === 401) {
-            showAlert('error', '<i class="bi bi-exclamation-circle-fill"></i> Session expired. Please log in again.');
+            showAlert('error', 'Session expired. Please log in again.');
             setTimeout(() => window.location.href = '/', 2000);
             return;
         }
@@ -115,19 +112,19 @@ async function handleSubmit(e) {
         const result = await response.json();
 
         if (result.status) {
-            showAlert('success', `<i class="bi bi-check-circle-fill"></i> ${result.message || 'Password updated successfully!'}`);
+            showAlert('success', `<i class="fas fa-check-circle me-2"></i>${result.message || 'Password updated successfully!'}`);
             acpForm.reset();
             resetRequirements();
-            acpStrengthFill.className   = 'acp-strength-fill';
+            acpStrengthFill.className    = 'strength-fill';
             acpStrengthLabel.textContent = '';
-            acpStrengthLabel.className   = 'acp-strength-label';
+            acpStrengthLabel.className   = 'strength-label';
         } else {
-            showAlert('error', `<i class="bi bi-exclamation-circle-fill"></i> ${result.message || 'Failed to update password.'}`);
+            showAlert('error', `<i class="fas fa-exclamation-circle me-2"></i>${result.message || 'Failed to update password.'}`);
         }
 
     } catch (error) {
         console.error('Change password error:', error);
-        showAlert('error', '<i class="bi bi-exclamation-circle-fill"></i> Network error. Please try again.');
+        showAlert('error', '<i class="fas fa-exclamation-circle me-2"></i>Network error. Please try again.');
     } finally {
         setLoading(false);
     }
@@ -139,14 +136,12 @@ async function handleSubmit(e) {
 function validateForm() {
     let valid = true;
 
-    // User ID
     const uid = acpUserId.value.trim();
     if (!uid || isNaN(parseInt(uid)) || parseInt(uid) < 1) {
         showError('err_acpUserId', 'Please enter a valid User ID.');
         valid = false;
     }
 
-    // New password
     const newPw = acpNewPassword.value;
     if (!newPw) {
         showError('err_acpNewPassword', 'New password is required.');
@@ -156,7 +151,6 @@ function validateForm() {
         valid = false;
     }
 
-    // Confirm password
     const confirmPw = acpConfirmPassword.value;
     if (!confirmPw) {
         showError('err_acpConfirmPassword', 'Please confirm the new password.');
@@ -173,7 +167,7 @@ function validateForm() {
 // Password Strength
 // ─────────────────────────────────────────
 function updateStrength(pw) {
-    const reqs = {
+    const checks = {
         acp_req_length:  pw.length >= 8,
         acp_req_upper:   /[A-Z]/.test(pw),
         acp_req_lower:   /[a-z]/.test(pw),
@@ -182,25 +176,25 @@ function updateStrength(pw) {
     };
 
     let passed = 0;
-    Object.entries(reqs).forEach(([id, ok]) => {
+    Object.entries(checks).forEach(([id, ok]) => {
         const li = document.getElementById(id);
         if (!li) return;
-        li.classList.toggle('acp-passed', ok);
+        li.classList.toggle('passed', ok);
         if (ok) passed++;
     });
 
-    const levels = ['', 'acp-weak', 'acp-fair', 'acp-good', 'acp-strong', 'acp-strong'];
-    const labels = ['', 'Weak',     'Fair',     'Good',     'Strong',     'Strong'];
+    const levels = ['', 'weak', 'fair', 'good', 'strong', 'strong'];
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Strong'];
 
-    acpStrengthFill.className   = `acp-strength-fill ${pw ? levels[passed] : ''}`;
-    acpStrengthLabel.className  = `acp-strength-label ${pw ? levels[passed] : ''}`;
+    acpStrengthFill.className    = `strength-fill ${pw ? levels[passed] : ''}`;
+    acpStrengthLabel.className   = `strength-label ${pw ? levels[passed] : ''}`;
     acpStrengthLabel.textContent = pw ? labels[passed] : '';
 }
 
 function resetRequirements() {
-    ['acp_req_length','acp_req_upper','acp_req_lower','acp_req_digit','acp_req_special'].forEach(id => {
+    ['acp_req_length', 'acp_req_upper', 'acp_req_lower', 'acp_req_digit', 'acp_req_special'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.classList.remove('acp-passed');
+        if (el) el.classList.remove('passed');
     });
 }
 
@@ -208,9 +202,9 @@ function resetRequirements() {
 // Helpers
 // ─────────────────────────────────────────
 function showAlert(type, html) {
-    acpAlert.innerHTML        = html;
-    acpAlert.className        = `acp-alert acp-${type}`;
-    acpAlert.style.display    = 'flex';
+    acpAlert.innerHTML      = html;
+    acpAlert.className      = `alert-container ${type}`;
+    acpAlert.style.display  = 'flex';
     acpAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
