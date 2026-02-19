@@ -84,9 +84,9 @@
 
 /* Nav Items - Ensure visibility */
 .navbar .nav-item {
-  display: block !important; /* Force display */
+  display: block;
   margin: 0;
-  opacity: 1 !important; /* Force opacity */
+  opacity: 1;
 }
 
 /* Nav Links - Enhanced visibility */
