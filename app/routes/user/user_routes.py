@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from app.schemas.pagination_schema import PaginationInputSchema
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.user.user_schema import CreateUserSchema, CurrentUserSchema, LoginUserSchema, RegisterUser,LoginRequest,TokenResponse, UpdateProfileSchema
-from app.schemas.auth.forgot_password import ChangePasswordSchema, ForgotPasswordRequest,ResetPasswordRequest
+from app.schemas.auth.forgot_password import AdminChangePasswordSchema, ChangePasswordSchema, ForgotPasswordRequest,ResetPasswordRequest
 from app.models.user.user import User
 from app.services.user import user_service 
 from app.services.authentication import auth_service
@@ -207,3 +207,15 @@ def change_password(
     db: Session = Depends(get_db)
 ):
     return auth_service.change_user_password(user_id, data, db)
+
+
+@router.put("/admin/users/change-password")
+def change_user_password(
+    data: AdminChangePasswordSchema,
+    db: Session = Depends(get_db),
+    current_user = Depends(auth_service.get_current_user)
+):
+    if not current_user.status or "SuperAdmin" not in current_user.data.RoleNames:
+        return ResponseSchema(status=False, message="Unauthorized access")
+    
+    return auth_service.admin_change_user_password(data, db)

@@ -21,3 +21,9 @@ class ChangePasswordSchema(BaseModel):
     OldPassword : str
     NewPassword : str
     ConfirmPassword : str
+
+
+class AdminChangePasswordSchema(BaseModel):
+    UserId : int
+    NewPassword : str
+    ConfirmPassword : str

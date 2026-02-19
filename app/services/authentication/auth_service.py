@@ -8,7 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.models.user.role import Role
 from app.models.user.user_role import UserRole
-from app.schemas.auth.forgot_password import ForgotPasswordRequest,ResetPasswordRequest
+from app.schemas.auth.forgot_password import AdminChangePasswordSchema, ForgotPasswordRequest,ResetPasswordRequest
 from app.schemas.email.email_schema import SendSystemEmailSchema
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.response_schema import ResponseSchema
@@ -245,3 +245,26 @@ def change_user_password(user_id, data, db):
         message="Password changed successfully",
         data=None
     )
+
+
+def admin_change_user_password(
+        data: AdminChangePasswordSchema,
+        db:Session
+):
+    
+    user = db.query(User).filter(
+        User.Id == data.UserId,
+        User.IsDeleted == False
+    ).first()
+
+    if not user:
+        return ResponseSchema(status=False, message="User not found")
+
+    # Check new & confirm password
+    if data.NewPassword != data.ConfirmPassword:
+        return ResponseSchema(status=False,message="New password and confirm password do not match")
+    
+    user.Password = hash_password(data.NewPassword)
+    db.commit()
+
+    return ResponseSchema(status=True, message="Password updated successfully")
