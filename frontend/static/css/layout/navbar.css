@@ -255,10 +255,6 @@
   background: linear-gradient(135deg, #152c4a 0%, #1d4a8a 100%) !important;
 }
 
-/* Debug helper - remove after fixing */
-.navbar .nav-item[style*="display: none"] {
-  border: 2px solid red !important;
-}
 
 /* Smooth transitions */
 .navbar * {

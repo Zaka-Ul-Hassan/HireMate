@@ -24,15 +24,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const userRoles = getUserRoles();
         console.log('User roles (navbar):', userRoles);
 
-        if (userRoles.length === 0) {
-            console.warn('No user roles found in localStorage');
-            return;
-        }
-
         const navItems = document.querySelectorAll('.navbar-nav .nav-item[data-role]');
 
         navItems.forEach(item => {
             const allowedRoles = item.getAttribute('data-role').split(',').map(r => r.trim().toLowerCase());
+
+            // If no roles found in localStorage, hide all role-restricted items
+            if (userRoles.length === 0) {
+                item.style.display = 'none';
+                return;
+            }
+
             const hasAccess = userRoles.some(userRole => allowedRoles.includes(userRole));
             item.style.display = hasAccess ? '' : 'none';
         });
