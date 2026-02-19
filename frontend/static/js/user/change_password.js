@@ -52,9 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* ═══════════════════════════════════════════════════
        PASSWORD TOGGLE VISIBILITY
+       fa-eye-slash = password hidden  (click to reveal)
+       fa-eye       = password visible (click to hide)
     ═══════════════════════════════════════════════════ */
     const toggleButtons = document.querySelectorAll('.toggle-password');
-    
+
     toggleButtons.forEach(button => {
         button.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
@@ -62,13 +64,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = this.querySelector('i');
 
             if (input.type === 'password') {
+                // Reveal password — show plain eye (visible)
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
+            } else {
+                // Hide password — show slashed eye (hidden)
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             }
         });
     });
