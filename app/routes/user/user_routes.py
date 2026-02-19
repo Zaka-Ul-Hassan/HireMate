@@ -218,4 +218,4 @@ def change_user_password(
     if not current_user.status or "SuperAdmin" not in current_user.data.RoleNames:
         return ResponseSchema(status=False, message="Unauthorized access")
     
-    return auth_service.admin_change_user_password(data, db)
+    return auth_service.admin_change_user_password(data, db, current_user)
