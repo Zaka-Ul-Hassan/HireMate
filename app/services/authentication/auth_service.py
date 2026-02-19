@@ -1,23 +1,21 @@
 # app\services\authentication\auth_service.py
 from datetime import datetime, timedelta, timezone
-from jose import ExpiredSignatureError, jwt, JWTError
+from jose import jwt, JWTError
 from sqlalchemy.orm import Session
-from fastapi import Depends,HTTPException,status,Request
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-# from fastapi.security import OAuth2PasswordBearer
-
 from app.models.user.role import Role
 from app.models.user.user_role import UserRole
-from app.schemas.auth.forgot_password import AdminChangePasswordSchema, ForgotPasswordRequest,ResetPasswordRequest
 from app.schemas.email.email_schema import SendSystemEmailSchema
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.role.role_schema import RoleSchema
 from app.schemas.user.user_schema import CurrentUserSchema
+from app.services.ai.cohere_chat_service import cohere_chat
 from app.services.email import email_service
 from config_loader import get_jwt_settings
 from app.services.authentication.security import verify_password
-from app.services.email.email_service import send_email
+from app.services.email.email_service import send_system_email
 from app.services.authentication.security import hash_password
 from app.models.user.user import User
 from app.services.user import user_service
@@ -246,25 +244,66 @@ def change_user_password(user_id, data, db):
         data=None
     )
 
+# Change Password By Admin
+def admin_change_user_password(data, db: Session):
 
-def admin_change_user_password(
-        data: AdminChangePasswordSchema,
-        db:Session
-):
-    
     user = db.query(User).filter(
         User.Id == data.UserId,
         User.IsDeleted == False
     ).first()
 
     if not user:
-        return ResponseSchema(status=False, message="User not found")
-
+        return ResponseSchema(
+            status=False,
+            message="User not found",
+            data=None
+        )
+    
     # Check new & confirm password
     if data.NewPassword != data.ConfirmPassword:
-        return ResponseSchema(status=False,message="New password and confirm password do not match")
-    
+        return ResponseSchema(
+            status=False,
+            message="New password and confirm password do not match",
+            data=None
+        )
+
+    # Update password
     user.Password = hash_password(data.NewPassword)
     db.commit()
 
-    return ResponseSchema(status=True, message="Password updated successfully")
+    # Generate email body using AI
+    ai_prompt = f"""
+    Write a professional HTML email.
+
+    Context:
+    - The user's password has been updated by HireMate admin.
+    - Include the new password: {data.NewPassword}
+    - Mention this was done for security reasons.
+    - Ask the user to change password after login.
+    - Include application URL: {FRONTEND_BASE_URL}
+    - Tone: professional, secure, clear
+    """
+
+    email_body = cohere_chat(ai_prompt)
+
+    # Send email
+    email_payload = SendSystemEmailSchema(
+        Recipient=[user.Email],
+        Subject="Your HireMate Password Has Been Updated",
+        Body=email_body
+    )
+
+    email_response = send_system_email(email_payload)
+
+    if not email_response.status:
+        return ResponseSchema(
+            status=False,
+            message="Password updated but email failed",
+            data=None
+        )
+
+    return ResponseSchema(
+        status=True,
+        message="Password updated and email sent successfully",
+        data=None
+    )
