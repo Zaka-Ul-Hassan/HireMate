@@ -15,3 +15,9 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     NewPassword : str = Field(...,description="New Password")
     ConfirmPassword : str = Field(..., description="Confirm New Password")
+
+
+class ChangePasswordSchema(BaseModel):
+    OldPassword : str
+    NewPassword : str
+    ConfirmPassword : str

@@ -142,34 +142,6 @@ def reset_request_sent(request: Request, email: str):
         "hide_sidebar": True
     })
 
-@router.get("/user/reset-password", response_class=HTMLResponse)
-def reset_password_form(request: Request, token: str = Query(...)):
-    return templates.TemplateResponse(
-        "user/reset_password.html",
-        {
-            "request": request,
-            "token": token,
-            "hide_navbar": True,
-            "hide_footer": True,
-            "fullscreen": True,
-            "hide_sidebar": True
-        }
-    )
-
-@router.get("/user/set-password", response_class=HTMLResponse)
-def set_password_form(request: Request, token: str = Query(...)):
-    return templates.TemplateResponse(
-        "user/set_password.html",
-        {
-            "request": request,
-            "token": token,
-            "hide_navbar": True,
-            "hide_footer": True,
-            "fullscreen": True,
-            "hide_sidebar": True
-        }
-    )
-
 # ========== USER MANAGEMENT ROUTE ==========
 
 @router.get("/user/manage", response_class=HTMLResponse)
@@ -199,6 +171,118 @@ async def user_management_page(
             "hide_resume": True
         }
     )
+
+@router.get("/user/reset-password", response_class=HTMLResponse)
+def reset_password_form(request: Request, token: str = Query(...)):
+    return templates.TemplateResponse(
+        "user/reset_password.html",
+        {
+            "request": request,
+            "token": token,
+            "hide_navbar": True,
+            "hide_footer": True,
+            "fullscreen": True,
+            "hide_sidebar": True
+        }
+    )
+
+@router.get("/user/set-password", response_class=HTMLResponse)
+def set_password_form(request: Request, token: str = Query(...)):
+    return templates.TemplateResponse(
+        "user/set_password.html",
+        {
+            "request": request,
+            "token": token,
+            "hide_navbar": True,
+            "hide_footer": True,
+            "fullscreen": True,
+            "hide_sidebar": True
+        }
+    )
+
+# ========== UPDATE PROFILE ROUTE (MUST BE BEFORE /user/{user_id}) ==========
+
+@router.get("/user/update-profile", response_class=HTMLResponse)
+async def update_profile_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Update Profile Page - Edit user profile information
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "user/update_profile.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
+
+# ========== CHANGE PASSWORD ROUTE (MUST BE BEFORE /user/{user_id}) ==========
+
+@router.get("/user/change-password", response_class=HTMLResponse)
+async def change_password_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Change Password Page - Update user password
+    Authentication checked client-side
+    """
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+    
+    return templates.TemplateResponse(
+        "user/change_password.html",
+        {
+            "request": request,
+            "user": minimal_user,
+            "hide_resume": True
+        }
+    )
+
+# ========== PARAMETERIZED USER ROUTE (MUST COME AFTER ALL SPECIFIC /user/* ROUTES) ==========
+
+@router.get("/user/{user_id}", response_class=HTMLResponse)
+def profile_page(
+    request: Request,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    User profile edit page
+    This endpoint requires authentication
+    """
+    # Ensure user is accessing their own profile (or admin check)
+    if current_user.data.Id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
+
+    return templates.TemplateResponse("profile/edit_profile.html", {
+        "request": request,
+        "user": current_user,
+        "resume": resume
+    })
 
 # ========== EMAIL ROUTES ==========
 
@@ -490,30 +574,6 @@ def view_resume_page(
     resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
 
     return templates.TemplateResponse("resume/get_resume.html", {
-        "request": request,
-        "user": current_user,
-        "resume": resume
-    })
-
-
-@router.get("/user/{user_id}", response_class=HTMLResponse)
-def profile_page(
-    request: Request,
-    user_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    User profile edit page
-    This endpoint requires authentication
-    """
-    # Ensure user is accessing their own profile (or admin check)
-    if current_user.data.Id != user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
-    resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
-
-    return templates.TemplateResponse("profile/edit_profile.html", {
         "request": request,
         "user": current_user,
         "resume": resume

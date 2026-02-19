@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from app.schemas.pagination_schema import PaginationInputSchema
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.user.user_schema import CreateUserSchema, CurrentUserSchema, LoginUserSchema, RegisterUser,LoginRequest,TokenResponse, UpdateProfileSchema
-from app.schemas.auth.forgot_password import ForgotPasswordRequest,ResetPasswordRequest
+from app.schemas.auth.forgot_password import ChangePasswordSchema, ForgotPasswordRequest,ResetPasswordRequest
 from app.models.user.user import User
 from app.services.user import user_service 
 from app.services.authentication import auth_service
@@ -198,3 +198,12 @@ def resend_confirmation_email_route(
     db: Session = Depends(get_db)
 ):
     return user_service.resend_confirmation_email(user_id, db)
+
+
+@router.post("/change-password")
+def change_password(
+    data: ChangePasswordSchema,
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    return auth_service.change_user_password(user_id, data, db)

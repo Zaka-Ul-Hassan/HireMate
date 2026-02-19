@@ -200,3 +200,48 @@ def get_user_roles(db: Session, user_id: int) -> ResponseSchema:
         message="User roles fetched successfully" if roles else "No roles found for user",
         data=[RoleSchema.from_orm(r) for r in roles]
     )
+
+
+# Change Password
+def change_user_password(user_id, data, db):
+    # Get user response
+    user_response = user_service.get_user_by_id(db, user_id)
+
+    # Check if user exists
+    if not user_response.status or not user_response.data:
+        return ResponseSchema(
+            status=False,
+            message="User not found",
+            data=None
+        )
+
+    # Extract actual User model
+    user = user_response.data
+
+    # Verify old password
+    if not verify_password(data.OldPassword, user.Password):
+        return ResponseSchema(
+            status=False,
+            message="Old Password is incorrect",
+            data=None
+        )
+
+    # Check new & confirm password
+    if data.NewPassword != data.ConfirmPassword:
+        return ResponseSchema(
+            status=False,
+            message="New password and confirm password do not match",
+            data=None
+        )
+
+    # Hash and update password
+    user.Password = hash_password(data.NewPassword)
+
+    db.commit()
+    db.refresh(user)
+
+    return ResponseSchema(
+        status=True,
+        message="Password changed successfully",
+        data=None
+    )

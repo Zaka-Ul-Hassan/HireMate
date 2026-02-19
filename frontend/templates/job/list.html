@@ -5,80 +5,114 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/job/list.css">
-<!-- Toastr CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="job-container">
-    <div class="job-header">
-        <div class="header-content">
-            <div class="header-icon">
-                <i class="bi bi-briefcase-fill"></i>
-            </div>
-            <div class="header-text">
-                <h1 class="page-title">Recommended Jobs</h1>
-                <p class="page-subtitle">
-                    <span id="jobCount">0</span> jobs matched to your profile
-                </p>
-            </div>
-        </div>
+
+  <!-- ── HEADER ── -->
+  <header class="job-header">
+    <div class="header-bg-grid"></div>
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="bi bi-briefcase-fill"></i>
+        <div class="icon-ring"></div>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Recommended&nbsp;Jobs</h1>
+        <p class="page-subtitle">
+          <span class="count-pill"><span id="jobCount">0</span> positions</span>
+          matched to your profile
+        </p>
+      </div>
+      <div class="header-saved-pill" id="savedPill" title="View saved jobs">
+        <i class="bi bi-heart-fill"></i>
+        <span id="savedCount">0</span> saved
+      </div>
+    </div>
+  </header>
+
+  <!-- ── BODY CARD ── -->
+  <div class="job-card">
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="action-left">
+        <button class="btn btn-refresh" id="refreshBtn">
+          <i class="bi bi-arrow-clockwise"></i>
+          <span>Refresh</span>
+        </button>
+        <button class="btn btn-saved" id="showSavedBtn">
+          <i class="bi bi-heart-fill"></i>
+          <span>Saved</span>
+          <span class="saved-badge" id="savedBadge">0</span>
+        </button>
+      </div>
+      <div class="job-stats">
+        <span class="stat-badge">
+          <i class="bi bi-geo-alt-fill"></i>
+          Multiple Locations
+        </span>
+        <span class="stat-badge">
+          <i class="bi bi-clock-fill"></i>
+          Updated Daily
+        </span>
+      </div>
     </div>
 
-    <div class="job-card">
-        <!-- Action Bar -->
-        <div class="action-bar">
-            <button class="btn btn-primary" id="refreshBtn">
-                <i class="bi bi-arrow-clockwise"></i>
-                <span>Refresh Jobs</span>
-            </button>
-            <div class="job-stats">
-                <span class="stat-badge">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    Multiple Locations
-                </span>
-                <span class="stat-badge">
-                    <i class="bi bi-clock-fill"></i>
-                    Updated Daily
-                </span>
-            </div>
-        </div>
-
-        <!-- Job List Section -->
-        <div class="job-list-section">
-            <div class="section-title">
-                <i class="bi bi-list-check"></i>
-                Available Positions
-            </div>
-            
-            <!-- Job List -->
-            <div class="job-list" id="jobContainer">
-                <!-- Jobs will be loaded here dynamically -->
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <div class="empty-icon">
-                    <i class="bi bi-briefcase"></i>
-                </div>
-                <h3>No Jobs Found</h3>
-                <p>We couldn't find any jobs matching your profile. Check back later!</p>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div class="loading-indicator" id="loadingSpinner">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p>Finding the best jobs for you...</p>
-            </div>
-        </div>
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab active" id="tabAll" data-tab="all">
+        <i class="bi bi-grid-fill"></i> All Jobs
+      </button>
+      <button class="tab" id="tabSaved" data-tab="saved">
+        <i class="bi bi-heart-fill"></i> Saved Jobs
+        <span class="tab-badge" id="tabBadge">0</span>
+      </button>
     </div>
+
+    <!-- Section title -->
+    <div class="job-list-section">
+      <div class="section-title" id="sectionTitle">
+        <i class="bi bi-list-check"></i>
+        Available Positions
+      </div>
+
+      <!-- Loading Indicator -->
+      <div class="loading-indicator" id="loadingSpinner">
+        <div class="loader-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Finding the best jobs for you…</p>
+      </div>
+
+      <!-- Job List -->
+      <div class="job-list" id="jobContainer" style="display:none;"></div>
+
+      <!-- Empty State (no jobs at all) -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon"><i class="bi bi-briefcase"></i></div>
+        <h3>No Jobs Found</h3>
+        <p>We couldn't find any jobs matching your profile. Check back later!</p>
+        <button class="btn btn-refresh" id="emptyRefreshBtn">
+          <i class="bi bi-arrow-clockwise"></i> Try Again
+        </button>
+      </div>
+
+      <!-- Empty Saved State -->
+      <div class="empty-state" id="emptySavedState" style="display:none;">
+        <div class="empty-icon heart-empty"><i class="bi bi-heart"></i></div>
+        <h3>No Saved Jobs Yet</h3>
+        <p>Click the <i class="bi bi-heart"></i> on any job card to save it for later.</p>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="/static/js/job/list.js"></script>
 {% endblock %}

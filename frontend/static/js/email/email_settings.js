@@ -96,7 +96,7 @@ function setupEventListeners() {
     cancelFormBtn.addEventListener('click',      hideForm);
     cancelBtn.addEventListener('click',          hideForm);
     settingsForm.addEventListener('submit',      handleSubmit);
-    
+
     // Password toggle
     if (togglePassword) {
         togglePassword.addEventListener('click', togglePasswordVisibility);
@@ -105,19 +105,23 @@ function setupEventListeners() {
 
 // ─────────────────────────────────────────
 // 4. Password toggle
+//    bi-eye-slash = password hidden  (click to reveal)
+//    bi-eye       = password visible (click to hide)
 // ─────────────────────────────────────────
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('password');
     const icon = togglePassword.querySelector('i');
-    
+
     if (passwordInput.type === 'password') {
+        // Reveal password — show plain eye (visible)
         passwordInput.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
-    } else {
-        passwordInput.type = 'password';
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye');
+    } else {
+        // Hide password — show slashed eye (hidden)
+        passwordInput.type = 'password';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
     }
 }
 
@@ -174,7 +178,7 @@ function displaySettings(settings) {
     setText('displayEmailFull',    settings.EmailAddress);
     setText('displaySmtpServer',   settings.SmtpServer || 'smtp.gmail.com');
     setText('displaySmtpPort',     settings.SmtpPort || '587');
-    
+
     // Password status
     const passwordStatus = document.getElementById('displayPasswordStatus');
     if (passwordStatus && settings.Password) {
@@ -198,6 +202,15 @@ function showForm(updateMode) {
         document.getElementById('smtpServer').value = 'smtp.gmail.com';
         document.getElementById('smtpPort').value = '587';
         clearValidation();
+    }
+
+    // Reset password field visibility and icon when opening form
+    const passwordInput = document.getElementById('password');
+    const icon = togglePassword ? togglePassword.querySelector('i') : null;
+    if (passwordInput) passwordInput.type = 'password';
+    if (icon) {
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
     }
 
     showState('form');
@@ -253,7 +266,7 @@ async function handleSubmit(e) {
     const data     = {
         UserId: Number(currentUserId)
     };
-    
+
     for (const [key, value] of formData.entries()) {
         data[key] = value.trim() !== '' ? value.trim() : null;
     }

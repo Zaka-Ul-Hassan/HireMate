@@ -1,27 +1,83 @@
 <!-- frontend\templates\user\reset_request_sent.html -->
 
 {% extends "shared/base.html" %}
-{% block title %}Reset Password{% endblock %}
+{% block title %}Reset Request Sent - HireMate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user/forgot_password.css">
+{% endblock %}
 
 {% block content %}
-<div class="min-vh-100 bg-light d-flex justify-content-center align-items-center">
-    <div class="card shadow-sm" style="width: 520px; border-radius: 8px;">
-        <div class="card-body text-center">
 
-            <img src="/static/images/lock_images/paper_airplane.jpg" alt="Paper plane" style="width: 150px;"
-                class="mb-4">
+<!-- HireMate brand top-right -->
+<a href="/" class="hiremate-brand">HireMate</a>
 
+<div class="pw-page-wrapper">
+  <div class="pw-card">
 
-            <h5 class="card-title fw-bold mb-3">Reset request sent</h5>
-            <p class="mb-2"><strong>{{email}}</strong></p>
-            <p class="mb-4">Your password reset request has been sent successfully. Please check your email for
-                instructions and don't forget to check your spam folder.</p>
-
-            <a href="/" class="btn btn-primary" style="padding: 10px 20px;">Back</a>
-
-        </div>
+    <!-- Header -->
+    <div class="pw-card-header">
+      <div class="pw-header-icon">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+      <h2>Reset Request Sent</h2>
+      <p>Check your inbox for further instructions</p>
     </div>
+
+    <!-- Body -->
+    <div class="pw-card-body">
+
+      <!-- Image -->
+      <div class="rr-image-wrap">
+        <img src="/static/images/lock_images/paper_airplane.jpg" alt="Email sent">
+      </div>
+
+      <!-- Success badge -->
+      <div style="text-align:center;">
+        <span class="rr-badge">
+          <i class="fas fa-check-circle"></i> Email Sent Successfully
+        </span>
+      </div>
+
+      <!-- Email highlight -->
+      <div style="text-align:center;">
+        <span class="rr-email-pill">{{ email }}</span>
+      </div>
+
+      <!-- Message -->
+      <p class="rr-message">
+        A password reset link has been sent to your email address.
+        Please check your inbox and follow the instructions.
+        Don't forget to check your spam folder if you don't see it.
+      </p>
+
+      <!-- Info boxes -->
+      <div class="rr-info-row">
+        <div class="rr-info-box">
+          <i class="fas fa-inbox"></i>
+          <strong>Check Inbox</strong>
+          Look in your primary inbox first
+        </div>
+        <div class="rr-info-box">
+          <i class="fas fa-ban"></i>
+          <strong>Check Spam</strong>
+          It may be in your spam folder
+        </div>
+        <div class="rr-info-box">
+          <i class="fas fa-clock"></i>
+          <strong>Link Expires</strong>
+          Valid for 15 minutes
+        </div>
+      </div>
+
+      <!-- Back button -->
+      <a href="/" class="pw-btn-submit" style="margin-bottom: 1.25rem;">
+        <i class="fas fa-arrow-left"></i> Back to Login
+      </a>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
