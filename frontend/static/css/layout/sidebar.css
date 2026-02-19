@@ -736,16 +736,20 @@ input[type="date"].sb-input::-webkit-calendar-picker-indicator {
 .sidebar-menu .nav-item:nth-child(6) { animation-delay: 0.24s; }
 .sidebar-menu .nav-item:nth-child(7) { animation-delay: 0.28s; }
 
-/* Collapse Animation */
-.collapse {
+/* ═══════════════════════════════════════════
+   COLLAPSE ANIMATION
+   FIX: Scoped to .sidebar-menu only so the
+   navbar's .collapse is NOT affected.
+═══════════════════════════════════════════ */
+.sidebar-menu .collapse {
     transition: height 0.3s ease, opacity 0.25s ease;
 }
 
-.collapse:not(.show) {
+.sidebar-menu .collapse:not(.show) {
     opacity: 0;
 }
 
-.collapse.show {
+.sidebar-menu .collapse.show {
     opacity: 1;
 }
 
