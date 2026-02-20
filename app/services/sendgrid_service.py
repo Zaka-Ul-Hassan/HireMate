@@ -28,8 +28,7 @@ def send_email_service(payload: SendGridEmailSchema) -> ResponseSchema:
             status=True,
             message="Email sent successfully",
             data={
-                "status_code":response.status_code,
-                "text":response.text
+                "status_code":response.status_code
             }
         )
     
