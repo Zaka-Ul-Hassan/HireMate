@@ -11,6 +11,11 @@ class EmailSchema(BaseModel):
     body: str
 
 
+class SendGridEmailSchema(EmailSchema):
+    from_email: EmailStr = Field(...,description="SendGrid verified sender")
+
+
+
 class InboxEmail(BaseModel):
     message_id:str
     sender: EmailStr
@@ -24,12 +29,11 @@ class InboxEmail(BaseModel):
         orm_mode = True
 
 
-
-
 class SendSystemEmailSchema(BaseModel):
     Recipient: list[EmailStr] = Field(..., description="Recipient email address")
     Subject: str = Field(..., description="Subject of the email")
     Body: str = Field(..., description="Body content of the email")
+
 
 class SendClientEmailSchema(SendSystemEmailSchema):
     UserId: int = Field(..., description="ID of the user sending the email")
@@ -58,6 +62,7 @@ class EmailSequenceSchema(BaseModel):
     email_1: EmailContentSchema
     email_2: EmailContentSchema
     email_3: EmailContentSchema
+
 
 class SendEmailSequenceSchema(BaseModel):
     UserId: int

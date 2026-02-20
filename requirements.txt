@@ -49,3 +49,6 @@ weasyprint>=58.0,<60.0
 
 # Qdrant vector database client
 qdrant-client>=1.8.0,<2.0.0
+
+# SendGrid official library for sending emails
+sendgrid>=6.11.0,<7.0.0
