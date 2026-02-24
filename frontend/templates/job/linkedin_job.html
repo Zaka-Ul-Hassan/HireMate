@@ -1,0 +1,240 @@
+<!-- frontend/templates/job/linkedin_job.html -->
+
+{% extends "shared/base.html" %}
+{% block title %}LinkedIn Job Search{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/job/linked_job.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="job-container">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+  <header class="job-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="bi bi-linkedin"></i>
+        <div class="icon-ring"></div>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">LinkedIn&nbsp;Job&nbsp;Search</h1>
+        <p class="page-subtitle">
+          <span class="count-pill"><span id="jobCount">0</span> results</span>
+          filtered to your criteria
+        </p>
+      </div>
+      <div class="header-saved-pill" id="savedPill" title="View saved jobs">
+        <i class="bi bi-heart-fill"></i>
+        <span id="savedCount">0</span> saved
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ BODY CARD ════════════════════════════════════════════════ -->
+  <div class="job-card">
+
+    <!-- ── FILTER PANEL ─────────────────────────────────────────── -->
+    <div class="filter-panel">
+      <div class="filter-panel-header">
+        <span class="filter-panel-title">
+          <i class="bi bi-funnel-fill"></i> Search Filters
+        </span>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span id="filterSavedIndicator"></span>
+          <button class="btn btn-clear" id="clearFilterBtn" title="Clear all filters">
+            <i class="bi bi-x-circle"></i> Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-grid">
+
+        <!-- Job Title -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_job_title">Job Title</label>
+          <input id="f_job_title" class="filter-input" type="text" placeholder="e.g. Software Engineer">
+        </div>
+
+        <!-- Location -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_job_location">Location</label>
+          <input id="f_job_location" class="filter-input" type="text" placeholder="e.g. New York, NY">
+        </div>
+
+        <!-- Company -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_company">Company</label>
+          <input id="f_company" class="filter-input" type="text" placeholder="e.g. Google, Meta (comma-separated)">
+        </div>
+
+        <!-- Sort by -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_sort">Sort By</label>
+          <select id="f_sort" class="filter-input filter-select">
+            <option value="R">Most Recent</option>
+            <option value="DD">Most Relevant</option>
+          </select>
+        </div>
+
+        <!-- Date Posted -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_date">Date Posted</label>
+          <select id="f_date" class="filter-input filter-select">
+            <option value="">Any time</option>
+            <option value="r86400">Past 24 hours</option>
+            <option value="r604800">Past week</option>
+            <option value="r2592000">Past month</option>
+          </select>
+        </div>
+
+        <!-- Number of Records -->
+        <div class="filter-field">
+          <label class="filter-label" for="f_records">Results Count</label>
+          <input id="f_records" class="filter-input" type="number" min="1" max="200" value="5" placeholder="5">
+        </div>
+
+        <!-- Experience Level (multi-select) -->
+        <div class="filter-field">
+          <label class="filter-label">Experience Level</label>
+          <div class="chip-input-wrap" id="cs-experience">
+            <div class="chip-input-box">
+              <span class="chip-placeholder">Select…</span>
+            </div>
+            <div class="chip-dropdown"></div>
+          </div>
+        </div>
+
+        <!-- Job Type (multi-select) -->
+        <div class="filter-field">
+          <label class="filter-label">Job Type</label>
+          <div class="chip-input-wrap" id="cs-jobtype">
+            <div class="chip-input-box">
+              <span class="chip-placeholder">Select…</span>
+            </div>
+            <div class="chip-dropdown"></div>
+          </div>
+        </div>
+
+        <!-- Remote / On-site (multi-select) -->
+        <div class="filter-field">
+          <label class="filter-label">Remote / On-site</label>
+          <div class="chip-input-wrap" id="cs-remote">
+            <div class="chip-input-box">
+              <span class="chip-placeholder">Select…</span>
+            </div>
+            <div class="chip-dropdown"></div>
+          </div>
+        </div>
+
+        <!-- Industry (multi-select) -->
+        <div class="filter-field">
+          <label class="filter-label">Industry</label>
+          <div class="chip-input-wrap" id="cs-industry">
+            <div class="chip-input-box">
+              <span class="chip-placeholder">Select…</span>
+            </div>
+            <div class="chip-dropdown"></div>
+          </div>
+        </div>
+
+      </div><!-- /filter-grid -->
+
+      <!-- Filter action buttons -->
+      <div style="display:flex;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="applyBtn">
+          <i class="bi bi-search"></i> Apply Filters
+        </button>
+        <button class="btn btn-save-filter" id="saveFilterBtn">
+          <i class="bi bi-bookmark-fill"></i> Save Filters
+        </button>
+      </div>
+    </div>
+    <!-- /filter-panel -->
+
+    <!-- ── ACTION BAR ────────────────────────────────────────────── -->
+    <div class="action-bar">
+      <div class="action-left">
+        <button class="btn btn-saved" id="showSavedBtn">
+          <i class="bi bi-heart-fill"></i>
+          <span>Saved</span>
+          <span class="saved-badge" id="savedBadge">0</span>
+        </button>
+      </div>
+      <div class="job-stats">
+        <span class="stat-badge">
+          <i class="bi bi-linkedin"></i>
+          LinkedIn Jobs
+        </span>
+        <span class="stat-badge">
+          <i class="bi bi-clock-fill"></i>
+          Live Data
+        </span>
+      </div>
+    </div>
+
+    <!-- ── TAB BAR ────────────────────────────────────────────────── -->
+    <div class="tab-bar">
+      <button class="tab active" id="tabAll" data-tab="all">
+        <i class="bi bi-grid-fill"></i> All Results
+      </button>
+      <button class="tab" id="tabSaved" data-tab="saved">
+        <i class="bi bi-heart-fill"></i> Saved Jobs
+        <span class="tab-badge" id="tabBadge">0</span>
+      </button>
+    </div>
+
+    <!-- ── RESULTS SECTION ───────────────────────────────────────── -->
+    <div class="job-list-section">
+      <div class="section-title" id="sectionTitle">
+        <i class="bi bi-linkedin"></i>
+        LinkedIn Results
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-indicator" id="loadingSpinner" style="display:none;">
+        <div class="loader-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Searching LinkedIn jobs…</p>
+      </div>
+
+      <!-- Prompt (before first search) -->
+      <div class="prompt-state" id="promptState">
+        <div class="prompt-icon"><i class="bi bi-funnel"></i></div>
+        <h3>Set your filters above</h3>
+        <p>Configure your search criteria and click <strong>Apply Filters</strong> to find LinkedIn jobs.</p>
+      </div>
+
+      <!-- Job List -->
+      <div class="job-list" id="jobContainer" style="display:none;"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon"><i class="bi bi-briefcase"></i></div>
+        <h3>No Jobs Found</h3>
+        <p>Try adjusting your filters or broadening your search criteria.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('applyBtn').click()">
+          <i class="bi bi-arrow-clockwise"></i> Try Again
+        </button>
+      </div>
+
+      <!-- Empty Saved State -->
+      <div class="empty-state" id="emptySavedState" style="display:none;">
+        <div class="empty-icon heart-empty"><i class="bi bi-heart"></i></div>
+        <h3>No Saved Jobs Yet</h3>
+        <p>Click the <i class="bi bi-heart"></i> on any job card to save it for later.</p>
+      </div>
+    </div>
+    <!-- /job-list-section -->
+
+  </div><!-- /job-card -->
+</div><!-- /job-container -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="/static/js/job/linked_job.js"></script>
+{% endblock %}

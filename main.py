@@ -58,7 +58,9 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # CORS middleware (optional, useful for frontend JS calls)
 origins = [
     "https://stenophyllous-jeane-perturbingly.ngrok-free.dev",
-    "http://localhost:3000",  # if you also test locally
+    "http://localhost:3000",
+    "http://127.0.0.1:8000", 
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
