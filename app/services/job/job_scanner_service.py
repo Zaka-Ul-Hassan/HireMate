@@ -1,9 +1,12 @@
 # app\services\job\job_scanner_service.py
 
+from typing import Any, Dict
+
 import requests
 from sqlalchemy.orm import Session
 from app.models.resume.resume_model import Resume
 from app.schemas.response_schema import ResponseSchema
+from load_env import ACTOR_ENDPOINT, APIFY_BASE_URL, APIFY_JOB_TOKEN
 
 def is_relevant_job(job_title: str, developer_type: str, skills: str) -> bool:
     title = job_title.lower()
@@ -150,3 +153,48 @@ def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
 
     except Exception as e:
         return ResponseSchema(status=False, message=f"Something went wrong")
+    
+
+# APIFY LinkedIN JOB
+async def get_linkedin_jobs_service(filters: Dict[str, Any]) -> ResponseSchema:
+
+    url = f"{APIFY_BASE_URL}/{ACTOR_ENDPOINT}?token={APIFY_JOB_TOKEN}"
+
+    payload = {
+        "job_title": filters.get("job_title"),
+        "job_location": filters.get("job_location"),
+        "company_name": filters.get("company_name"),
+        "number_records": filters.get("number_records"),
+        "sort_by": filters.get("sort_by"),
+        "date_posted": filters.get("date_posted"),
+        "experience_level": filters.get("experience_level"),
+        "job_type": filters.get("job_type"),
+        "remote_type": filters.get("remote_type"),
+        "industry": filters.get("industry"),
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not data or len(data) == 0:
+            return ResponseSchema(
+                status=False,
+                message="No jobs found",
+                data=[]
+            )
+
+        return ResponseSchema(
+            status=True,
+            message="LinkedIn jobs fetched successfully",
+            data=data
+        )
+
+    except Exception as e:
+        return ResponseSchema(
+            status=False,
+            message=f"Failed to get jobs: {str(e)}",
+            data=None
+        )

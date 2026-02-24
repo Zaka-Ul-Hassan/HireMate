@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models.user.user import User
 from app.models.resume.resume_model import Resume
+from app.schemas.job.job_schema import LinkedInJobFilterSchema
 from app.schemas.response_schema import ResponseSchema
 from app.services.authentication.auth_service import get_current_user
 from app.services.job.job_service import get_job_recommendation
-from app.services.job.job_scanner_service import fetch_jobs_from_api
+from app.services.job.job_scanner_service import fetch_jobs_from_api, get_linkedin_jobs_service
 
 router = APIRouter()
 
@@ -43,3 +44,9 @@ async def recommend_jobs(
     return jobs
 
 
+@router.post("/jobs", response_model=ResponseSchema)
+async def get_linkedin_jobs(
+    filters: LinkedInJobFilterSchema
+) -> ResponseSchema:
+
+    return await get_linkedin_jobs_service(filters.dict())
