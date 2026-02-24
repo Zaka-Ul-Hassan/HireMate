@@ -185,10 +185,47 @@ class ChipSelect {
 let csExperience, csJobType, csRemote, csIndustry;
 
 // ─────────────────────────────────────────
+// Value mappings for API (UI value → API code)
+// ─────────────────────────────────────────
+const EXPERIENCE_MAP = {
+    'Internship':       '1',
+    'Entry level':      '2',
+    'Associate':        '3',
+    'Mid-Senior level': '4',
+    'Director':         '5',
+    'Executive':        '6'
+};
+
+const JOB_TYPE_MAP = {
+    'Full-time':  'F',
+    'Part-time':  'P',
+    'Contract':   'C',
+    'Temporary':  'T',
+    'Internship': 'I'
+};
+
+const REMOTE_MAP = {
+    'Remote':  '1',
+    'On-Site': '2',
+    'Hybrid':  '3'
+};
+
+// ─────────────────────────────────────────
 // Collect filter values
 // ─────────────────────────────────────────
 function collectFilters() {
     const compRaw = (document.getElementById('f_company')?.value || '').trim();
+    
+    // Get UI values
+    const experienceUI = csExperience?.getValues() ?? [];
+    const jobTypeUI = csJobType?.getValues() ?? [];
+    const remoteUI = csRemote?.getValues() ?? [];
+    
+    // Map to API codes
+    const experienceCodes = experienceUI.map(v => EXPERIENCE_MAP[v]).filter(Boolean);
+    const jobTypeCodes = jobTypeUI.map(v => JOB_TYPE_MAP[v]).filter(Boolean);
+    const remoteCodes = remoteUI.map(v => REMOTE_MAP[v]).filter(Boolean);
+    
     return {
         job_title:        (document.getElementById('f_job_title')?.value   || '').trim(),
         job_location:     (document.getElementById('f_job_location')?.value || '').trim(),
@@ -196,10 +233,10 @@ function collectFilters() {
         number_records:   parseInt(document.getElementById('f_records')?.value) || 5,
         sort_by:          document.getElementById('f_sort')?.value || 'R',
         date_posted:      document.getElementById('f_date')?.value || '',
-        experience_level: csExperience?.getValues() ?? [],
-        job_type:         csJobType?.getValues()    ?? [],
-        remote_type:      csRemote?.getValues()     ?? [],
-        industry:         csIndustry?.getValues()   ?? [],
+        experience_level: experienceCodes,
+        job_type:         jobTypeCodes,
+        remote_type:      remoteCodes,
+        industry:         csIndustry?.getValues() ?? [],
     };
 }
 
