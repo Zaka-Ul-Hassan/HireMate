@@ -121,6 +121,27 @@ async def job_list_page(
         "hide_resume": True,
     })
 
+@router.get("/job/linkedin", response_class=HTMLResponse)
+async def linkedin_job_page(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    
+    minimal_user = {
+        "Id": None,
+        "FirstName": "",
+        "LastName": "",
+        "Email": "",
+        "Address": "",
+        "Image": None
+    }
+
+    return templates.TemplateResponse("job/linkedin_job.html", {
+        "request": request,
+        "user": minimal_user,
+        "hide_resume": True,
+    })
+
 @router.get("/forgot-password", response_class=HTMLResponse)
 def forgot_password(request: Request):
     return templates.TemplateResponse("user/forgot_password.html", {

@@ -82,19 +82,23 @@ function performLogout() {
 function clearUserSpecificData(userId) {
     console.log('Clearing user-specific data for user:', userId);
 
-    // ── Clear saved jobs for this user ──────────────────
+    // ── Recommended jobs saved list ──────────────────────────────
     localStorage.removeItem(`saved_jobs_${userId}`);
 
-    // Clear chat history
+    // ── LinkedIn jobs saved list + filters ───────────────────────
+    localStorage.removeItem(`linkedin_saved_jobs_${userId}`);
+    localStorage.removeItem(`linkedin_filters_${userId}`);
+
+    // ── Chat history ─────────────────────────────────────────────
     localStorage.removeItem(`candidate_chat_history_${userId}`);
     localStorage.removeItem(`candidate_chat_session_id_${userId}`);
 
-    // Clear sidebar collapse states
+    // ── Sidebar collapse states ───────────────────────────────────
     ['userMenu', 'resumeMenu', 'emailMenu'].forEach(menuId => {
         localStorage.removeItem(`sidebar_${menuId}_${userId}`);
     });
 
-    // Clear any other keys ending in _userId
+    // ── Any remaining keys scoped to this user ────────────────────
     Object.keys(localStorage)
         .filter(k => k.includes(`_${userId}`) || k.endsWith(`_${userId}`))
         .forEach(k => {
