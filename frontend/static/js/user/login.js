@@ -1,10 +1,38 @@
 // frontend\static\js\user\login.js
 
+// ===============================
+// Restore Remember Me on page load
+// ===============================
+window.addEventListener("DOMContentLoaded", function () {
+    const rememberedEmail = localStorage.getItem("remembered_email");
+    const rememberedPassword = localStorage.getItem("remembered_password");
+
+    if (rememberedEmail && rememberedPassword) {
+        document.getElementById("email").value = rememberedEmail;
+        document.getElementById("password").value = rememberedPassword;
+        document.getElementById("remember").checked = true;
+    }
+});
+
+
+// ===============================
+// Login Form Submit
+// ===============================
 document.getElementById("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const remember = document.getElementById("remember").checked;
+
+    // Handle Remember Me
+    if (remember) {
+        localStorage.setItem("remembered_email", email);
+        localStorage.setItem("remembered_password", password);
+    } else {
+        localStorage.removeItem("remembered_email");
+        localStorage.removeItem("remembered_password");
+    }
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "http://127.0.0.1:8000/api/users/login", true);
