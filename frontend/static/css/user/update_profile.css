@@ -191,7 +191,7 @@
 .remove-preview-btn {
     position: absolute;
     top: -8px;
-    right: -8px;
+    right: 430px;
     width: 28px;
     height: 28px;
     border-radius: 50%;
