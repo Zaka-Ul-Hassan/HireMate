@@ -91,20 +91,71 @@ async def extract_fields_and_store(
         {extracted_text}
 
         Instructions:
-        1. Identify the type of developer/engineer based on the skills mentioned in the resume.
 
-        2. Extract other fields from the resume. If a field is not present, return it as null.
+        1. Identify the developer/engineer type based on the skills mentioned in the resume.
+
+        IMPORTANT RULES FOR "DeveloperType":
+        - DeveloperType must be ONLY ONE value.
+        - It must be GENERIC and LinkedIn-search friendly.
+        - It must NOT include seniority levels (No Junior, Senior, Lead, Principal, etc.).
+        - It must NOT include multiple roles.
+        - It must NOT include technologies in brackets.
+        - It must NOT be too creative or uncommon.
+        - It must be searchable on LinkedIn Jobs.
+
+        Examples of valid PrimaryRole values and you can generate like these based on skills
+        - Software Developer
+        - Software Engineer
+        - Full Stack Developer
+        - Frontend Developer
+        - Backend Developer
+        - Web Developer
+        - Mobile App Developer
+        - Android Developer
+        - iOS Developer
+        - .NET Developer
+        - Java Developer
+        - Python Developer
+        - React Developer
+        - Node.js Developer
+        - DevOps Engineer
+        - Data Engineer
+        - Data Scientist
+        - Machine Learning Engineer
+        - AI Engineer
+        - Cloud Engineer
+        - QA Engineer
+        - Cyber Security Engineer
+        - UI/UX Developer
+        - Lecturer
+
+        If skills match multiple roles:
+        - Choose the MOST dominant role based on experience and repeated skills.
+        - Return only ONE DeveloperType.
+
+        If no clear developer role is found:
+        - Return "Software Developer".
+
+        2. Extract other fields from the resume.
+        - If a field is not present, return it as null.
+        - Do not guess missing personal information.
 
         3. For "FullName":
         - If a proper full name exists in the resume text → use it.
-        - If not available → take the part before "@" in the Email, remove numbers and special characters, and use that as "FullName".
+        - If not available → take the part before "@" in the Email.
+        - Remove numbers and special characters.
+        - Convert it into readable name format.
+        - Use that as "FullName".
 
-        IMPORTANT:
-        - Return ONLY valid JSON
-        - Do NOT include comments
-        - Do NOT include explanations or markdown
+        STRICT OUTPUT RULES:
+        - Return ONLY valid JSON.
+        - Do NOT include comments.
+        - Do NOT include explanations.
+        - Do NOT include markdown.
+        - Do NOT include extra text before or after JSON.
 
-        Required Fields (JSON only):
+        Required Fields (Return JSON exactly in this structure):
+
         {{
         "FullName": "",
         "Email": "",
