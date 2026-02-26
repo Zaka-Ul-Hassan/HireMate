@@ -104,7 +104,7 @@ async def get_linkedin_jobs_service(
         url = f"{APIFY_BASE_URL}/{ACTOR_ENDPOINT}?token={APIFY_JOB_TOKEN}"
 
         payload = {
-            "job_title":        filters.get("job_title") or resume.DeveloperType or "",
+            "job_title":        filters.get("job_title") or resume.ExperienceTitle or resume.DeveloperType or "",
             "job_location":     filters.get("job_location")  or resume.Country or "",
             "company_name":     filters.get("company_name") or [],
             "number_records":   filters.get("number_records") or 5,
