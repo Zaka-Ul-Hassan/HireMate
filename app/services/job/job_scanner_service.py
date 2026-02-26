@@ -105,7 +105,7 @@ async def get_linkedin_jobs_service(
 
         payload = {
             "job_title":        filters.get("job_title") or resume.DeveloperType or "",
-            "job_location":     filters.get("job_location") or "",
+            "job_location":     filters.get("job_location")  or resume.Country or "",
             "company_name":     filters.get("company_name") or [],
             "number_records":   filters.get("number_records") or 5,
             "sort_by":          filters.get("sort_by") or "R",
