@@ -103,7 +103,7 @@ async def extract_fields_and_store(
         - It must NOT be too creative or uncommon.
         - It must be searchable on LinkedIn Jobs.
 
-        Examples of valid PrimaryRole values and you can generate like this based on skills
+        Examples of valid PrimaryRole values and you can generate like these based on skills
         - Software Developer
         - Software Engineer
         - Full Stack Developer
