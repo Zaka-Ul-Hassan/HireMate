@@ -23,8 +23,3 @@ venv/
 *.docx
 *.png
 
-# Ignore all files in the uploads folder
-uploads/*
-
-# Except for the .gitkeep file
-!uploads/.gitkeep
