@@ -18,8 +18,15 @@ venv/
 .vscode/
 .idea/
 
+# Ignore everything inside uploads
+uploads/*
+
+# But allow empty folder structure
+!uploads/.gitkeep
+!uploads/resumes/
+!uploads/resumes/.gitkeep
+
 # Ignore pdf and docx files
 *.pdf
 *.docx
 *.png
-
