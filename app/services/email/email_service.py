@@ -307,32 +307,34 @@ def generate_email_content(
 
     # Prepare AI Prompt
     prompt = f"""
-You are an HR professional writing a hiring email.
+    You are writing a short and professional hiring email from an employer to a candidate.
 
-Employer Details:
-Name: {employer_name}
-Email: {employer_email}
-Role: {employer_roles}
+    Employer Details:
+    Name: {employer_name}
+    Email: {employer_email}
+    Role Offered: {employer_roles}
 
-Candidate Details:
-Full Name: {resume.FullName or ""}
-Email: {resume.Email or ""}
-Developer Type: {resume.DeveloperType or ""}
-Skills: {resume.Skills or ""}
-Total Experience: {resume.TotalExperience or ""}
-Summary: {resume.Summary or ""} 
+    Candidate Details:
+    Full Name: {resume.FullName or ""}
+    Developer Type: {resume.DeveloperType or ""}
+    Skills: {resume.Skills or ""}
+    Total Experience: {resume.TotalExperience or ""}
 
-Instructions:
-- Write a professional and polite hiring email
-- Employer is interested in hiring the candidate
-- Mention candidate skills and experience briefly
-- Invite candidate for further discussion/interview
-- Keep tone formal and respectful
-- End email with "Best regards" and employer name
-- Do NOT include subject line
-- Do NOT use markdown
-- Return Html
-"""
+    Instructions:
+    - Write a concise and professional email (maximum 5-6 short paragraphs).
+    - Clearly state that the employer is interested in the candidate’s profile.
+    - Briefly mention their relevant skills or experience.
+    - Invite them for further discussion or interview.
+    - Mention employer contact email clearly.
+    - Keep tone confident, polite, and professional.
+    - Do NOT create a subject line.
+    - Do NOT use markdown.
+    - Return clean HTML only.
+    - Keep it natural and human-like.
+    - End with:
+    Best regards,
+    {employer_name}
+    """
 
     # Call Cohere
 

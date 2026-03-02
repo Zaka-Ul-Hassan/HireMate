@@ -140,6 +140,10 @@ def set_password(db, token, request):
     if not user:
         return ResponseSchema(status=False, message="User not found")
     
+    password_exists = user.Password is not None and user.Password != ""
+    if password_exists:
+        return ResponseSchema(status=False, message="Password already set. Please use forgot password if you want to reset it.")
+    
     # Check if new password and confirm password match
     if request.NewPassword != request.ConfirmPassword:
         return ResponseSchema(status=False, message="New password and confirm password do not match")
@@ -271,18 +275,21 @@ def admin_change_user_password(data, db: Session,current_user):
     user.Password = hash_password(data.NewPassword)
     user.ModifiedBy = current_user.data.Name
     db.commit()
-
+    db.refresh(user)
+    
     # Generate email body using AI
     ai_prompt = f"""
     Write a professional HTML email.
 
     Context:
-    - The user's password has been updated by HireMate admin.
+    - The user's password has been updated by the HireMate admin.
     - Include the new password: {data.NewPassword}
     - Mention this was done for security reasons.
     - Ask the user to change password after login.
-    - Include application URL: {FRONTEND_BASE_URL}
+    - Include a clickable application name "HireMate" that redirects to: {FRONTEND_BASE_URL}
+    - The word "HireMate" must be a clickable hyperlink (<a href="{FRONTEND_BASE_URL}">HireMate</a>)
     - Tone: professional, secure, clear
+    - Use clean HTML structure with proper formatting.
     """
 
     email_body = cohere_chat(ai_prompt)
