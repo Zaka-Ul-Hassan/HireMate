@@ -122,7 +122,7 @@ async function generateAndComposeEmail(candidateEmail) {
             // Store the generated email data in sessionStorage
             sessionStorage.setItem('composeEmailData', JSON.stringify({
                 to: result.data.to,
-                subject: `Opportunity at ${result.data.employer_name}`,
+                subject: `Interest in Your HireMate Profile – ${result.data.employer_name}`,
                 body: result.data.email_content,
                 candidateName: result.data.candidate_name,
                 employerName: result.data.employer_name
