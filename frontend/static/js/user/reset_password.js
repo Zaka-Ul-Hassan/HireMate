@@ -1,8 +1,9 @@
 // frontend/static/js/user/reset_password.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("#resetPasswordForm");
 
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+    const form = document.querySelector("#resetPasswordForm");
     const newPasswordInput = document.querySelector("#new_password");
     const confirmPasswordInput = document.querySelector("#confirm_password");
     const newPasswordError = document.querySelector("#newPasswordError");
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isValid) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/users/reset-password?token=${token}`, {
+            const response = await fetch(`${BASE_URL}/api/users/reset-password?token=${token}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

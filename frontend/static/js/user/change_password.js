@@ -1,7 +1,7 @@
 // frontend/static/js/user/change_password.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    const BASE_URL = 'http://127.0.0.1:8000';
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
 
     console.log('Change password page loaded');
 

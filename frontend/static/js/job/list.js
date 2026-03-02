@@ -1,6 +1,7 @@
 // frontend/static/js/job/list.js
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/recommend-jobs';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${BASE_URL}/api/recommend-jobs`;
 
 let allJobs = [];
 let currentTab = 'all'; // 'all' | 'saved'

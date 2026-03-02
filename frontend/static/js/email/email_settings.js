@@ -1,6 +1,7 @@
 // frontend\static\js\email\email_settings.js
 
-const API_BASE_URL  = 'http://127.0.0.1:8000/api/email-settings/settings';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL  = `${BASE_URL}/api/email-settings/settings`;
 let currentUserId   = null;
 let currentSettingsId = null;
 let isUpdateMode    = false;

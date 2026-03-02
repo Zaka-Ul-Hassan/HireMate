@@ -1,6 +1,8 @@
 // frontend/static/js/user/set_password.js
 
 document.addEventListener("DOMContentLoaded", function () {
+    
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
     const form = document.querySelector("#setPasswordForm");
 
     const newPasswordInput = document.querySelector("#new_password");
@@ -59,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isValid) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/users/set-password?token=${token}`, {
+            const response = await fetch(`${BASE_URL}/api/users/set-password?token=${token}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

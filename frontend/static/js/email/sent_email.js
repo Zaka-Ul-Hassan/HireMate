@@ -1,6 +1,7 @@
 // frontend\static\js\email\sent_email.js
 
-const API_SENT_EMAILS = 'http://127.0.0.1:8000/api/email/get/sent-emails';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_SENT_EMAILS = `${BASE_URL}/api/email/get/sent-emails`;
 let currentUserId = null;
 let currentPage = 1;
 let pageSize = 25;

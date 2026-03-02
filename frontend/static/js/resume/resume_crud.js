@@ -1,6 +1,7 @@
 // frontend/static/js/resume/resume_crud.js
 
-const API_BASE_URL  = 'http://127.0.0.1:8000/api/resumes';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL  = `${BASE_URL}/api/resumes`;
 let currentUserId   = null;
 let currentResumeId = null;
 let isUpdateMode    = false;

@@ -1,6 +1,8 @@
 // frontend\static\js\user\resend_forgot_password_email.js
 
 document.addEventListener("DOMContentLoaded", function () {
+
+  const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
   const resendBtn = document.getElementById('resendEmailBtn');
   if (!resendBtn) return;
 
@@ -12,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     resendBtn.disabled = true;
 
-    fetch('http://127.0.0.1:8000/api/users/forgot-password', {  
+    fetch(`${BASE_URL}/api/users/forgot-password`, {  
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

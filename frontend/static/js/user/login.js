@@ -21,6 +21,7 @@ window.addEventListener("DOMContentLoaded", function () {
 document.getElementById("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const remember = document.getElementById("remember").checked;
@@ -35,7 +36,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     }
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://127.0.0.1:8000/api/users/login", true);
+    xhr.open("POST", `${BASE_URL}/api/users/login`, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.withCredentials = true;
 

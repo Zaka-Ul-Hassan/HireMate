@@ -3,8 +3,9 @@
 // Global variables
 let allResumes = [];
 let filteredResumes = [];
-const API_BASE_URL = 'http://127.0.0.1:8000/api/resumes';
-const EMAIL_GENERATE_API = 'http://127.0.0.1:8000/api/email/generate-content';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${BASE_URL}/api/resumes`;
+const EMAIL_GENERATE_API = `${BASE_URL}/api/email/generate-content`;
 
 // Initialize on page load - SINGLE DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', function () {

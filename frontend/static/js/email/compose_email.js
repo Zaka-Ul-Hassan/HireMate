@@ -1,6 +1,7 @@
 // frontend\static\js\email\compose_email.js
 
-const API_SEND_EMAIL = 'http://127.0.0.1:8000/api/email/client';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_SEND_EMAIL = `${BASE_URL}/api/email/client`;
 let currentUserId = null;
 
 // ─────────────────────────────────────────

@@ -1,5 +1,6 @@
 // frontend/static/js/resume/resume-upload.js
 
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
 const resumeInput = document.getElementById('resumeUpload');
 const fileInfoBox = document.getElementById('fileInfoBox');
 const fileNameDisplay = document.getElementById('fileName');

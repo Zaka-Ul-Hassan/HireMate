@@ -1,6 +1,8 @@
 // frontend\static\js\voice_agent\calling_agent.js
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
   const startCallBtn = document.getElementById("start-call");
 
   if (!startCallBtn) return;
@@ -22,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const response = await fetch(
-        `/api/voice-agent/make_call?customer_number=${encodeURIComponent(customerNumber)}`,
+        `${BASE_URL}/api/voice-agent/make_call?customer_number=${encodeURIComponent(customerNumber)}`,
         {
           method: "POST",
           headers: {

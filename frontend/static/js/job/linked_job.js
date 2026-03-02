@@ -1,6 +1,7 @@
 // frontend/static/js/job/linked_job.js
 
-const LI_API_URL = 'http://127.0.0.1:8000/jobs';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const LI_API_URL = `${BASE_URL}/jobs`;
 
 let allJobs        = [];
 let currentTab     = 'all';

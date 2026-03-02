@@ -26,10 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function performLogout() {
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
     const userId = localStorage.getItem('user_id') || 'default';
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://127.0.0.1:8000/api/users/logout", true);
+    xhr.open("POST", `${BASE_URL}/api/users/logout`, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.withCredentials = true;
 

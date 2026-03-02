@@ -16,8 +16,12 @@ from app.utils.file_util import BASE_DIR, senitize_email_html
 from app.models.user.user import User
 from app.models.resume.resume_model import Resume
 from app.db import get_db
+from load_env import FRONTEND_BASE_URL
 
 templates = Jinja2Templates(directory="frontend/templates")
+
+# This adds FRONTEND_BASE_URL to every single template automatically
+templates.env.globals.update(FRONTEND_BASE_URL=FRONTEND_BASE_URL)
 
 router = APIRouter()
 
