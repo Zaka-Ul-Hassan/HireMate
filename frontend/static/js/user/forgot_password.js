@@ -1,6 +1,7 @@
 // frontend/static/js/user/forgot_password.js
 
 document.addEventListener("DOMContentLoaded", () => {
+    const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
     const form = document.querySelector("#forgotPasswordForm");
     const emailInput = document.getElementById("email");
     const emailError = document.getElementById("email_error");
@@ -45,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!isValid) return;
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/users/forgot-password", {
+            const response = await fetch(`${BASE_URL}/api/users/forgot-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ Email: email }),

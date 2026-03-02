@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
+  const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
   const emailInput = document.getElementById('email');
   const emailError = document.getElementById('email_error');
   const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -130,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const formData = new FormData(form);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://127.0.0.1:8000/api/users/register", true);
+    xhr.open("POST", `${BASE_URL}/api/users/register`, true);
 
     xhr.onload = function () {
       if (xhr.status === 200) {

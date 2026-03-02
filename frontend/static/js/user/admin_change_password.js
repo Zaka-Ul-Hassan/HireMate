@@ -1,6 +1,7 @@
 // frontend/static/js/user/admin_change_password.js
 
-const ACP_API = 'http://127.0.0.1:8000/api/users/admin/users/change-password';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const ACP_API = `${BASE_URL}/api/users/admin/users/change-password`;
 
 // ─────────────────────────────────────────
 // DOM refs

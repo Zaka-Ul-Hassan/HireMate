@@ -1,6 +1,7 @@
 // frontend/static/js/user/user_management.js
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/users';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${BASE_URL}/api/users`;
 let allUsers = [];
 let filteredUsers = [];
 let availableRoles = [];

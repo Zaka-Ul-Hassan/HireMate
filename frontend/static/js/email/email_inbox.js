@@ -1,6 +1,7 @@
 // frontend\static\js\email\email_inbox.js
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/email';
+const BASE_URL = window.APP_CONFIG.FRONTEND_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${BASE_URL}/api/email`;
 let allEmails = [];
 let currentUserId = null;
 
