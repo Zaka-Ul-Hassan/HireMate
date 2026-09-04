@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from qdrant_client.models import PointStruct
 from app.models.resume.resume_model import Resume
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
+from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate, ResumeResponse
 from app.services.ai.cohere_rag_service import generate_embeddings
 from app.services.qdrant.qdrant_service import delete_point, upsert_points
 
@@ -186,5 +186,5 @@ def get_resume_by_email(db: Session, email: str):
     return ResponseSchema(
         status=True,
         message="Resume fetched successfully",
-        data=resume
+        data=ResumeResponse.model_validate(resume)
     )

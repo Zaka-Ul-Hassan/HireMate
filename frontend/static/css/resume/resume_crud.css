@@ -674,3 +674,98 @@
         font-size: 1.25rem;
     }
 }
+
+/* Compact navbar-aligned resume surface */
+.resume-container {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    padding: 5rem 0 !important;
+}
+
+.resume-container > .page-header {
+    background: linear-gradient(135deg, #102d50 0%, #2b5da9 100%) !important;
+    border-radius: 10px !important;
+    min-height: 86px !important;
+    padding: .9rem 1.25rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 6px 16px rgba(16, 45, 80, .16) !important;
+}
+
+.resume-container > .page-header .header-content {
+    gap: .85rem;
+}
+
+.resume-container > .page-header .header-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.35rem;
+    border-radius: 12px;
+}
+
+.resume-container > .page-header .page-title {
+    font-size: 1.35rem !important;
+    margin-bottom: .2rem !important;
+}
+
+.resume-container > .page-header .page-subtitle {
+    font-size: .82rem !important;
+}
+
+.resume-card {
+    width: 100% !important;
+    border-radius: 10px !important;
+    border: 1px solid #d9e2ee !important;
+    box-shadow: 0 6px 18px rgba(16, 45, 80, .08) !important;
+}
+
+.resume-display-state {
+    width: 100%;
+}
+
+.resume-header {
+    padding: 1.1rem 1.25rem !important;
+    border-bottom: 1px solid #d9e2ee !important;
+}
+
+.resume-name {
+    font-size: 1.35rem !important;
+}
+
+.resume-meta {
+    gap: .75rem !important;
+    font-size: .82rem !important;
+}
+
+.action-buttons {
+    gap: .5rem !important;
+}
+
+.action-buttons .btn {
+    min-height: 38px;
+    padding: .45rem .8rem !important;
+    border-radius: 7px !important;
+    font-size: .8rem !important;
+    box-shadow: none !important;
+}
+
+.action-buttons .btn-success {
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+}
+
+.action-buttons .btn-secondary {
+    background: #687386 !important;
+    border-color: #687386 !important;
+    color: #fff !important;
+}
+
+.action-buttons .btn-danger {
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+}
+
+.resume-content {
+    padding: 1.25rem !important;
+}

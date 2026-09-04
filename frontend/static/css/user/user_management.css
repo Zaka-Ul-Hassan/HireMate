@@ -1117,3 +1117,110 @@
     .user-management-container { padding: .5rem; }
     .filter-controls { grid-template-columns: 1fr; }
 }
+
+/* Compact navbar-aligned management surface */
+.user-management-container {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    padding: 5rem 0 !important;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #102d50 0%, #2b5da9 100%) !important;
+    border-radius: 10px !important;
+    min-height: 86px !important;
+    padding: .9rem 1.25rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 6px 16px rgba(16, 45, 80, .16) !important;
+}
+
+.page-header .header-content {
+    gap: .85rem;
+}
+
+.page-header .header-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.35rem;
+    border-radius: 12px;
+}
+
+.page-title {
+    font-size: 1.35rem !important;
+    margin-bottom: .2rem !important;
+}
+
+.page-subtitle {
+    font-size: .82rem !important;
+}
+
+.btn-primary-header {
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    color: #173b68;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .14);
+}
+
+.filter-bar {
+    padding: .8rem 1rem !important;
+    margin-bottom: 1rem !important;
+    border: 1px solid #d9e2ee;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 12px rgba(16, 45, 80, .06) !important;
+    gap: .65rem !important;
+}
+
+.search-box .form-control,
+.filter-controls .form-control {
+    height: 40px !important;
+    padding-top: .45rem !important;
+    padding-bottom: .45rem !important;
+    border: 1px solid #d9e2ee !important;
+    border-radius: 7px !important;
+    font-size: .82rem !important;
+}
+
+.search-box .form-control {
+    padding-left: 2.5rem !important;
+}
+
+.btn-filter-apply,
+.btn-filter-reset {
+    height: 40px !important;
+    padding: .45rem .85rem !important;
+    border-radius: 7px !important;
+    font-size: .8rem !important;
+}
+
+.btn-filter-apply {
+    background: #2b5da9 !important;
+    box-shadow: 0 3px 8px rgba(43, 93, 169, .24) !important;
+}
+
+.btn-filter-reset {
+    background: #edf2f7 !important;
+    color: #27476c !important;
+    border: 1px solid #d9e2ee !important;
+}
+
+.btn-change-pw,
+.btn-delete,
+.btn-resend {
+    padding: .38rem .75rem !important;
+    border-radius: 7px !important;
+    font-size: .76rem !important;
+}
+
+.btn-change-pw {
+    background: #2b5da9 !important;
+}
+
+.btn-change-pw:hover {
+    background: #173b68 !important;
+}
+
+.user-card {
+    border-left: 3px solid #2b5da9 !important;
+}

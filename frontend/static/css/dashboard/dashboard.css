@@ -758,6 +758,122 @@ main#main {
   }
 }
 
+/* Compact navbar-aligned dashboard */
+body:has(#main) {
+  padding: 0 !important;
+  padding-left: 0 !important;
+  background: #eef3f8 !important;
+}
+
+main#main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 5rem 0 !important;
+}
+
+main#main > .header-section,
+main#main > .row,
+main#main > .modern-card {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.header-section {
+  padding: 0 .25rem;
+}
+
+.dashboard-title {
+  font-size: 1.75rem !important;
+  color: #102d50 !important;
+  letter-spacing: 0 !important;
+}
+
+.kpi-card {
+  min-height: 122px;
+  padding: 1rem !important;
+  border-radius: 10px !important;
+  border-color: #d9e2ee !important;
+  box-shadow: 0 4px 14px rgba(16, 45, 80, .07) !important;
+}
+
+.kpi-card:hover,
+.modern-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 45, 80, .11) !important;
+}
+
+.kpi-icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 10px !important;
+  font-size: 1.25rem !important;
+}
+
+.kpi-value {
+  font-size: 1.7rem !important;
+}
+
+.kpi-trend {
+  font-size: .72rem !important;
+  margin-top: .35rem !important;
+}
+
+main#main .stats-bar {
+  min-height: 86px;
+  padding: 1rem !important;
+  border-radius: 10px !important;
+}
+
+main#main .stat-item {
+  min-width: 0;
+  gap: .65rem;
+}
+
+main#main .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  font-size: 1rem;
+}
+
+.modern-card {
+  border-radius: 10px !important;
+  border-color: #d9e2ee !important;
+  box-shadow: 0 4px 14px rgba(16, 45, 80, .07) !important;
+}
+
+.card-header-modern {
+  padding: 1rem 1.1rem !important;
+  background: #fff !important;
+}
+
+.card-body-modern {
+  padding: 1rem 1.1rem !important;
+}
+
+.card-title-modern {
+  color: #102d50 !important;
+  font-size: 1rem !important;
+}
+
+.btn-group .btn.active {
+  background: #2b5da9 !important;
+  border-color: #2b5da9 !important;
+  color: #fff !important;
+}
+
+@media (max-width: 992px) {
+  main#main {
+    padding: 1rem !important;
+  }
+
+  main#main .stats-bar {
+    overflow-x: auto;
+  }
+}
+
 .kpi-card {
   animation: fadeInUp 0.6s ease both;
 }

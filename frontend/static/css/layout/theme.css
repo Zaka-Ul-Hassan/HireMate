@@ -135,3 +135,548 @@ body {
 .shadow-strong {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+/* Shared application surfaces */
+:root {
+  --navy: #173b68;
+  --navy-deep: #102d50;
+  --blue: #2b5da9;
+  --blue-soft: #edf4fc;
+  --surface-border: #d9e2ee;
+}
+
+body {
+  background: #eef3f8;
+}
+
+body:has(.sidebar) main.container {
+  width: calc(100% - 260px);
+  max-width: none;
+  margin-left: 260px;
+  padding: 1.25rem 1.5rem !important;
+}
+
+.user-management-container,
+.resume-list-container,
+.compose-email-container,
+.inbox-container,
+.email-settings-container,
+.sent-email-container,
+.sent-container,
+.job-container,
+.chat-container {
+  width: auto !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  padding: 1rem 0 !important;
+}
+
+.resume-list-container {
+  padding-top: 4rem !important;
+}
+
+.compose-email-container,
+.sent-email-container,
+.inbox-container,
+.email-settings-container {
+  padding-top: 5rem !important;
+}
+
+.job-container {
+  padding-top: 5rem !important;
+}
+
+.page-header,
+.list-header,
+.compose-header,
+.inbox-header,
+.sent-header,
+.settings-header,
+.job-header,
+.chat-header {
+  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--blue) 100%) !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1.25rem 1.5rem !important;
+  min-height: 112px;
+  box-shadow: 0 8px 20px rgba(16, 45, 80, .14) !important;
+}
+
+.page-title,
+.list-header h2,
+.compose-header .page-title,
+.inbox-header .page-title,
+.sent-header .page-title,
+.settings-header h2,
+.job-header .page-title,
+.chat-header h2 {
+  font-size: 1.45rem !important;
+  letter-spacing: 0 !important;
+}
+
+.page-subtitle,
+.header-subtitle {
+  font-size: .88rem !important;
+}
+
+.header-icon,
+.job-header .header-icon,
+.sent-header .header-icon,
+.settings-header .email-icon,
+.chat-header .ai-avatar {
+  width: 54px !important;
+  height: 54px !important;
+  font-size: 1.55rem !important;
+  border-radius: 14px !important;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .14) !important;
+}
+
+.filter-bar,
+.search-filter-bar,
+.action-bar,
+.stats-bar,
+.filter-panel {
+  border-color: var(--surface-border) !important;
+  box-shadow: none !important;
+}
+
+.user-card,
+.resume-card,
+.email-item,
+.job-item {
+  border-radius: 10px !important;
+  border-color: var(--surface-border) !important;
+  box-shadow: 0 3px 12px rgba(16, 45, 80, .07) !important;
+}
+
+.user-card:hover,
+.resume-card:hover,
+.email-item:hover,
+.job-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(16, 45, 80, .12) !important;
+}
+
+.user-card-header,
+.user-card-body,
+.user-card-footer {
+  padding-top: .9rem !important;
+  padding-bottom: .9rem !important;
+}
+
+.user-cards-grid {
+  gap: .75rem !important;
+}
+
+@media (min-width: 1400px) {
+  body:has(.sidebar) main.container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+@media (max-width: 992px) {
+  body:has(.sidebar) main.container {
+    width: 100%;
+    margin-left: 0;
+    padding: 1rem !important;
+  }
+}
+
+/* Shared button system */
+:root {
+  --button-height: 40px;
+  --button-radius: 8px;
+  --button-blue: #2b5da9;
+  --button-blue-dark: #173b68;
+  --button-slate: #687386;
+  --button-green: #10b981;
+  --button-red: #ef4444;
+  --button-light: #edf2f7;
+}
+
+.btn,
+button:not(.navbar-toggler),
+a.btn {
+  min-height: var(--button-height) !important;
+  min-width: 40px;
+  padding: .55rem 1rem !important;
+  border-radius: var(--button-radius) !important;
+  border-width: 1px;
+  font-family: inherit;
+  font-size: .85rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  box-shadow: 0 2px 7px rgba(16, 45, 80, .1) !important;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.btn:hover,
+button:not(.navbar-toggler):hover,
+a.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 45, 80, .16) !important;
+}
+
+.btn:focus-visible,
+button:not(.navbar-toggler):focus-visible,
+a.btn:focus-visible {
+  outline: 3px solid rgba(43, 93, 169, .25);
+  outline-offset: 2px;
+}
+
+.btn-primary,
+.btn-filter-apply,
+.btn-change-pw,
+.btn-submit-form,
+.btn-refresh {
+  background: var(--button-blue) !important;
+  border-color: var(--button-blue) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-filter-apply:hover,
+.btn-change-pw:hover,
+.btn-submit-form:hover,
+.btn-refresh:hover {
+  background: var(--button-blue-dark) !important;
+  border-color: var(--button-blue-dark) !important;
+}
+
+.btn-secondary,
+.btn-update,
+.btn-cancel-form {
+  background: var(--button-slate) !important;
+  border-color: var(--button-slate) !important;
+  color: #fff !important;
+}
+
+.btn-success,
+.btn-success-custom,
+.btn-resend {
+  background: var(--button-green) !important;
+  border-color: var(--button-green) !important;
+  color: #fff !important;
+}
+
+.btn-danger,
+.btn-danger-custom,
+.btn-delete {
+  background: var(--button-red) !important;
+  border-color: var(--button-red) !important;
+  color: #fff !important;
+}
+
+.btn-filter-reset,
+.btn-outline-secondary,
+.btn-cancel,
+.btn-secondary-light {
+  background: var(--button-light) !important;
+  border-color: #d9e2ee !important;
+  color: #27476c !important;
+}
+
+.btn-header-action {
+  min-height: var(--button-height) !important;
+  background: rgba(255, 255, 255, .14) !important;
+  border-color: rgba(255, 255, 255, .28) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.btn-icon,
+.btn-close,
+.btn-clear-search,
+.btn-pagination,
+.btn-send,
+.toggle-switch button {
+  min-width: var(--button-height);
+  width: var(--button-height);
+  height: var(--button-height);
+  padding: 0 !important;
+}
+
+@media (max-width: 576px) {
+  .btn,
+  button:not(.navbar-toggler),
+  a.btn {
+    min-height: 38px !important;
+    padding-left: .75rem !important;
+    padding-right: .75rem !important;
+  }
+}
+
+/* Shared create/update form surfaces */
+.form-container {
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 18px rgba(16, 45, 80, .08) !important;
+}
+
+.form-header {
+  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--blue) 100%) !important;
+  padding: 1.1rem 1.25rem !important;
+  min-height: 86px;
+}
+
+.form-header .header-content {
+  gap: .85rem !important;
+}
+
+.form-header .header-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 1.35rem !important;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .14) !important;
+}
+
+.form-header h2 {
+  font-size: 1.35rem !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+
+.form-section {
+  padding: 1.35rem !important;
+}
+
+.form-section h3 {
+  margin-bottom: 1rem !important;
+  font-size: 1rem !important;
+}
+
+.form-section h3 i {
+  color: var(--button-blue) !important;
+}
+
+.form-grid {
+  gap: 1rem !important;
+}
+
+.form-group {
+  margin-bottom: 1rem !important;
+}
+
+.form-control {
+  min-height: 40px;
+  padding: .55rem .8rem !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 7px !important;
+  font-size: .85rem !important;
+}
+
+.form-control:focus {
+  border-color: var(--button-blue) !important;
+  box-shadow: 0 0 0 3px rgba(43, 93, 169, .12) !important;
+}
+
+.form-actions {
+  padding: 1rem 1.35rem !important;
+  background: #f4f7fb !important;
+  gap: .6rem !important;
+}
+
+.btn-close-form,
+.form-header .btn-close {
+  min-width: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 7px !important;
+  background: rgba(255, 255, 255, .14) !important;
+  font-size: 1rem !important;
+  box-shadow: none !important;
+}
+
+/* Shared password-page surfaces */
+.password-card,
+.pw-card {
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 18px rgba(16, 45, 80, .08) !important;
+  overflow: hidden;
+}
+
+.pw-card-header {
+  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--blue) 100%) !important;
+  padding: 1.35rem 1.5rem !important;
+}
+
+.pw-card-header .pw-header-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 1.35rem !important;
+}
+
+.pw-card-header h2 {
+  font-size: 1.35rem !important;
+  letter-spacing: 0 !important;
+}
+
+.pw-card-header p {
+  font-size: .85rem !important;
+}
+
+.pw-card-body,
+.password-card form {
+  padding: 1.35rem !important;
+}
+
+.pw-form-group,
+.password-card .form-group {
+  margin-bottom: 1rem !important;
+}
+
+.pw-input,
+.form-input {
+  min-height: 40px !important;
+  padding: .55rem .8rem !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 7px !important;
+  font-size: .85rem !important;
+}
+
+.pw-input:focus,
+.form-input:focus {
+  border-color: var(--button-blue) !important;
+  box-shadow: 0 0 0 3px rgba(43, 93, 169, .12) !important;
+}
+
+.pw-form-actions,
+.password-card .form-actions {
+  padding: 1rem 1.35rem !important;
+  background: #fff !important;
+  gap: .6rem !important;
+}
+
+.pw-btn-submit,
+.btn-save {
+  min-height: var(--button-height) !important;
+  background: var(--button-blue) !important;
+  border-color: var(--button-blue) !important;
+  color: #fff !important;
+}
+
+.pw-btn-cancel,
+.btn-cancel {
+  min-height: var(--button-height) !important;
+  background: var(--button-light) !important;
+  border: 1px solid #d9e2ee !important;
+  color: #27476c !important;
+}
+
+.toggle-password,
+.pw-eye-btn {
+  min-width: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  border-radius: 0 7px 7px 0 !important;
+  color: var(--button-blue) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.toggle-password:hover,
+.pw-eye-btn:hover {
+  background: transparent !important;
+  color: var(--button-blue-dark) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.security-info,
+.pw-info-banner {
+  border-color: #c8d9ee !important;
+  background: var(--blue-soft) !important;
+}
+
+/* Password modal and authenticated password page */
+.page-header .back-link,
+.page-header .page-title,
+.page-header .page-subtitle {
+  color: #fff !important;
+}
+
+.cp-modal-header {
+  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--blue) 100%) !important;
+  padding: 1.1rem 1.25rem !important;
+}
+
+.cp-header-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 1.35rem !important;
+}
+
+.cp-close-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 7px !important;
+}
+
+.cp-modal-body {
+  padding: 1.35rem !important;
+}
+
+.cp-input {
+  min-height: 40px !important;
+  padding: .55rem 3rem .55rem 2.5rem !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 7px !important;
+  font-size: .85rem !important;
+}
+
+.cp-input:focus {
+  border-color: var(--button-blue) !important;
+  box-shadow: 0 0 0 3px rgba(43, 93, 169, .12) !important;
+}
+
+.cp-form-actions {
+  margin-top: 1.25rem !important;
+  padding-top: 1rem !important;
+  border-top: 1px solid var(--surface-border) !important;
+}
+
+.cp-btn-cancel,
+.cp-btn-submit {
+  min-height: var(--button-height) !important;
+  background: #fff !important;
+  border-radius: var(--button-radius) !important;
+  font-size: .85rem !important;
+  box-shadow: 0 2px 7px rgba(16, 45, 80, .1) !important;
+}
+
+.cp-btn-cancel {
+  background: var(--button-light) !important;
+  border: 1px solid #d9e2ee !important;
+  color: #27476c !important;
+}
+
+.cp-btn-submit {
+  background: var(--button-blue) !important;
+  border: 1px solid var(--button-blue) !important;
+  color: #fff !important;
+}
+
+/* Keep Change Password icons clear of input text */
+.input-group .form-input {
+  padding: .55rem 3.5rem .55rem 2.75rem !important;
+}
+
+.input-group .input-icon {
+  left: 1rem !important;
+}
+
+.input-group .toggle-password {
+  right: .5rem !important;
+}

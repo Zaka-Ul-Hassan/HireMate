@@ -20,7 +20,7 @@ def create_resume(
     return ResponseSchema(
         status=True,
         message="Resume created successfully",
-        data=resume
+        data=ResumeResponse.model_validate(resume)
     )
 
 
@@ -33,7 +33,7 @@ def get_all_resumes(
     return ResponseSchema(
         status=True,
         message="Resumes fetched successfully",
-        data=resumes
+        data=[ResumeResponse.model_validate(resume) for resume in resumes]
     )
 
 
