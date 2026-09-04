@@ -350,7 +350,7 @@ function appendMessage(text, isUser, saveToHistory = true) {
         });
         
         // Add copy button for candidates if we have any
-        if (candidatesList.length > 0) {
+        if (candidatesList.length > 100) {
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-candidates-btn';
             copyBtn.innerHTML = '<i class="bi bi-clipboard"></i> Copy Names';
