@@ -1,13 +1,14 @@
 # app\schemas\user\user_schema.py
 
 from fastapi import UploadFile, File, Form
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import List, Optional
 from datetime import date, datetime
 
 from sqlalchemy import Column, String
 
 from app.schemas.shared.gender_enum import GenderEnum
+from app.schemas.role.role_schema import RoleSchema
 
 # Custom class (NOT BaseModel) for registration with image upload
 class RegisterUser:
@@ -82,6 +83,7 @@ class CurrentUserSchema(BaseModel):
 
 class UserListSchema(UserBaseSchema):
     Id: int
+    Roles: List[RoleSchema] = []
     IsActive: Optional[bool] = None
     CreatedAt: datetime
     ModifiedAt: Optional[datetime] = None
@@ -91,8 +93,7 @@ class UserListSchema(UserBaseSchema):
     ModifiedBy: Optional[str]
     IsDeleted: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
     
 
 
@@ -124,5 +125,4 @@ class RoleResponseSchema(BaseModel):
     Id: int
     Name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

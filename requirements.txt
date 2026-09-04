@@ -6,8 +6,8 @@ uvicorn>=0.20.0,<1.0.0             # ASGI server to run FastAPI apps
 
 # Authentication & security
 passlib>=1.3.0,<2.0.0              # Password hashing utilities
-pydantic>=1.10.0,<2.0.0            # Data validation and settings management
-email-validator>=1.1.0,<2.0.0      # Email format validation for pydantic models
+pydantic>=2.0.0,<3.0.0             # Data validation and settings management
+email-validator>=2.0.0,<3.0.0      # Email format validation for pydantic models
 bcrypt>=3.1.0,<4.0.0               # Low-level password hashing used by passlib
 python-jose[cryptography]>=3.2.0,<3.3.0  # JWT encoding and decoding (security)
 

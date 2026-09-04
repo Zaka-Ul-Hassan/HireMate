@@ -42,7 +42,7 @@ def create_resume(db: Session, data: ResumeCreate):
 
     # Upsert into Qdrant 
     response = upsert_points(
-        collection_name="Resume3",
+        collection_name="Resume",
         points=[point]
     )
 
@@ -90,7 +90,7 @@ def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
 
     # Delete the Qdrant point first
     qdrant_delete_response = delete_point(
-        collection_name="Resume3",
+        collection_name="Resume",
         point_id=existing_resume.Id
     )
     if not qdrant_delete_response.status:
@@ -137,7 +137,7 @@ def update_resume(db: Session, resume_id: int, data: ResumeUpdate):
     )
 
     response = upsert_points(
-        collection_name="Resume3",
+        collection_name="Resume",
         points=[point]
     )
 
@@ -154,7 +154,7 @@ def delete_resume(db: Session, resume_id: int):
 
     # Delete the Qdrant point first
     qdrant_response: ResponseSchema = delete_point(
-        collection_name="Resume3", 
+        collection_name="Resume", 
         point_id=resume.Id
     )
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate
+from app.schemas.resume.resume_schema import ResumeCreate, ResumeUpdate, ResumeResponse
 from app.services.resume import resume_crud_service
 
 router = APIRouter()
@@ -54,7 +54,7 @@ def get_resume_by_user_id(
     return ResponseSchema(
         status=True,
         message="User resume fetched successfully",
-        data=resume
+        data=ResumeResponse.model_validate(resume)
     )
 
 
@@ -83,7 +83,7 @@ def get_resume_by_id(
     return ResponseSchema(
         status=True,
         message="Resume fetched successfully",
-        data=resume
+        data=ResumeResponse.model_validate(resume)
     )
 
 
@@ -105,7 +105,7 @@ def update_resume(
     return ResponseSchema(
         status=True,
         message="Resume updated successfully",
-        data=resume
+        data=ResumeResponse.model_validate(resume)
     )
 
 

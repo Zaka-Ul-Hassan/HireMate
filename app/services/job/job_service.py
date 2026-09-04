@@ -6,7 +6,10 @@ import requests
 from app.models.resume.resume_model import Resume
 
 def get_job_recommendation(db:Session, resume_id: int):
-    resume = db.query(Resume).filter(Resume.Id == resume_id).first()
+    resume = db.query(Resume).filter(
+        Resume.Id == resume_id,
+        Resume.IsDeleted == False
+    ).first()
     if not resume:
         return {"error": "Resume not found"}
     

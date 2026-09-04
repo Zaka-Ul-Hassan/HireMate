@@ -1,5 +1,5 @@
 # app\schemas\email\email_settings_schema.pyfrom typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class EmailSettingsBaseSchema(BaseModel):
     UserId: int
@@ -17,5 +17,4 @@ class EmailSettingsResponseSchema(EmailSettingsBaseSchema):
     SmtpServer: str
     SmtpPort: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

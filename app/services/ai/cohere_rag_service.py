@@ -40,9 +40,9 @@ def answer_user_from_resume(user_prompt: str) -> ResponseSchema:
         # Generate embedding for user query
         query_vector = generate_embeddings(user_prompt)
 
-        # Query Qdrant (ALWAYS Resume3)
+        # Query Qdrant (ALWAYS Resume)
         qdrant_response = query_points_similarity(
-            collection_name="Resume3",
+            collection_name="Resume",
             query_vector=query_vector,
             top_k=5
         )

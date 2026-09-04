@@ -1,6 +1,6 @@
 # app\schemas\email\email_schema.py
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional, Union, List
 from datetime import datetime
 from uuid import UUID
@@ -25,8 +25,7 @@ class InboxEmail(BaseModel):
     html: Optional[str] = None
 
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SendSystemEmailSchema(BaseModel):
@@ -120,5 +119,4 @@ class RepliedEmailResponseSchema(BaseModel):
     SentEmailAt : Optional[datetime] = None
     SentEmailCreatedByUserId : int
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

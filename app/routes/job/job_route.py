@@ -34,7 +34,10 @@ async def recommend_jobs_endpoint(
         return ResponseSchema(status=False, message="Unauthorized access", data=None)
 
     user_id = current_user.data.Id
-    resume = db.query(Resume).filter(Resume.UserId == user_id).first()
+    resume = db.query(Resume).filter(
+        Resume.UserId == user_id,
+        Resume.IsDeleted == False
+    ).first()
 
     if not resume:
         return ResponseSchema(status=False, message="Resume not found", data=None)

@@ -1,6 +1,6 @@
 # app\schemas\resume\resume_schema.py
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -55,5 +55,4 @@ class ResumeResponse(ResumeBase):
     UserId: int
     CreatedAt: Optional[datetime]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

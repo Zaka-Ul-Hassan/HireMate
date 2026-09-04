@@ -169,16 +169,29 @@ async function loadJobs(page = 1) {
 
         if (spinner) spinner.style.display = 'none';
 
-        if (Array.isArray(result) && result.length > 0) {
-            allJobs = result;
-            updateJobCount(allJobs.length);
-            renderCurrentTab();
-            toast('success', `${allJobs.length} jobs loaded`);
-        } else {
+        if (result && result.status === false) {
             allJobs = [];
             updateJobCount(0);
+            setEmptyStateMessage(result.message || 'No jobs found');
             renderCurrentTab();
-            toast('info', 'No jobs found');
+            toast('info', result.message || 'No jobs found');
+        } else {
+            const jobs = Array.isArray(result)
+                ? result
+                : (result && Array.isArray(result.data) ? result.data : []);
+
+            if (jobs.length > 0) {
+                allJobs = jobs;
+                updateJobCount(allJobs.length);
+                renderCurrentTab();
+                toast('success', `${allJobs.length} jobs loaded`);
+            } else {
+                allJobs = [];
+                updateJobCount(0);
+                setEmptyStateMessage('No jobs found');
+                renderCurrentTab();
+                toast('info', 'No jobs found');
+            }
         }
 
     } catch (error) {
@@ -456,4 +469,10 @@ function showEmptySavedState() {
     if (container) container.style.display = 'none';
     if (emptyState) emptyState.style.display = 'none';
     if (emptySaved) emptySaved.style.display = 'block';
+}
+
+function setEmptyStateMessage(message) {
+    const emptyState = document.getElementById('emptyState');
+    const description = emptyState?.querySelector('p');
+    if (description) description.textContent = message;
 }

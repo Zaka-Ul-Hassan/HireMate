@@ -4,7 +4,7 @@ import cohere
 
 from load_env import cohere_api_key
 
-MODEL_NAME = "command-r-plus-08-2024"
+MODEL_NAME = "command-a-plus-05-2026"
 
 def cohere_chat(prompt: str):
     co = cohere.ClientV2(api_key=cohere_api_key)
@@ -14,7 +14,17 @@ def cohere_chat(prompt: str):
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return response.message.content[0].text if response.message else "No content in response"
+    if not response.message:
+        return "No content in response"
+
+    for content_item in response.message.content or []:
+        text = getattr(content_item, "text", None)
+        if text is None and isinstance(content_item, dict):
+            text = content_item.get("text")
+        if text:
+            return text
+
+    return "No content in response"
 
 
 

@@ -1,6 +1,6 @@
 # app\schemas\role\role_schema.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List
 from datetime import datetime
 
@@ -11,8 +11,7 @@ class PermissionSchema(BaseModel):
     DisplayName: Optional[str]
     ParentId: Optional[int] = None 
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Base role schema
 class RoleBaseSchema(BaseModel):
@@ -39,13 +38,11 @@ class RoleListSchema(RoleBaseSchema):
     Permissions: Optional[List[PermissionSchema]] = None  # updated
     TotalUsers: Optional[int] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 #  Role Schema
 class RoleSchema(BaseModel):
     Id: int
     Name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

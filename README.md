@@ -110,7 +110,7 @@ COHERE_API_KEY=your_cohere_api_key
 # Qdrant
 QDRANT_CLUSTER_URL=http://localhost:6333
 QDRANT_API_KEY=your_qdrant_api_key
-QDRANT_COLLECTION_NAME=Resume3
+QDRANT_COLLECTION_NAME=Resume
 
 # JWT
 JWT_SECRET=your_jwt_secret

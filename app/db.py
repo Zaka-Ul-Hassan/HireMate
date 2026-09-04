@@ -3,13 +3,11 @@
 # using the configuration loaded from a config file.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from config_loader import load_config
-
-config = load_config()["database"]
+from load_env import DB_SERVER, DB_NAME, DB_DRIVER, DB_TRUSTED_CONNECTION
 
 connection_string = (
-    f"mssql+pyodbc://@{config['server']}/{config['database']}?"
-    f"driver={config['driver'].replace(' ', '+')}&trusted_connection={config['trusted_connection'].lower()}"
+    f"mssql+pyodbc://@{DB_SERVER}/{DB_NAME}?"
+    f"driver={DB_DRIVER.replace(' ', '+')}&trusted_connection={DB_TRUSTED_CONNECTION.lower()}"
 )
 
 engine = create_engine(connection_string, echo=True)

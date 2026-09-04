@@ -22,7 +22,10 @@ def is_relevant_job(job_title: str, developer_type: str, skills: str) -> bool:
 
 
 def fetch_jobs_from_api(db: Session, resume_id: int, page: int = 2):
-    resume = db.query(Resume).filter(Resume.Id == resume_id).first()
+    resume = db.query(Resume).filter(
+        Resume.Id == resume_id,
+        Resume.IsDeleted == False
+    ).first()
     if not resume:
         return ResponseSchema(status=False, message="Resume not found", data=None)
 
@@ -86,26 +89,11 @@ async def get_linkedin_jobs_service(
 ) -> ResponseSchema:
 
     try:
-        user_id = current_user.data.Id
-
-        # Fetch resume from DB directly — no separate helper needed
-        resume = db.query(Resume).filter(
-            Resume.UserId == user_id,
-            Resume.IsDeleted == False
-        ).first()
-
-        if not resume:
-            return ResponseSchema(
-                status=False,
-                message="No resume found. Please upload your resume first.",
-                data=None
-            )
-
         url = f"{APIFY_BASE_URL}/{ACTOR_ENDPOINT}?token={APIFY_JOB_TOKEN}"
 
         payload = {
-            "job_title":        filters.get("job_title") or resume.DeveloperType or resume.ExperienceTitle or "",
-            "job_location":     filters.get("job_location")  or resume.Country or "",
+            "job_title":        filters.get("job_title") or "",
+            "job_location":     filters.get("job_location") or "",
             "company_name":     filters.get("company_name") or [],
             "number_records":   filters.get("number_records") or 5,
             "sort_by":          filters.get("sort_by") or "R",

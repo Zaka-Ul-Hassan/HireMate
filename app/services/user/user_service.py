@@ -11,7 +11,7 @@ from app.models.user.user_role import UserRole
 from app.schemas.email.email_schema import SendSystemEmailSchema
 from app.schemas.pagination_schema import PaginatedResponseSchema
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.user.user_schema import CreateUserSchema, RegisterUser, RoleResponseSchema, UpdateProfileSchema
+from app.schemas.user.user_schema import CreateUserSchema, RegisterUser, RoleResponseSchema, UpdateProfileSchema, UserListSchema
 from app.services.authentication import auth_service
 from app.services.authentication.security import hash_password
 from app.services.email import email_service
@@ -205,7 +205,7 @@ def list_users(db: Session, search: str, skip: int, limit: int):
         totalCount=total_count,
         skipCount=skip,
         maxCount=limit,
-        item=users,
+        item=[UserListSchema.model_validate(user) for user in users],
         status="success"
     )
 
@@ -296,7 +296,7 @@ def get_user_by_id(db: Session, id: int):
     return ResponseSchema(
         status=True,
         message="User fetched successfully",
-        data=user
+        data=UserListSchema.model_validate(user)
     )
 
 # soft delete user

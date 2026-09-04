@@ -1,6 +1,7 @@
 # app\services\ai\voice_agent\vapi_agent.py
 
 import requests
+import logging
 from fastapi import HTTPException
 from app.models.resume.resume_model import Resume
 from app.schemas.response_schema import ResponseSchema
@@ -15,6 +16,8 @@ from load_env import (
     model_provider,
     model_name,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def start_voice_call(customer_number: str, resume:Resume):
@@ -78,9 +81,23 @@ def start_voice_call(customer_number: str, resume:Resume):
         session_id = data.get("id")
 
         if not session_id:
-            return ResponseSchema(status=False, message="Failed to initiate call", data=None)
+            logger.error("VAPI call response did not include a session id: %s", data)
+            return ResponseSchema(
+                status=False,
+                message="VAPI did not return a call session id",
+                data=None
+            )
         
         return ResponseSchema(status=True, message="Call initiated successfully", data={"session_id": session_id})
 
+    except requests.exceptions.HTTPError as e:
+        detail = e.response.text if e.response is not None else str(e)
+        logger.error("VAPI call rejected: status=%s detail=%s", e.response.status_code if e.response else "unknown", detail)
+        return ResponseSchema(
+            status=False,
+            message=f"VAPI rejected the call request: {detail}",
+            data=None
+        )
     except requests.exceptions.RequestException as e:
-        return ResponseSchema(status=False, message=f"Failed to initiate call", data=None)
+        logger.exception("VAPI call request failed")
+        return ResponseSchema(status=False, message=f"Failed to connect to VAPI: {e}", data=None)

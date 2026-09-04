@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from datetime import datetime
 import json
+import logging
 from qdrant_client.models import PointStruct
 
 from app.models.resume.resume_model import Resume
@@ -12,6 +13,8 @@ from app.services.ai.cohere_chat_service import cohere_chat
 from app.services.ai.cohere_rag_service import generate_embeddings
 from app.services.qdrant.qdrant_service import delete_point, upsert_points
 from app.utils.file_util import save_upload_resume
+
+logger = logging.getLogger(__name__)
 from app.models.user.user import User
 
 from fastapi import UploadFile
@@ -209,6 +212,8 @@ async def extract_fields_and_store(
 
         # Validate required fields
         email = parsed.get("Email") or current_user.data.Email
+        full_name = parsed.get("FullName") or current_user.data.Name or email.split("@", 1)[0]
+        address = parsed.get("Address") or "Not provided"
         skills = parsed.get("Skills") or "Management, Communication"
         developer_type = parsed.get("DeveloperType") or "General Engineer"
 
@@ -225,11 +230,10 @@ async def extract_fields_and_store(
         if existing_resumes and update_existing:
             for resume_obj in existing_resumes:
                 qdrant_response = delete_point(
-                    collection_name="Resume3",
+                    collection_name="Resume",
                     point_id=resume_obj.Id
                 )
                 db.delete(resume_obj)
-            db.commit()
 
         # Save resume file
         unique_filename = save_upload_resume(file, upload_dir="uploads/resumes")
@@ -237,10 +241,10 @@ async def extract_fields_and_store(
         # Save resume in DB
         resume = Resume(
             UserId=current_user.data.Id,
-            FullName=parsed.get("FullName"),
+            FullName=full_name,
             Email=email or current_user.data.Email,
             PhoneNumber=parsed.get("PhoneNumber"),
-            Address=parsed.get("Address"),
+            Address=address,
             DateOfBirth=parsed.get("DateOfBirth"),
             Gender=parsed.get("Gender"),
             Country=parsed.get("Country"),
@@ -289,7 +293,7 @@ async def extract_fields_and_store(
         )
 
         qdrant_result = upsert_points(
-            collection_name="Resume3",
+            collection_name="Resume",
             points=[point]
         )
 
@@ -309,7 +313,9 @@ async def extract_fields_and_store(
             }
         )
 
-    except Exception as e:
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to process resume for user %s", getattr(current_user.data, "Id", None))
         return ResponseSchema(
             status=False,
             message="Something went wrong",
