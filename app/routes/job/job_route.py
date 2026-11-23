@@ -33,7 +33,7 @@ async def recommend_jobs_endpoint(
     page: int = 2,
 ):
     if not current_user.status or current_user.data is None:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
 
     user_id = current_user.data.Id
     resume = db.query(Resume).filter(
@@ -56,7 +56,7 @@ async def get_linkedin_jobs(
 ) -> ResponseSchema:
 
     if not current_user.status or current_user.data is None:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
 
     return await get_linkedin_jobs_service(filters.dict(), current_user, db)
 
@@ -75,7 +75,7 @@ def test_apify_token(
     If you get 403 here, the token in .env is invalid/expired.
     """
     if not current_user.status or current_user.data is None:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
 
     if not APIFY_JOB_TOKEN:
         return ResponseSchema(

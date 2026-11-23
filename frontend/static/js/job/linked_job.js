@@ -408,12 +408,23 @@ async function fetchJobs() {
         console.log('LinkedIn search payload:', payload);
         const resp = await fetch(LI_API_URL, { method:'POST', headers, body: JSON.stringify(payload) });
 
+        // HTTP 401 → session expired, auto-logout
+        if (resp.status === 401) {
+            if (typeof handleUnauthorized === 'function') handleUnauthorized();
+            return;
+        }
+
         let result = null;
         try { result = await resp.json(); } catch (_) { result = null; }
         console.log('LinkedIn API response:', result);
 
         // App-level error (status: false)
         if (result && result.status === false) {
+            // Treat "Unauthorized access" as a session expiry → auto-logout
+            if (result.message && result.message.toLowerCase().includes('unauthorized')) {
+                if (typeof handleUnauthorized === 'function') handleUnauthorized();
+                return;
+            }
             toast('error', result.message || 'Server error — please try again.', 'Search Failed');
             allJobs = [];
             updateJobCount(0);

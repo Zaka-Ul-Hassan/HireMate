@@ -162,6 +162,12 @@ async function loadJobs(page = 1) {
             }
         });
 
+        // HTTP 401 → session expired, auto-logout
+        if (response.status === 401) {
+            if (typeof handleUnauthorized === 'function') handleUnauthorized();
+            return;
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
@@ -170,6 +176,11 @@ async function loadJobs(page = 1) {
         if (spinner) spinner.style.display = 'none';
 
         if (result && result.status === false) {
+            // Treat "Unauthorized access" as a session expiry → auto-logout
+            if (result.message && result.message.toLowerCase().includes('unauthorized')) {
+                if (typeof handleUnauthorized === 'function') handleUnauthorized();
+                return;
+            }
             allJobs = [];
             updateJobCount(0);
             setEmptyStateMessage(result.message || 'No jobs found');
