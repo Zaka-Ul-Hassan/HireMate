@@ -125,24 +125,37 @@ async def get_linkedin_jobs_service(
     except requests.exceptions.Timeout:
         return ResponseSchema(
             status=False,
-            message="Request timed out. The job search service is slow — try again.",
+            message="Job search timed out — the service is slow right now. Please try again in a moment.",
             data=None
         )
     except requests.exceptions.ConnectionError:
         return ResponseSchema(
             status=False,
-            message="Could not connect to the job search service. Check your network.",
+            message="Could not reach the job search service. Please check your internet connection.",
             data=None
         )
     except requests.exceptions.HTTPError as e:
-        return ResponseSchema(
-            status=False,
-            message=f"Job service returned an error: {e.response.status_code}",
-            data=None
-        )
+        status_code = e.response.status_code
+        if status_code == 403:
+            message = (
+                "Job search is unavailable: the Apify API token is invalid or expired. "
+                "Please contact the administrator to update the API key."
+            )
+        elif status_code == 401:
+            message = (
+                "Job search is unavailable: Apify authentication failed. "
+                "Please contact the administrator to verify the API token."
+            )
+        elif status_code == 429:
+            message = "Job search rate limit reached. Please wait a few minutes before trying again."
+        elif status_code >= 500:
+            message = "The job search service is experiencing issues. Please try again later."
+        else:
+            message = f"Job search failed with an unexpected error (code {status_code}). Please try again later."
+        return ResponseSchema(status=False, message=message, data=None)
     except Exception as e:
         return ResponseSchema(
             status=False,
-            message=f"Unexpected error: {str(e)}",
+            message=f"An unexpected error occurred while searching for jobs. Please try again.",
             data=None
         )
