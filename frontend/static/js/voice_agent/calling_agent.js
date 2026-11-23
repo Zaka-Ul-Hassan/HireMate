@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Show success from backend
         Swal.fire({
           icon: "success",
-          title: "AI Call Started!",
+          title: "Agent Call Started!",
           text: data.message || "Call started successfully.",
           confirmButtonColor: "#3085d6",
         });
