@@ -1,6 +1,7 @@
-# app\routes\ai\voice_agent_route.py
+# app\\routes\\ai\\voice_agent_route.py
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models.resume.resume_model import Resume
@@ -18,7 +19,7 @@ def make_call(
     db: Session = Depends(get_db)
 ):
     if not current_user.status or current_user.data is None:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
     
     user_id = current_user.data.Id
     resume = db.query(Resume).filter(Resume.UserId == user_id, Resume.IsDeleted == False).first()
@@ -26,6 +27,3 @@ def make_call(
         return ResponseSchema(status=False, message="Please upload your resume before making a call.", data=None)
 
     return start_voice_call(customer_number,resume)
-
-
-

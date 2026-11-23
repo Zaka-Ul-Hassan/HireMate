@@ -80,6 +80,7 @@ def generate_email_content(
     db: Session = Depends(get_db)
 ):
     if not current_user.status or not current_user.data:
-        return ResponseSchema(status=False, message="Unauthorized access")
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
     
     return email_service.generate_email_content(db, current_user, email)

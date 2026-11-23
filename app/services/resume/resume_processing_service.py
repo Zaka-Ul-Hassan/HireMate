@@ -298,10 +298,11 @@ async def extract_fields_and_store(
         )
 
         if not qdrant_result.status:
-            return ResponseSchema(
-                status=False,
-                message=qdrant_result.message,
-                data=None
+            # Resume is already saved in DB — don't fail the whole upload.
+            # Log the Qdrant error but return success to the user.
+            logger.warning(
+                "Resume %s saved to DB but Qdrant upsert failed: %s",
+                resume.Id, qdrant_result.message
             )
 
         return ResponseSchema(

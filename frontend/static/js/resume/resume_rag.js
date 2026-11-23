@@ -83,11 +83,11 @@ function setupEventListeners() {
     // Send button
     sendBtn.addEventListener('click', () => sendMessage());
     
-    // Enter key
+    // Enter key — blocked while input is disabled
     chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            sendMessage();
+            if (!chatInput.disabled) sendMessage();
         }
     });
     
@@ -199,6 +199,9 @@ async function sendMessage(messageText = null) {
         chatInput.value = '';
     }
     
+    // ── Lock UI while waiting for AI response ──────────────────────
+    setInputLocked(true);
+    
     // Add user message to UI and storage
     appendMessage(message, true, true);
     messageCount++;
@@ -254,7 +257,30 @@ async function sendMessage(messageText = null) {
         showToast('Connection error. Please try again.', 'error');
     } finally {
         showTypingIndicator(false);
+        // ── Unlock UI once response is received ────────────────────
+        setInputLocked(false);
     }
+}
+
+// Lock / unlock the send button, input, and all quick-prompt chips
+function setInputLocked(locked) {
+    // Send button
+    sendBtn.disabled = locked;
+    sendBtn.style.opacity = locked ? '0.4' : '1';
+    sendBtn.style.cursor = locked ? 'not-allowed' : 'pointer';
+
+    // Text input
+    chatInput.disabled = locked;
+    chatInput.style.opacity = locked ? '0.6' : '1';
+    chatInput.style.cursor = locked ? 'not-allowed' : 'text';
+
+    // Quick-prompt chips / suggestion buttons
+    document.querySelectorAll('.suggestion-chip, .quick-action-btn').forEach(btn => {
+        btn.disabled = locked;
+        btn.style.opacity = locked ? '0.4' : '1';
+        btn.style.cursor = locked ? 'not-allowed' : 'pointer';
+        btn.style.pointerEvents = locked ? 'none' : '';
+    });
 }
 
 // Extract candidate name from line

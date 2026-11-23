@@ -1,5 +1,12 @@
 # main.py
 
+import asyncio
+import sys
+
+# Fix WinError 10054 / ProactorBasePipeTransport crash on Windows
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles

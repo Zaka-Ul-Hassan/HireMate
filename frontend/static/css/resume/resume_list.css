@@ -82,24 +82,40 @@
 
 .search-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .search-icon {
     position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #6c757d;
-    font-size: 18px;
-    z-index: 1;
+    font-size: 16px;
+    border-right: 1.5px solid #d1d5db;
+    pointer-events: none;
+    z-index: 2;
+    transition: border-color 0.2s, color 0.2s;
 }
 
-.search-input {
-    padding: 12px 45px 12px 45px;
+.search-input,
+.search-wrapper .form-control {
+    padding-left: 56px !important;
+    padding-right: 45px !important;
     border: 2px solid #e9ecef;
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.3s ease;
+}
+
+.search-wrapper:focus-within .search-icon {
+    border-right-color: #667eea;
+    color: #667eea;
 }
 
 .search-input:focus {

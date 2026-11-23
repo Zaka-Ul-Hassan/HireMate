@@ -1,23 +1,29 @@
 # app/services/qdrant/qdrant_service.py
 
+import time
+import logging
 from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance, PointStruct,models
+from qdrant_client.models import VectorParams, Distance, PointStruct, models
 from typing import List
 from app.schemas.response_schema import ResponseSchema
 from load_env import QDRANT_API_KEY, QDRANT_CLUSTER_URL
 
+logger = logging.getLogger(__name__)
 
-# Connect to Qdrant Cloud
 
-client = QdrantClient(
-    url=QDRANT_CLUSTER_URL, 
-    api_key=QDRANT_API_KEY,
-    timeout=60
-)
+def _make_client() -> QdrantClient:
+    """Create a fresh QdrantClient instance (always fresh to avoid stale TCP connections)."""
+    return QdrantClient(
+        url=QDRANT_CLUSTER_URL,
+        api_key=QDRANT_API_KEY,
+        timeout=120,
+        check_compatibility=False,
+    )
 
 
 # Collection functions
 def create_collection(collection_name: str, vector_size: int = 1536, distance: str = "Cosine") -> ResponseSchema:
+    client = _make_client()
     try:
         if not client.collection_exists(collection_name):
             client.create_collection(
@@ -44,6 +50,7 @@ def create_collection(collection_name: str, vector_size: int = 1536, distance: s
 
 
 def delete_collection(collection_name: str) -> ResponseSchema:
+    client = _make_client()
     try:
         if client.collection_exists(collection_name):
             client.delete_collection(collection_name=collection_name)
@@ -63,6 +70,7 @@ def delete_collection(collection_name: str) -> ResponseSchema:
         )
 
 def collection_exists(collection_name: str) -> ResponseSchema:
+    client = _make_client()
     try:
         exists = client.collection_exists(collection_name)
         return ResponseSchema(
@@ -77,6 +85,7 @@ def collection_exists(collection_name: str) -> ResponseSchema:
         )
     
 def list_collections() -> ResponseSchema:
+    client = _make_client()
     try:
         collections = client.get_collections().collections
         collection_names = [col.name for col in collections]
@@ -94,22 +103,37 @@ def list_collections() -> ResponseSchema:
 
 # Record / Point functions
 def upsert_points(collection_name: str, points: List[PointStruct]) -> ResponseSchema:
-    try:
-        client.upsert(
-            collection_name=collection_name,
-            points=points
-        )
-        return ResponseSchema(
-            status=True,
-            message=f"Upserted {len(points)} points to collection '{collection_name}'."
-        )
-    except Exception as e:
-        return ResponseSchema(
-            status=False,
-            message=f"Error upserting points: {str(e)}"
-        )
+    """
+    Upsert points into Qdrant with automatic retry on connection errors.
+    Always uses a fresh client per attempt to avoid stale TCP connections (WinError 10054).
+    """
+    max_retries = 3
+    last_error = None
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            c = _make_client()
+            c.upsert(collection_name=collection_name, points=points)
+            return ResponseSchema(
+                status=True,
+                message=f"Upserted {len(points)} points to collection '{collection_name}'."
+            )
+        except Exception as e:
+            last_error = e
+            logger.warning(
+                "Qdrant upsert attempt %d/%d failed for collection '%s': %s",
+                attempt, max_retries, collection_name, e
+            )
+            if attempt < max_retries:
+                time.sleep(attempt * 2)  # 2 s, 4 s back-off
+
+    return ResponseSchema(
+        status=False,
+        message=f"Error upserting points after {max_retries} attempts: {last_error}"
+    )
 
 def get_point(collection_name: str, point_id: int) -> ResponseSchema:
+    client = _make_client()
     try:
         point = client.retrieve(
             collection_name=collection_name,
@@ -133,6 +157,7 @@ def get_point(collection_name: str, point_id: int) -> ResponseSchema:
         )
 
 def delete_point(collection_name: str, point_id: int) -> ResponseSchema:
+    client = _make_client()
     try:
         # Check if point exists
         point = client.retrieve(
@@ -171,6 +196,7 @@ def query_points_similarity(
     query_vector: List[float],
     top_k: int = 5
 ) -> ResponseSchema:
+    client = _make_client()
     try:
         results = client.query_points(
             collection_name=collection_name,

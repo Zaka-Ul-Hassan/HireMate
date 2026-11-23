@@ -22,7 +22,7 @@ def create_user_route(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     if not current_user.status or not current_user.data:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
     
     result = user_service.create_user(data, db, current_user)
     return result
@@ -216,6 +216,6 @@ def change_user_password(
     current_user = Depends(auth_service.get_current_user)
 ):
     if not current_user.status or "SuperAdmin" not in current_user.data.RoleNames:
-        return ResponseSchema(status=False, message="Unauthorized access")
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
     
     return auth_service.admin_change_user_password(data, db, current_user)

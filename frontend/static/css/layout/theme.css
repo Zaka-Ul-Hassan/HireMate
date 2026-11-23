@@ -537,7 +537,8 @@ a.btn:focus-visible {
 .pw-input,
 .form-input {
   min-height: 40px !important;
-  padding: .55rem .8rem !important;
+  padding-top: .55rem !important;
+  padding-bottom: .55rem !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 7px !important;
   font-size: .85rem !important;
@@ -630,7 +631,7 @@ a.btn:focus-visible {
 
 .cp-input {
   min-height: 40px !important;
-  padding: .55rem 3rem .55rem 2.5rem !important;
+  padding: .55rem 3.2rem .55rem 60px !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 7px !important;
   font-size: .85rem !important;
@@ -668,15 +669,102 @@ a.btn:focus-visible {
   color: #fff !important;
 }
 
-/* Keep Change Password icons clear of input text */
-.input-group .form-input {
-  padding: .55rem 3.5rem .55rem 2.75rem !important;
+/* ══════════════════════════════════════════════════════
+   GLOBAL FORM INPUTS WITH ICONS & SEARCH BOXES
+   Ensures icon | vertical line separator | clean text
+══════════════════════════════════════════════════════ */
+
+/* 1. Form inputs with left icons (Change Password, Update Profile, Forgot/Reset Password, User Management) */
+.input-group,
+.pw-input-wrap,
+.cp-input-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
-.input-group .input-icon {
-  left: 1rem !important;
+.input-group .input-icon,
+.pw-input-icon,
+.cp-input-icon {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 46px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-right: 1.5px solid #d1d5db !important;
+  color: #9ca3af !important;
+  font-size: 0.95rem !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  transform: none !important;
+  margin: 0 !important;
+  transition: border-color 0.2s, color 0.2s !important;
+}
+
+.input-group .form-input,
+.pw-input,
+.cp-input {
+  padding-left: 60px !important;
+}
+
+.input-group .form-input {
+  padding-right: 3.5rem !important;
+}
+
+.input-group:focus-within .input-icon,
+.pw-input-wrap:focus-within .pw-input-icon,
+.cp-input-wrap:focus-within .cp-input-icon {
+  border-right-color: var(--button-blue) !important;
+  color: var(--button-blue) !important;
 }
 
 .input-group .toggle-password {
+  position: absolute !important;
   right: .5rem !important;
+  z-index: 2 !important;
+}
+
+/* 2. Search inputs with search-icon (Resume List, Sent Emails, User Management) */
+.search-wrapper,
+.search-box {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  max-width: 100% !important;
+}
+
+.search-wrapper .search-icon,
+.search-box .search-icon {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-right: 1.5px solid #d1d5db !important;
+  color: #667eea !important;
+  font-size: 1rem !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  transform: none !important;
+  margin: 0 !important;
+  transition: border-color 0.2s, color 0.2s !important;
+}
+
+.search-wrapper .search-input,
+.search-wrapper .form-control,
+.search-box .form-control {
+  padding-left: 56px !important;
+  padding-right: 3rem !important;
+}
+
+.search-wrapper:focus-within .search-icon,
+.search-box:focus-within .search-icon {
+  border-right-color: #667eea !important;
+  color: #667eea !important;
 }

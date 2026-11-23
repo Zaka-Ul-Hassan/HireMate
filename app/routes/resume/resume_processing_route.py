@@ -41,7 +41,7 @@ async def store_resume(
     current_user: User = Depends(get_current_user)
 ):
     if not current_user.status or current_user.data is None:
-        return ResponseSchema(status=False, message="Unauthorized access", data=None)
+        return JSONResponse(status_code=401, content=ResponseSchema(status=False, message="Unauthorized access", data=None).dict())
     
     result = await extract_fields_and_store(
         file,

@@ -1,4 +1,76 @@
-// frontend\static\js\shared\auth-helper.js
+// frontend/static/js/shared/auth-helper.js
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOBAL AUTO-LOGOUT INTERCEPTOR
+// Patches XMLHttpRequest and fetch once so that ANY response from ANY JS file
+// that is either:
+//   • HTTP 401, OR
+//   • { status: false, message: "Unauthorized access" }  (HTTP 200 fallback)
+// automatically calls handleUnauthorized() — no per-file changes needed.
+// ─────────────────────────────────────────────────────────────────────────────
+(function installAuthInterceptor() {
+
+    function isAuthEndpoint(url) {
+        const u = (url || '').toLowerCase();
+        return u.includes('/login') || u.includes('/logout') ||
+            u.includes('/register') || u.includes('/forgot-password') ||
+            u.includes('/reset-password') || u.includes('/set-password');
+    }
+
+    function isUnauthorizedPayload(text) {
+        try {
+            const json = JSON.parse(text);
+            return json && json.status === false &&
+                typeof json.message === 'string' &&
+                json.message.toLowerCase().includes('unauthorized');
+        } catch (_) { return false; }
+    }
+
+    // ── 1. XMLHttpRequest patch ───────────────────────────────────────────
+    const _open = XMLHttpRequest.prototype.open;
+    const _send = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function (method, url) {
+        this._interceptUrl = url;
+        return _open.apply(this, arguments);
+    };
+
+    XMLHttpRequest.prototype.send = function () {
+        this.addEventListener('load', function () {
+            if (isAuthEndpoint(this._interceptUrl)) return;
+            if (this.status === 401) { handleUnauthorized(); return; }
+            if (this.status === 200 && isUnauthorizedPayload(this.responseText)) {
+                handleUnauthorized();
+            }
+        });
+        return _send.apply(this, arguments);
+    };
+
+    // ── 2. fetch patch ────────────────────────────────────────────────────
+    const _fetch = window.fetch;
+    window.fetch = async function (input, init) {
+        const url = typeof input === 'string' ? input : (input && input.url) || '';
+        const response = await _fetch.apply(this, arguments);
+
+        if (!isAuthEndpoint(url)) {
+            if (response.status === 401) {
+                handleUnauthorized();
+                return response.clone();
+            }
+            if (response.status === 200) {
+                try {
+                    const text = await response.clone().text();
+                    if (isUnauthorizedPayload(text)) { handleUnauthorized(); }
+                } catch (_) {}
+            }
+        }
+
+        return response;
+    };
+
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Helper function to make authenticated API requests
@@ -52,6 +124,10 @@ function makeAuthenticatedRequest(method, url, data = null, callback = null, err
  * Handle unauthorized access - clear localStorage and redirect to login
  */
 function handleUnauthorized() {
+    // Prevent multiple simultaneous logout triggers
+    if (window._handlingUnauthorized) return;
+    window._handlingUnauthorized = true;
+
     // Clear all stored user data
     localStorage.removeItem('user_data');
     localStorage.removeItem('access_token');

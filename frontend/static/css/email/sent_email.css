@@ -103,26 +103,40 @@
 
 .search-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
     max-width: 100%;
 }
 
 .search-icon {
     position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #667eea;
     font-size: 1.1rem;
+    border-right: 1.5px solid #d1d5db;
     pointer-events: none;
+    z-index: 2;
+    transition: border-color 0.2s, color 0.2s;
 }
 
-.search-input {
+.search-input,
+.search-wrapper .form-control {
     width: 100%;
-    padding: 0.85rem 3rem 0.85rem 3rem;
+    padding: 0.85rem 3rem 0.85rem 56px !important;
     border: 2px solid #e5e7eb;
     border-radius: 10px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
+}
+
+.search-wrapper:focus-within .search-icon {
+    border-right-color: #667eea;
 }
 
 .search-input:focus {
