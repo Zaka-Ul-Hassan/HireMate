@@ -206,25 +206,30 @@ def get_user_roles(db: Session, user_id: int) -> ResponseSchema:
 
 # Change Password
 def change_user_password(user_id, data, db):
-    # Get user response
-    user_response = user_service.get_user_by_id(db, user_id)
+    user = db.query(User).filter(
+        User.Id == user_id,
+        User.IsDeleted == False
+    ).first()
 
-    # Check if user exists
-    if not user_response.status or not user_response.data:
+    if not user:
         return ResponseSchema(
             status=False,
             message="User not found",
             data=None
         )
 
-    # Extract actual User model
-    user = user_response.data
-
     # Verify old password
-    if not verify_password(data.OldPassword, user.Password):
+    if not user.Password or not verify_password(data.OldPassword, user.Password):
         return ResponseSchema(
             status=False,
             message="Old Password is incorrect",
+            data=None
+        )
+
+    if data.NewPassword == data.OldPassword:
+        return ResponseSchema(
+            status=False,
+            message="New password must be different from current password",
             data=None
         )
 

@@ -304,7 +304,18 @@ def update_user_profile(db: Session, data, user_id: int):
     return ResponseSchema(
         status=True,
         message="Profile updated successfully",
-        data=user
+        data={
+            "Id": user.Id,
+            "FirstName": user.FirstName,
+            "LastName": user.LastName,
+            "PhoneNumber": user.PhoneNumber,
+            "Country": user.Country,
+            "Address": user.Address,
+            "Age": user.Age,
+            "Gender": user.Gender,
+            "Dob": user.Dob.isoformat() if user.Dob else None,
+            "Image": user.Image
+        }
     )
 
 # Get user by id

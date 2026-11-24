@@ -83,6 +83,7 @@ class CurrentUserSchema(BaseModel):
 
 class UserListSchema(UserBaseSchema):
     Id: int
+    Image: Optional[str] = None
     Roles: List[RoleSchema] = []
     IsActive: Optional[bool] = None
     CreatedAt: datetime

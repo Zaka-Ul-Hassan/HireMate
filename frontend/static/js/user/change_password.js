@@ -83,12 +83,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/;
 
     const newPasswordInput = document.getElementById('newPassword');
+    const currentPasswordInput = document.getElementById('currentPassword');
     const strengthFill = document.getElementById('strengthFill');
     const strengthLabel = document.getElementById('strengthLabel');
+    const samePasswordError = 'New password must be different from current password.';
+
+    function validateDifferentPassword() {
+        const passwordsMatch = currentPasswordInput.value &&
+            newPasswordInput.value &&
+            currentPasswordInput.value === newPasswordInput.value;
+
+        if (passwordsMatch) {
+            setError('err_newPassword', samePasswordError);
+            return false;
+        }
+
+        const newPasswordError = document.getElementById('err_newPassword');
+        if (newPasswordError && newPasswordError.textContent === samePasswordError) {
+            setError('err_newPassword', '');
+        }
+        return true;
+    }
 
     if (newPasswordInput) {
         newPasswordInput.addEventListener('input', function() {
             checkPasswordStrength(this.value);
+            validateDifferentPassword();
             
             // Also check if confirm password matches
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -100,6 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+
+    if (currentPasswordInput) {
+        currentPasswordInput.addEventListener('input', validateDifferentPassword);
     }
 
     function checkPasswordStrength(password) {
@@ -231,6 +255,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         } else if (!PASSWORD_REGEX.test(newPassword)) {
             setError('err_newPassword', 'Password must include uppercase, lowercase, number, and special character.');
+            isValid = false;
+        }
+
+        if (currentPassword && newPassword && currentPassword === newPassword) {
+            setError('err_newPassword', samePasswordError);
             isValid = false;
         }
 
