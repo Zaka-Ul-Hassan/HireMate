@@ -290,6 +290,22 @@ function extractCandidateName(line) {
     return match ? match[1].trim() : null;
 }
 
+function escapeHtml(text) {
+    const characters = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    };
+
+    return String(text).replace(/[&<>"']/g, character => characters[character]);
+}
+
+function formatBotMessageText(text) {
+    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
 // Handle candidate name click
 function handleCandidateNameClick(candidateName) {
     // Store the search query in sessionStorage
@@ -345,17 +361,18 @@ function appendMessage(text, isUser, saveToHistory = true) {
                 currentCandidate = candidateName;
                 
                 // Start new candidate section
+                const safeCandidateName = escapeHtml(candidateName);
                 formattedText += `
                     <div class="candidate-section">
                         <div class="candidate-item">
                             <i class="bi bi-person-badge"></i>
-                            <a href="#" class="candidate-name-link" data-candidate-name="${candidateName}">
-                                ${candidateName}
+                            <a href="#" class="candidate-name-link" data-candidate-name="${safeCandidateName}">
+                                ${safeCandidateName}
                             </a>
                         </div>`;
             } else if (trimmedLine) {
                 // Regular line - add to current candidate or as standalone text
-                formattedText += `<div class="message-text">${line}</div>`;
+                formattedText += `<div class="message-text">${formatBotMessageText(line)}</div>`;
             }
         });
         
@@ -387,7 +404,10 @@ function appendMessage(text, isUser, saveToHistory = true) {
             messageContent.appendChild(copyBtn);
         }
     } else {
-        messageContent.innerHTML = `<div class="message-text">${text}</div>`;
+        const messageText = document.createElement('div');
+        messageText.className = 'message-text';
+        messageText.textContent = text;
+        messageContent.appendChild(messageText);
     }
     
     messageContent.appendChild(timestamp);
