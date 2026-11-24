@@ -340,9 +340,28 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─────────────────────────────────────────
 // Event listeners
 // ─────────────────────────────────────────
+function validateJobTitle() {
+    const jobTitleInput = document.getElementById('f_job_title');
+    if (!jobTitleInput) return false;
+
+    const isMissing = !jobTitleInput.value.trim();
+    jobTitleInput.setCustomValidity(isMissing ? 'Please enter a job title.' : '');
+    if (isMissing) {
+        jobTitleInput.reportValidity();
+        return false;
+    }
+
+    return true;
+}
+
 function attachEventListeners() {
+    document.getElementById('f_job_title')?.addEventListener('input', event => {
+        event.currentTarget.setCustomValidity('');
+    });
+
     document.getElementById('applyBtn')?.addEventListener('click', () => {
         if (isFetching) return;
+        if (!validateJobTitle()) return;
         searchPerformed = true;
         fetchJobs();
     });
