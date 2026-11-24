@@ -62,7 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (roleEl) {
             try {
                 const roles = JSON.parse(localStorage.getItem('user_roles') || '[]');
-                const roleLabel = roles.map(r => typeof r === 'string' ? r : (r.Name || '')).join(', ');
+                const roleLabel = roles.map(r => {
+                    const name = typeof r === 'string' ? r : (r.Name || '');
+                    return name.toLowerCase() === 'user' ? 'Job Seeker' : name;
+                }).join(', ');
                 if (roleLabel) {
                     roleEl.textContent = roleLabel;
                     roleEl.style.display = 'inline-block';
@@ -119,9 +122,13 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const rolesJson = localStorage.getItem('user_roles');
             if (!rolesJson) return;
-            const roles = JSON.parse(rolesJson).map(r =>
-                (typeof r === 'string' ? r : (r.Name || r.name || '')).toLowerCase()
-            );
+            const roles = JSON.parse(rolesJson).flatMap(r => {
+                const name = (typeof r === 'string' ? r : (r.Name || r.name || '')).toLowerCase();
+                if (name === 'user' || name === 'job seeker' || name === 'jobseeker') {
+                    return ['job seeker', 'jobseeker', 'user'];
+                }
+                return [name];
+            });
             document.querySelectorAll('.sidebar-menu .nav-item[data-role]').forEach(item => {
                 const allowed = item.getAttribute('data-role').split(',').map(r => r.trim().toLowerCase());
                 item.style.display = roles.some(r => allowed.includes(r)) ? '' : 'none';

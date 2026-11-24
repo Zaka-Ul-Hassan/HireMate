@@ -358,9 +358,10 @@ function renderRoleCheckboxes() {
     availableRoles.forEach(role => {
         const div = document.createElement('div');
         div.className = 'role-checkbox-item';
+        const displayName = role.Name.toLowerCase() === 'user' ? 'Job Seeker' : role.Name;
         div.innerHTML = `
             <input type="checkbox" id="role_${role.Id}" name="roleIds" value="${role.Id}">
-            <label for="role_${role.Id}">${role.Name}</label>
+            <label for="role_${role.Id}">${displayName}</label>
         `;
         roleCheckboxes.appendChild(div);
     });
@@ -416,7 +417,12 @@ function handleFilters() {
             (user.PhoneNumber && user.PhoneNumber.toLowerCase().includes(searchTerm)) ||
             (user.Roles       && user.Roles.some(r => r.Name.toLowerCase().includes(searchTerm)));
 
-        const matchRole = !roleVal || (user.Roles && user.Roles.some(r => r.Name === roleVal));
+        const matchRole = !roleVal || (user.Roles && user.Roles.some(r => {
+            if (roleVal.toLowerCase() === 'job seeker') {
+                return r.Name.toLowerCase() === 'job seeker' || r.Name.toLowerCase() === 'user';
+            }
+            return r.Name === roleVal;
+        }));
 
         let matchStatus = true;
         if (statusVal === 'active')   matchStatus = user.IsActive === true;
@@ -537,7 +543,7 @@ function createUserCard(user) {
     const fullName         = `${user.FirstName} ${user.LastName}`;
     const statusClass      = user.IsActive ? 'active' : 'inactive';
     const statusText       = user.IsActive ? 'Active' : 'Inactive';
-    const roles            = user.Roles ? user.Roles.map(r => r.Name).join(', ') : 'No roles';
+    const roles            = user.Roles ? user.Roles.map(r => r.Name.toLowerCase() === 'user' ? 'Job Seeker' : r.Name).join(', ') : 'No roles';
 
     card.className = 'user-card';
 

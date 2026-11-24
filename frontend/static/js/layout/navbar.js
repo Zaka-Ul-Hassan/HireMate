@@ -10,9 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const rolesJson = localStorage.getItem('user_roles');
             if (!rolesJson) return [];
             const roles = JSON.parse(rolesJson);
-            return roles.map(role =>
-                (typeof role === 'string' ? role : (role.Name || role.name || '')).toLowerCase()
-            );
+            return roles.flatMap(role => {
+                const name = (typeof role === 'string' ? role : (role.Name || role.name || '')).toLowerCase();
+                if (name === 'user' || name === 'job seeker' || name === 'jobseeker') {
+                    return ['job seeker', 'jobseeker', 'user'];
+                }
+                return [name];
+            });
         } catch (error) {
             console.error('Error parsing user roles:', error);
             return [];

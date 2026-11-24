@@ -42,10 +42,10 @@ redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI")
 scope = os.getenv("LINKEDIN_SCOPES", "openid profile")
 
 # Gmail Configuration Settings
-SMTP_SERVER = os.getenv("SMTP_SERVER")
-SMTP_PORT = os.getenv("SMTP_PORT")
-SMTP_EMAIL = os.getenv("SMTP_EMAIL")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_SERVER = (os.getenv("SMTP_SERVER") or "").strip()
+SMTP_PORT = (os.getenv("SMTP_PORT") or "587").strip()
+SMTP_EMAIL = (os.getenv("SMTP_EMAIL") or "").strip()
+SMTP_PASSWORD = (os.getenv("SMTP_PASSWORD") or "").strip()
 
 # Qdrant Configuration Settings
 QDRANT_CLUSTER_URL = os.getenv("QDRANT_CLUSTER_URL")
@@ -56,7 +56,7 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
 
 # Frontend URL
-FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL")
+FRONTEND_BASE_URL = (os.getenv("FRONTEND_BASE_URL") or "").strip()
 
 # Super Admin Credentials
 FIRSTNAME = os.getenv("FIRSTNAME")

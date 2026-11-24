@@ -212,7 +212,10 @@ function getUserRoles() {
         const rolesJson = localStorage.getItem('user_roles');
         if (!rolesJson) return [];
         const roles = JSON.parse(rolesJson);
-        return roles.map(role => role.Name);
+        return roles.map(role => {
+            const name = role.Name || role.name || (typeof role === 'string' ? role : '');
+            return name.toLowerCase() === 'user' ? 'Job Seeker' : name;
+        });
     } catch (error) {
         console.error('Error parsing user roles:', error);
         return [];
@@ -224,7 +227,15 @@ function getUserRoles() {
  */
 function hasRole(roleName) {
     const roles = getUserRoles();
-    return roles.some(role => role.toLowerCase() === roleName.toLowerCase());
+    const target = (roleName || '').toLowerCase();
+    return roles.some(role => {
+        const current = (role || '').toLowerCase();
+        if ((target === 'user' || target === 'job seeker' || target === 'jobseeker') &&
+            (current === 'user' || current === 'job seeker' || current === 'jobseeker')) {
+            return true;
+        }
+        return current === target;
+    });
 }
 
 /**

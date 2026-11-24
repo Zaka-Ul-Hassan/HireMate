@@ -12,7 +12,7 @@ An intelligent recruitment platform connecting candidates and employers through 
 
 ## What It Does
 
-- **Candidates** upload resumes, practice AI-generated interview questions, and get scored feedback
+- **Job Seekers** upload resumes, practice AI-generated interview questions, and get scored feedback
 - **Employers** search candidates semantically — meaning-based, not just keyword matching
 - **Admins** manage users, reset passwords, and configure the platform
 
@@ -22,7 +22,7 @@ An intelligent recruitment platform connecting candidates and employers through 
 
 | Role | Access |
 |------|--------|
-| Candidate | Resume upload, AI interview prep, job search, email |
+| Job Seeker | Resume upload, AI interview prep, job search, email |
 | Employer | Semantic candidate search, AI email generation, resume access |
 | Super Admin | Full user management, system configuration |
 

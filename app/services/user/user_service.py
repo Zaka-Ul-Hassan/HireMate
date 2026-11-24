@@ -48,12 +48,14 @@ def create_user(data: CreateUserSchema, db: Session, current_user) -> ResponseSc
 
         role_ids = data.RoleIds or []
 
-        # If no role provided → assign default "User" role
+        # If no role provided → assign default "Job Seeker" role
         if not role_ids:
-            default_role = db.query(Role).filter(Role.Name == "User").first()
+            default_role = db.query(Role).filter(Role.Name == "Job Seeker").first()
+            if not default_role:
+                default_role = db.query(Role).filter(Role.Name == "User").first()
             if not default_role:
                 default_role = Role(
-                    Name="User",
+                    Name="Job Seeker",
                     CreatedByUserId=current_user.data.Id,
                     CreatedBy=current_user.data.Name
                 )
@@ -123,13 +125,15 @@ def create_user(data: CreateUserSchema, db: Session, current_user) -> ResponseSc
                 "Id": user.Id,
                 "Name": f"{user.FirstName} {user.LastName}",
                 "Email": user.Email,
-                "Role": role.Name
+                "Role": [r.Name for r in roles]
             }
         )
     
     except Exception as e:
         db.rollback()
-        return ResponseSchema(status=False, message="Failed to create user")
+        import traceback
+        traceback.print_exc()
+        return ResponseSchema(status=False, message=f"Failed to create user: {str(e)}")
     
 # Register user (public)
 def register_user(data:RegisterUser, db:Session, created_by:str = "self"):
@@ -159,6 +163,26 @@ def register_user(data:RegisterUser, db:Session, created_by:str = "self"):
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Assign default "Job Seeker" role
+    default_role = db.query(Role).filter(Role.Name == "Job Seeker").first()
+    if not default_role:
+        default_role = db.query(Role).filter(Role.Name == "User").first()
+    if not default_role:
+        default_role = Role(
+            Name="Job Seeker",
+            CreatedBy=created_by
+        )
+        db.add(default_role)
+        db.commit()
+        db.refresh(default_role)
+
+    user_role = UserRole(
+        UserId=user.Id,
+        RoleId=default_role.Id
+    )
+    db.add(user_role)
+    db.commit()
 
     return{
         "message": "User registered successfully",
@@ -329,6 +353,11 @@ def list_roles(db: Session):
         )
         .all()
     )
+
+    # Ensure legacy "User" role is presented as "Job Seeker"
+    for role in roles:
+        if role.Name == "User":
+            role.Name = "Job Seeker"
 
     return ResponseSchema(
         status=True,

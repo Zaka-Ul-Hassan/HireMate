@@ -77,8 +77,15 @@ def send_email(db: Session, payload: SendClientEmailSchema) -> ResponseSchema:
         message.attach(MIMEText(payload.Body, "html"))
 
         # ---------- SEND ----------
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
+        if smtp_port == 465:
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            server.ehlo()
+        else:
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+
         server.login(smtp_email, smtp_password)
         server.sendmail(smtp_email, payload.Recipient, message.as_string())
         server.quit()
@@ -396,17 +403,31 @@ def fetch_all_emails():
 
 # Send System Email (Using Predefined SMTP Settings)
 def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
+    smtp_host   = SMTP_SERVER.strip()
+    smtp_user   = SMTP_EMAIL.strip()
+    smtp_pass   = SMTP_PASSWORD.strip()
+    smtp_port   = int(SMTP_PORT) if SMTP_PORT else 587
+
     message = MIMEMultipart()
-    message["From"] = SMTP_EMAIL
-    message["To"] = ", ".join(payload.Recipient)
+    message["From"]    = smtp_user
+    message["To"]      = ", ".join(payload.Recipient)
     message["Subject"] = payload.Subject
     message.attach(MIMEText(payload.Body, "html"))
 
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.sendmail(SMTP_EMAIL, payload.Recipient, message.as_string())
+        if smtp_port == 465:
+            # Use SSL directly
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port)
+            server.ehlo()
+        else:
+            # Use STARTTLS (port 587)
+            server = smtplib.SMTP(smtp_host, smtp_port)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(smtp_user, payload.Recipient, message.as_string())
         server.quit()
 
         return ResponseSchema(
@@ -416,6 +437,9 @@ def send_system_email(payload: SendSystemEmailSchema) -> ResponseSchema:
         )
 
     except Exception as ex:
+        import traceback
+        print(f"[send_system_email ERROR] {type(ex).__name__}: {ex}")
+        traceback.print_exc()
         return ResponseSchema(status=False, message=str(ex), data=None)
         
 # Save Emails
