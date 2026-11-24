@@ -502,6 +502,44 @@ async def resume_manage_page(
     )
 
 
+def html_to_pdf_bytes(html_content: str) -> bytes:
+    """
+    Convert HTML string to PDF bytes.
+    Uses pdfkit with wkhtmltopdf if binary exists, otherwise falls back to
+    PyMuPDF (fitz) which requires no external dependencies.
+    """
+    import shutil
+    wkhtmltopdf_bin = shutil.which("wkhtmltopdf") or r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+    if os.path.exists(wkhtmltopdf_bin):
+        try:
+            config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_bin)
+            options = {
+                'no-images': '',
+                'disable-javascript': '',
+                'disable-smart-shrinking': '',
+                'enable-local-file-access': ''
+            }
+            return pdfkit.from_string(html_content, False, configuration=config, options=options)
+        except Exception:
+            pass
+
+    # Pure Python fallback using PyMuPDF (fitz)
+    import fitz
+    bio = BytesIO()
+    writer = fitz.DocumentWriter(bio)
+    story = fitz.Story(html=html_content)
+    mediabox = fitz.paper_rect("a4")
+    where = mediabox + (36, 36, -36, -36)
+    more = 1
+    while more:
+        device = writer.begin_page(mediabox)
+        more, _ = story.place(where)
+        story.draw(device)
+        writer.end_page()
+    writer.close()
+    return bio.getvalue()
+
+
 @router.get("/resume/download/{user_id}")
 def download_resume_route(
     user_id: int,
@@ -517,7 +555,7 @@ def download_resume_route(
     html_content = f"""
     <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #000;">
-            <h3 style="text-align: center;">{resume.FullName}</h3>
+            <h3 style="text-align: center;">{resume.FullName or ""}</h3>
             <p style="text-align: center;">
                 {resume.Email if resume.Email else ""} 
                 {("|" if resume.Email and resume.PhoneNumber else "")} 
@@ -552,19 +590,10 @@ def download_resume_route(
     </html>
     """
 
-    # Configure pdfkit
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
-    options = {
-        'no-images': '',
-        'disable-javascript': '',
-        'disable-smart-shrinking': '',
-        'enable-local-file-access': ''
-    }
-
     # Generate PDF
-    pdf_bytes = pdfkit.from_string(html_content, False, configuration=config, options=options)
+    pdf_bytes = html_to_pdf_bytes(html_content)
 
-    safe_name = resume.FullName.replace(" ", "_")
+    safe_name = (resume.FullName or "Candidate").replace(" ", "_")
     return StreamingResponse(
         BytesIO(pdf_bytes),
         media_type="application/pdf",
